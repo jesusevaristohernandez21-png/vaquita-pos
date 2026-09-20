@@ -44,6 +44,8 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid v
 header.top{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
 .brand{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
 .brand small{font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+#btn-instalar{display:none;margin-left:auto;padding:8px 14px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:13px;white-space:nowrap}
+#btn-instalar.on{display:inline-block}
 nav.tabs{margin-left:auto;display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:10px}
 nav.tabs button{padding:8px 14px;border-radius:7px;font-weight:600;color:var(--muted)}
 nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
@@ -197,6 +199,7 @@ td.r,th.r{text-align:right}
       <button role="tab" aria-selected="false" data-view="hist" id="tab-hist">Ventas</button>
       <button role="tab" aria-selected="false" data-view="admin" id="tab-admin">Productos</button>
     </nav>
+    <button id="btn-instalar">⬇ Instalar app</button>
     <div class="sync" id="sync"><i></i><span>Conectando…</span></div>
   </header>
 
@@ -710,6 +713,24 @@ document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{
 });
 function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+
+// ---------- instalar como app ----------
+window.__instalable = false;
+let promptInstalar = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  promptInstalar = e;
+  window.__instalable = true;
+  $('#btn-instalar').classList.add('on');
+});
+window.addEventListener('appinstalled', () => { $('#btn-instalar').classList.remove('on'); toast('App instalada'); });
+$('#btn-instalar').onclick = async () => {
+  if (!promptInstalar) return;
+  promptInstalar.prompt();
+  const r = await promptInstalar.userChoice;
+  if (r.outcome === 'accepted') $('#btn-instalar').classList.remove('on');
+  promptInstalar = null;
+};
 
 renderMenu(); renderCart(); renderAdmin();
 subscribeHist();
