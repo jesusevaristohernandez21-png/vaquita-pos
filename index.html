@@ -71,6 +71,11 @@ main{flex:1;min-height:0;overflow:auto}
 .prod .d{display:block;font-size:14px;line-height:1.3;color:var(--muted);margin-top:3px;white-space:normal;overflow-wrap:anywhere}
 .prod .p{font-family:var(--mono);font-weight:800;font-size:21px;color:var(--accent);white-space:nowrap}
 .empty{color:var(--muted);padding:40px;text-align:center}
+.rapidos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.rapidos button{padding:14px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);font-weight:800;font-size:18px;font-family:var(--mono)}
+.rapidos button:active{background:var(--accent-soft)}
+.gramos{margin-top:10px;text-align:center;font-weight:800;font-size:20px;color:var(--accent)}
+.gramos small{display:block;font-weight:500;font-size:13px;color:var(--muted);margin-top:2px}
 
 .cart{background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
 .cart h2{font-family:var(--display);font-size:18px;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
@@ -346,7 +351,11 @@ td.r,th.r{text-align:right}
   <div class="modal" id="m-precio">
     <div class="card">
       <header><span id="mp-title">Precio</span><button id="mp-close" aria-label="Cerrar">×</button></header>
-      <div class="body"><label class="f">Importe <input class="money num" id="mp-val" type="number" inputmode="decimal" placeholder="0"></label></div>
+      <div class="body">
+        <div id="mp-rapidos" class="rapidos" hidden></div>
+        <label class="f">Importe <input class="money num" id="mp-val" type="number" inputmode="decimal" placeholder="0"></label>
+        <div id="mp-gramos" class="gramos" hidden></div>
+      </div>
       <footer><button class="btn" id="mp-cancel">Cancelar</button><button class="btn primary" id="mp-ok">Agregar</button></footer>
     </div>
   </div>
@@ -513,10 +522,36 @@ $('#grid').addEventListener('click', e=>{
   addToCart(p, p.precio);
 });
 let pendingPrice=null;
-function askPrice(p){ pendingPrice=p; $('#mp-title').textContent=pNom(p); $('#mp-val').value=''; $('#m-precio').classList.add('open'); setTimeout(()=>$('#mp-val').focus(),50); }
+// Venta por pesos: el producto se marca poniendo "$" en la descripcion, p.ej. "Barbacoa por pesos|$ por peso"
+function porPesos(p){ return p.precio==null && /por pesos/i.test(String(p.nombre||'')); }
+function precioKilo(){
+  const k = state.products.find(x=>/kilo de barbacoa/i.test(String(x.nombre||'')) && x.precio>0);
+  return k ? k.precio : 450;
+}
+function gramosDe(pesos){ return Math.round(pesos / precioKilo() * 1000); }
+function pintaGramos(){
+  const g=$('#mp-gramos'); if(g.hidden) return;
+  const v=parseFloat($('#mp-val').value);
+  g.innerHTML = v>0 ? `≈ ${gramosDe(v)} g<small>El kilo a ${money(precioKilo())}</small>`
+                    : `<small>El kilo a ${money(precioKilo())}</small>`;
+}
+function askPrice(p){
+  pendingPrice=p; $('#mp-title').textContent=pNom(p); $('#mp-val').value='';
+  const pp = porPesos(p);
+  $('#mp-gramos').hidden = !pp;
+  const r=$('#mp-rapidos'); r.hidden = !pp;
+  if(pp) r.innerHTML = [50,100,150,200,250,300,400,500,1000].map(v=>`<button data-v="${v}">$${v}</button>`).join('');
+  pintaGramos();
+  $('#m-precio').classList.add('open'); setTimeout(()=>$('#mp-val').focus(),50);
+}
 function closePrice(){ $('#m-precio').classList.remove('open'); pendingPrice=null; }
 $('#mp-close').onclick=$('#mp-cancel').onclick=closePrice;
-$('#mp-ok').onclick=()=>{ const v=parseFloat($('#mp-val').value); if(!(v>0)) return; addToCart({...pendingPrice, id:pendingPrice.id+'_'+Math.round(v*100)}, v); closePrice(); };
+$('#mp-val').addEventListener('input', pintaGramos);
+$('#mp-rapidos').addEventListener('click', e=>{ const b=e.target.closest('[data-v]'); if(!b) return;
+  $('#mp-val').value=b.dataset.v; pintaGramos(); $('#mp-ok').click(); });
+$('#mp-ok').onclick=()=>{ const v=parseFloat($('#mp-val').value); if(!(v>0)) return;
+  const nom = porPesos(pendingPrice) ? 'Barbacoa '+gramosDe(v)+' g' : pNom(pendingPrice);
+  addToCart({...pendingPrice, nombre:nom, id:pendingPrice.id+'_'+Math.round(v*100)}, v); closePrice(); };
 $('#mp-val').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#mp-ok').click(); });
 
 // ---------- cart ----------
@@ -578,7 +613,7 @@ $('#btn-comanda').onclick=printComanda;
 
 function addToCart(p, precio){
   const ex = state.cart.find(l=>l.id===p.id && l.precio===precio);
-  if(ex) ex.qty++; else state.cart.push({id:p.id, nombre:pNom(p), precio, qty:1});
+  if(ex) ex.qty++; else state.cart.push({id:p.id, nombre:pNom(p), precio, qty:1});  // pNom deja intacto un nombre sin '|'
   renderCart();
 }
 function cartTotal(){ return state.cart.reduce((s,l)=>s+l.precio*l.qty,0); }
