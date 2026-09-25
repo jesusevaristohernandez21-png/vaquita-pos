@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#2F6B3F">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="La Vaquita">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <title>La Vaquita Feliz POS</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>
@@ -215,6 +215,7 @@ td.r,th.r{text-align:right}
 #ticket .cupon .et{font-size:9px;letter-spacing:.18em;font-weight:700}
 #ticket .cupon .ofr{font-weight:800;font-size:13px;margin:.7mm 0;line-height:1.15}
 #ticket .cupon .let{font-size:9.5px;line-height:1.25}
+#ticket .cupon .pal{font-weight:800;font-size:16px;letter-spacing:.14em;margin:.6mm 0 .8mm;border-top:1px solid #000;border-bottom:1px solid #000;padding:.6mm 0}
 #ticket .pie{text-align:center;font-size:10px;margin-top:2mm}
 #ticket .pie .gr{font-weight:700;font-size:11.5px}
 </style>
@@ -377,9 +378,9 @@ const EXAMPLE = [
   {id:'otro',   nombre:'Otro (precio libre)',precio:null,cat:'Extras'},
 ];
 const DEFAULT_CFG = {nombre:'La Vaquita Feliz', dir:'', tel:'', msg:'¡Gracias por su compra!', ancho:'58mm', auto:'1', ejemplo:true,
-  resena_url:'', resena_titulo:'¿Qué tal estuvo todo?',
-  resena_texto:'Escanea y déjanos tu reseña.\nNos ayuda muchísimo a crecer.',
-  cupon:'', cupon_dias:'30', redes:''};
+  resena_url:'', resena_titulo:'¿Nos regalas 30 segundos?',
+  resena_texto:'Escanea y cuéntanos qué tal la pasaste.\nSomos un negocio familiar y leemos\ntodas las reseñas. ¡Gracias!',
+  cupon:'', cupon_palabra:'', cupon_dias:'30', redes:''};
 
 // ---------- storage: JSONP contra Apps Script + caché local + cola sin conexión ----------
 const URL = 'https://script.google.com/macros/s/AKfycbyb-P296EDJQ__q4gAMH3DVEr8w0LBNuGUnAy56XskD0wlltJGTfjXvZZ1WExJIQSI_XA/exec';
@@ -409,7 +410,7 @@ const state = {
 state.quickCart = state.cart;
 function setSync(on, txt){ state.online=on; const s=$('#sync'); s.classList.toggle('on',on); s.querySelector('span').textContent=txt; }
 function cfgToServer(){ const c=state.cfg; return {nombre:c.nombre, direccion:c.dir, telefono:c.tel, mensaje:c.msg, ancho:c.ancho, auto_imprimir:c.auto,
-  resena_url:c.resena_url, resena_titulo:c.resena_titulo, resena_texto:c.resena_texto, cupon:c.cupon, cupon_dias:c.cupon_dias, redes:c.redes}; }
+  resena_url:c.resena_url, resena_titulo:c.resena_titulo, resena_texto:c.resena_texto, cupon:c.cupon, cupon_palabra:c.cupon_palabra, cupon_dias:c.cupon_dias, redes:c.redes}; }
 function cfgFromServer(c){
   // toleramos espacios/tabuladores sobrantes en las claves de la hoja
   const _n={}; for(const k in c) _n[String(k).trim()] = (typeof c[k]==='string' ? c[k].trim() : c[k]);
@@ -417,7 +418,7 @@ function cfgFromServer(c){
   return {...state.cfg, nombre:c.nombre??state.cfg.nombre, dir:c.direccion??'', tel:c.telefono??'', msg:c.mensaje??'', ancho:c.ancho||'58mm', auto:c.auto_imprimir||'1', ejemplo:false,
   resena_url:c.resena_url??state.cfg.resena_url, resena_titulo:c.resena_titulo||state.cfg.resena_titulo,
   resena_texto:c.resena_texto||state.cfg.resena_texto,
-  cupon:c.cupon??state.cfg.cupon, cupon_dias:c.cupon_dias||state.cfg.cupon_dias, redes:c.redes??state.cfg.redes}; }
+  cupon:c.cupon??state.cfg.cupon, cupon_palabra:c.cupon_palabra??state.cfg.cupon_palabra, cupon_dias:c.cupon_dias||state.cfg.cupon_dias, redes:c.redes??state.cfg.redes}; }
 
 async function saveProducts(){ ls.set('vf_products', state.products);
   try{ const r=await api('productos',{items:state.products}); state.products=r.productos; ls.set('vf_products',state.products); }catch(e){ toast('Sin conexión: precios guardados solo aquí'); } }
@@ -669,20 +670,23 @@ function bloqueResena(c){
   return `
     <div class="rule"></div>
     <div class="invita">
-      <div class="tit">${esc(c.resena_titulo || '¿Qué tal estuvo todo?')}</div>
+      <div class="tit">${esc(c.resena_titulo || '¿Nos regalas 30 segundos?')}</div>
       ${qr ? `<img src="${qr}" alt="">` : ''}
-      <div class="sub">${esc(c.resena_texto || 'Escanea y déjanos tu reseña.\nNos ayuda muchísimo a crecer.').replace(/\n/g,'<br>')}</div>
+      <div class="sub">${esc(c.resena_texto || 'Escanea y cuéntanos qué tal la pasaste.\nSomos un negocio familiar y leemos\ntodas las reseñas. ¡Gracias!').replace(/\n/g,'<br>')}</div>
     </div>`;
 }
 function bloqueCupon(c){
   const ofr = (c.cupon||'').trim();
   if(!ofr) return '';
+  const pal  = (c.cupon_palabra||'').trim().toUpperCase();
   const dias = parseInt(c.cupon_dias||'30', 10) || 30;
   return `
     <div class="cupon">
-      <div class="et">CUP&Oacute;N PARA TU PR&Oacute;XIMA VISITA</div>
+      <div class="et">CORTES&Iacute;A PARA TU PR&Oacute;XIMA VISITA</div>
       <div class="ofr">${esc(ofr)}</div>
-      <div class="let">Presenta este ticket.<br>V&aacute;lido hasta el ${fechaMas(dias)}. Un cup&oacute;n por mesa.</div>
+      ${pal ? `<div class="let">Solo di la palabra:</div>
+      <div class="pal">${esc(pal)}</div>` : `<div class="let">Presenta este ticket.</div>`}
+      <div class="let">V&aacute;lida hasta el ${fechaMas(dias)} &middot; una por mesa</div>
     </div>`;
 }
 function printTicket(sale){
