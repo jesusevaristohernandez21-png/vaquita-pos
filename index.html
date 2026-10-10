@@ -75,22 +75,27 @@ main{flex:1;min-height:0;overflow:auto}
 .jefe{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .jefe h3{margin:0;font-family:var(--display);font-size:22px}
 .jefe .acciones{display:flex;gap:8px;flex-wrap:wrap}
-.aviso{background:#FFF4E2;border:1px solid #E7C89A;border-radius:12px;padding:12px 14px;margin:12px 0}
-.aviso h4{margin:0 0 6px;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:#8A5A12}
+.aviso{background:#FFE8E3;border:2px solid #C0392B;border-left-width:8px;border-radius:12px;padding:12px 14px;margin:12px 0;color:#5C1710}
+.aviso h4{margin:0 0 8px;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:#A3281B;font-weight:800}
 .aviso ul{margin:0;padding-left:18px}
-.aviso li{margin:2px 0;font-weight:600}
+.aviso li{margin:3px 0;font-weight:700;font-size:15.5px}
+.aviso.bien{background:#E3F2E7;border-color:#2F6B3F;color:#1E4A2A}
+.aviso.bien h4{color:#2F6B3F}
 .grupo{margin-top:18px}
 .grupo > h4{margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.art{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:8px}
-.art.bajo{border-color:#E0A24A;background:#FFF9F0}
+.art{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-left:8px solid #2F6B3F;border-radius:12px;background:var(--surface);margin-bottom:8px}
+.art.bajo{border-color:#C0392B;border-left-color:#C0392B;background:#FFE8E3}
+.art.bajo .nom b{color:#8E2318}
+.art.bajo .cnt input{color:#B3261E;border-color:#C0392B;background:#fff}
 .art .nom{flex:1;min-width:0}
-.art .nom b{display:block;font-size:16px;font-weight:700;line-height:1.2}
+.art .nom b{display:block;font-size:16.5px;font-weight:800;line-height:1.25}
+.tagfalta{display:inline-block;vertical-align:1px;margin-left:6px;background:#C0392B;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:5px}
 .art .nom span{font-size:12.5px;color:var(--muted)}
 .art .nom .minedit{display:flex;align-items:center;gap:5px;margin-top:3px}
 .art .nom .minedit input{width:56px;padding:4px 6px;font-family:var(--mono);font-weight:700;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--ink)}
 .art .cnt{display:flex;align-items:center;gap:6px}
 .art .cnt button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);font-size:20px;font-weight:700}
-.art .cnt input{width:64px;text-align:center;font-family:var(--mono);font-weight:700;font-size:17px;padding:8px 4px}
+.art .cnt input{width:68px;text-align:center;font-family:var(--mono);font-weight:800;font-size:20px;padding:9px 4px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink)}
 .art .mini{width:56px;text-align:center;font-family:var(--mono);padding:8px 4px;font-size:14px}
 .rec{border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:10px;overflow:hidden}
 .rec > summary{padding:14px 16px;font-weight:800;font-size:18px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -981,7 +986,7 @@ function nEnt(x){ const n=Number(x); return Number.isInteger(n) ? n : Math.round
 function filaArt(a, i){
   const bajo = Number(a.hay) < Number(a.min);
   return `<div class="art${bajo?' bajo':''}" data-i="${i}">
-    <div class="nom"><b>${esc(a.nombre)}</b>
+    <div class="nom"><b>${esc(a.nombre)}${bajo?' <span class="tagfalta">FALTA</span>':''}</b>
       ${esDueno()
         ? `<span class="minedit">deber&iacute;a haber <input type="number" inputmode="decimal" data-k="min" value="${nEnt(a.min)}" aria-label="M&iacute;nimo de ${esc(a.nombre)}"> ${esc(a.unidad)}</span>`
         : `<span>deber&iacute;a haber ${nEnt(a.min)} ${esc(a.unidad)}</span>`}
