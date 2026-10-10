@@ -110,6 +110,13 @@ main{flex:1;min-height:0;overflow:auto}
 .art.edit .ancho{grid-column:1/-1}
 .art.edit .pie{display:flex;justify-content:flex-end;margin-top:10px}
 .art.edit .pie button{color:var(--ember);font-weight:700;font-size:14px;padding:6px 2px}
+.art.edit .campos select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink);font-size:15.5px}
+.gfila{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.gfila input{flex:1;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink);font-size:15.5px}
+.gfila .cuenta{font-size:12px;color:var(--muted);white-space:nowrap}
+.gfila button{color:var(--ember);font-size:20px;width:36px;height:36px;flex:0 0 auto}
+.mg-nuevo{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.mg-nuevo input{flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink);font-size:15.5px}
 .rec{border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:10px;overflow:hidden}
 .rec > summary{padding:14px 16px;font-weight:800;font-size:18px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .rec > summary::-webkit-details-marker{display:none}
@@ -389,6 +396,7 @@ td.r,th.r{text-align:right}
           <div class="acciones">
             <button class="btn" id="inv-lista">📋 Lista de compras</button>
             <button class="btn" id="inv-editar" hidden>✏️ Editar lista</button>
+            <button class="btn" id="inv-grupos" hidden>🗂️ Grupos</button>
             <button class="btn primary" id="inv-add" hidden>+ Artículo</button>
           </div>
         </div>
@@ -409,6 +417,18 @@ td.r,th.r{text-align:right}
       </div>
     </section>
   </main>
+
+  <!-- GRUPOS MODAL -->
+  <div class="modal" id="m-grupos"><div class="card"><header>Grupos del inventario<button id="mg-close" aria-label="Cerrar">&times;</button></header>
+    <div class="body">
+      <p class="hint">Los grupos sirven para ordenar la lista de compras. Cambia un nombre y se actualiza en todos sus art&iacute;culos.</p>
+      <div id="mg-lista"></div>
+      <div class="mg-nuevo">
+        <input id="mg-val" placeholder="Nombre del grupo nuevo">
+        <button class="btn primary" id="mg-add">Agregar</button>
+      </div>
+    </div>
+    <footer><button class="btn primary" id="mg-ok">Listo</button></footer></div></div>
 
   <!-- COMPRAS MODAL -->
   <div class="modal" id="m-compras"><div class="card"><header>Lista de compras<button id="mc-close" aria-label="Cerrar">&times;</button></header>
@@ -493,7 +513,8 @@ const EXAMPLE = [
 const DEFAULT_CFG = {nombre:'La Vaquita Feliz', dir:'', tel:'', msg:'¡Gracias por su compra!', ancho:'58mm', auto:'1', ejemplo:true,
   resena_url:'', resena_titulo:'¿Nos regalas 30 segundos?',
   resena_texto:'Escanea y cuéntanos qué tal la pasaste.\nSomos un negocio familiar y leemos\ntodas las reseñas. ¡Gracias!',
-  cupon:'', cupon_palabra:'', cupon_dias:'30', redes:''};
+  cupon:'', cupon_palabra:'', cupon_dias:'30', redes:'',
+  grupos:'Carne, Tortillería, Consomé, Verdura, Salsa, Abarrotes, Bebidas, Desechables, Cocina'};
 
 // ---------- storage: JSONP contra Apps Script + caché local + cola sin conexión ----------
 const URL = 'https://script.google.com/macros/s/AKfycbyb-P296EDJQ__q4gAMH3DVEr8w0LBNuGUnAy56XskD0wlltJGTfjXvZZ1WExJIQSI_XA/exec';
@@ -524,7 +545,7 @@ const state = {
 state.quickCart = state.cart;
 function setSync(on, txt){ state.online=on; const s=$('#sync'); s.classList.toggle('on',on); s.querySelector('span').textContent=txt; }
 function cfgToServer(){ const c=state.cfg; return {nombre:c.nombre, direccion:c.dir, telefono:c.tel, mensaje:c.msg, ancho:c.ancho, auto_imprimir:c.auto,
-  resena_url:c.resena_url, resena_titulo:c.resena_titulo, resena_texto:c.resena_texto, cupon:c.cupon, cupon_palabra:c.cupon_palabra, cupon_dias:c.cupon_dias, redes:c.redes}; }
+  resena_url:c.resena_url, resena_titulo:c.resena_titulo, resena_texto:c.resena_texto, cupon:c.cupon, cupon_palabra:c.cupon_palabra, cupon_dias:c.cupon_dias, redes:c.redes, grupos_inv:c.grupos}; }
 function cfgFromServer(c){
   // toleramos espacios/tabuladores sobrantes en las claves de la hoja
   const _n={}; for(const k in c) _n[String(k).trim()] = (typeof c[k]==='string' ? c[k].trim() : c[k]);
@@ -532,7 +553,8 @@ function cfgFromServer(c){
   return {...state.cfg, nombre:c.nombre??state.cfg.nombre, dir:c.direccion??'', tel:c.telefono??'', msg:c.mensaje??'', ancho:c.ancho||'58mm', auto:c.auto_imprimir||'1', ejemplo:false,
   resena_url:c.resena_url??state.cfg.resena_url, resena_titulo:c.resena_titulo||state.cfg.resena_titulo,
   resena_texto:c.resena_texto||state.cfg.resena_texto,
-  cupon:c.cupon??state.cfg.cupon, cupon_palabra:c.cupon_palabra??state.cfg.cupon_palabra, cupon_dias:c.cupon_dias||state.cfg.cupon_dias, redes:c.redes??state.cfg.redes}; }
+  cupon:c.cupon??state.cfg.cupon, cupon_palabra:c.cupon_palabra??state.cfg.cupon_palabra, cupon_dias:c.cupon_dias||state.cfg.cupon_dias, redes:c.redes??state.cfg.redes,
+  grupos:c.grupos_inv||state.cfg.grupos}; }
 
 async function saveProducts(){ ls.set('vf_products', state.products);
   try{ const r=await api('productos',{items:state.products}); state.products=r.productos; ls.set('vf_products',state.products); }catch(e){ toast('Sin conexión: precios guardados solo aquí'); } }
@@ -998,13 +1020,25 @@ async function saveInv(){ ls.set('vf_inv', state.inv);
 function guardaInvPronto(){ clearTimeout(invT); invT=setTimeout(()=>{ saveInv(); renderInv(); }, 800); }
 function faltantes(){ return state.inv.filter(a=>Number(a.hay) < Number(a.min)); }
 let invEdit = false;
+function gruposInv(){
+  const dela = String(state.cfg.grupos||'').split(',').map(g=>g.trim()).filter(Boolean);
+  const enUso = state.inv.map(a=>(a.cat||'General').trim()).filter(Boolean);
+  return [...new Set([...dela, ...enUso])];
+}
+function usoGrupo(g){ return state.inv.filter(a=>(a.cat||'General')===g).length; }
+function guardaGrupos(lista){
+  state.cfg.grupos = [...new Set(lista.map(g=>g.trim()).filter(Boolean))].join(', ');
+  ls.set('vf_cfg', state.cfg); saveCfg();
+}
 function nEnt(x){ const n=Number(x); return Number.isInteger(n) ? n : Math.round(n*100)/100; }
 
 function filaArtEdit(a, i){
   return `<div class="art edit" data-i="${i}">
     <div class="campos">
       <div class="ancho"><label>Art&iacute;culo</label><input data-t="nombre" value="${esc(a.nombre)}" placeholder="Carb&oacute;n"></div>
-      <div><label>Grupo</label><input data-t="cat" value="${esc(a.cat)}" placeholder="Desechables"></div>
+      <div><label>Grupo</label><select data-t="cat">${
+        gruposInv().map(g=>`<option value="${esc(g)}"${g===(a.cat||'General')?' selected':''}>${esc(g)}</option>`).join('')
+      }</select></div>
       <div><label>Se cuenta en</label><input data-t="unidad" value="${esc(a.unidad)}" placeholder="kg, pieza"></div>
     </div>
     <div class="pie"><button data-borrar>Borrar art&iacute;culo</button></div>
@@ -1045,6 +1079,11 @@ function renderInv(){
       state.inv.map((a,i)=>({a,i})).filter(o=>(o.a.cat||'General')===c).map(o=>filaArt(o.a,o.i)).join('') + `</div>`).join('')
     : `<div class="empty">Sin artículos todavía.</div>`;
 }
+$('#inv-lista-todo').addEventListener('change', e=>{
+  const sel=e.target.closest('select[data-t]'); if(!sel) return;
+  state.inv[+sel.closest('.art').dataset.i][sel.dataset.t]=sel.value;
+  clearTimeout(invT); invT=setTimeout(saveInv, 600);
+});
 $('#inv-lista-todo').addEventListener('input', e=>{
   const txt=e.target.closest('input[data-t]');
   if(txt){ const j=+txt.closest('.art').dataset.i;
@@ -1072,16 +1111,58 @@ $('#inv-lista-todo').addEventListener('click', e=>{
   fila.classList.toggle('bajo', Number(a.hay) < Number(a.min));
   guardaInvPronto();
 });
+function renderGrupos(){
+  const gs = gruposInv();
+  $('#mg-lista').innerHTML = gs.length ? gs.map((g,i)=>`
+    <div class="gfila" data-g="${esc(g)}">
+      <input data-gi="${i}" value="${esc(g)}" aria-label="Nombre del grupo">
+      <span class="cuenta">${usoGrupo(g)} art.</span>
+      <button data-gdel aria-label="Borrar grupo">&times;</button>
+    </div>`).join('') : `<div class="hint">Todavía no hay grupos.</div>`;
+}
+function abrirGrupos(){ renderGrupos(); $('#m-grupos').classList.add('open'); }
+function cerrarGrupos(){ $('#m-grupos').classList.remove('open'); renderInv(); }
+$('#inv-grupos').onclick = abrirGrupos;
+$('#mg-close').onclick = $('#mg-ok').onclick = cerrarGrupos;
+$('#mg-lista').addEventListener('change', e=>{
+  const inp = e.target.closest('input[data-gi]'); if(!inp) return;
+  const viejo = inp.closest('.gfila').dataset.g;
+  const nuevo = inp.value.trim();
+  if(!nuevo || nuevo===viejo){ inp.value = viejo; return; }
+  state.inv.forEach(a=>{ if((a.cat||'General')===viejo) a.cat = nuevo; });
+  guardaGrupos(gruposInv().map(g=>g===viejo?nuevo:g));
+  saveInv(); renderGrupos(); toast('Grupo renombrado');
+});
+$('#mg-lista').addEventListener('click', e=>{
+  const b = e.target.closest('[data-gdel]'); if(!b) return;
+  const g = b.closest('.gfila').dataset.g;
+  const n = usoGrupo(g);
+  if(n && !confirm('"'+g+'" tiene '+n+' artículo(s). Se van a mover a General. ¿Continuar?')) return;
+  if(!n && !confirm('¿Borrar el grupo "'+g+'"?')) return;
+  state.inv.forEach(a=>{ if((a.cat||'General')===g) a.cat='General'; });
+  guardaGrupos(gruposInv().filter(x=>x!==g));
+  if(n) saveInv();
+  renderGrupos();
+});
+$('#mg-add').onclick = ()=>{
+  const v = $('#mg-val').value.trim(); if(!v) return;
+  if(gruposInv().some(g=>g.toLowerCase()===v.toLowerCase())){ toast('Ese grupo ya existe'); return; }
+  guardaGrupos([...gruposInv(), v]);
+  $('#mg-val').value=''; renderGrupos(); toast('Grupo agregado');
+};
+$('#mg-val').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#mg-add').click(); });
+
 function pintaBotonesInv(){
   $('#inv-editar').textContent = invEdit ? '✓ Listo' : '✏️ Editar lista';
   $('#inv-editar').classList.toggle('primary', invEdit);
   $('#inv-add').hidden = !(invEdit && esDueno());
+  $('#inv-grupos').hidden = !(invEdit && esDueno());
   $('#inv-lista').hidden = invEdit;
 }
 $('#inv-editar').onclick=()=>{ invEdit = !invEdit; pintaBotonesInv(); renderInv();
   if(invEdit) toast('Cambia nombres, grupos y unidades. También puedes borrar.'); };
 $('#inv-add').onclick=()=>{
-  state.inv.push({id:'i'+Date.now().toString(36), nombre:'', unidad:'pieza', hay:0, min:0, cat:'General'});
+  state.inv.push({id:'i'+Date.now().toString(36), nombre:'', unidad:'pieza', hay:0, min:0, cat:(gruposInv()[0]||'General')});
   renderInv();
   const ins=$('#inv-lista-todo').querySelectorAll('input[data-t="nombre"]');
   if(ins.length){ ins[ins.length-1].scrollIntoView({block:'center'}); ins[ins.length-1].focus(); }
