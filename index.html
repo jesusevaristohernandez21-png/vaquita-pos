@@ -18,8 +18,9 @@
   --bg:#F3F2EC; --surface:#FFFFFF; --surface2:#E9E7DE; --ink:#1B1A16; --muted:#6B685C; --line:#D9D6CB;
   --accent:#2F6B3F; --accent-ink:#FFFFFF; --accent-soft:#DDEBE0; --ember:#B5451B; --ember-soft:#F6E1D8;
   --ok:#2F6B3F; --shadow:0 8px 24px rgba(27,26,22,.10);
-  --falta:#C0392B; --falta-bg:#FFE8E3; --falta-ink:#8E2318; --falta-num:#B3261E; --falta-et:#A3281B;
-  --bien:#2F6B3F; --bien-bg:#E3F2E7; --bien-ink:#1E4A2A; --campo:#FFFFFF; --sobre-falta:#FFFFFF;
+  --falta:#E0A24A; --falta-bg:#FFF9F0; --falta-ink:#1B1A16; --falta-num:#1B1A16; --falta-et:#8A5A12;
+  --aviso-bg:#FFF4E2; --aviso-line:#E7C89A;
+  --bien:#2F6B3F; --bien-bg:#EAF5EC; --bien-ink:#1E4A2A; --campo:#FFFFFF; --sobre-falta:#FFFFFF;
   --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -27,15 +28,17 @@
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#141613; --surface:#1E211D; --surface2:#2A2E28; --ink:#EFEDE4; --muted:#A5A297; --line:#3A3E37;
   --accent:#5EA872; --accent-ink:#0F1A12; --accent-soft:#233A2A; --ember:#E5734A; --ember-soft:#3E2419; --ok:#5EA872;
-  --falta:#E86B55; --falta-bg:#3B1E18; --falta-ink:#FFC3B6; --falta-num:#FF9683; --falta-et:#FFB4A4;
-  --bien:#5EA872; --bien-bg:#1D3324; --bien-ink:#BFE2C9; --campo:#15180F; --sobre-falta:#2A120D;
+  --falta:#8E6B33; --falta-bg:#282319; --falta-ink:#EFEDE4; --falta-num:#EFEDE4; --falta-et:#D9B271;
+  --aviso-bg:#282319; --aviso-line:#6E5A33;
+  --bien:#5EA872; --bien-bg:#1D3324; --bien-ink:#BFE2C9; --campo:#1E211D; --sobre-falta:#282319;
   --shadow:0 8px 24px rgba(0,0,0,.4);
 }}
 :root[data-theme="dark"]{
   --bg:#141613; --surface:#1E211D; --surface2:#2A2E28; --ink:#EFEDE4; --muted:#A5A297; --line:#3A3E37;
   --accent:#5EA872; --accent-ink:#0F1A12; --accent-soft:#233A2A; --ember:#E5734A; --ember-soft:#3E2419; --ok:#5EA872;
-  --falta:#E86B55; --falta-bg:#3B1E18; --falta-ink:#FFC3B6; --falta-num:#FF9683; --falta-et:#FFB4A4;
-  --bien:#5EA872; --bien-bg:#1D3324; --bien-ink:#BFE2C9; --campo:#15180F; --sobre-falta:#2A120D;
+  --falta:#8E6B33; --falta-bg:#282319; --falta-ink:#EFEDE4; --falta-num:#EFEDE4; --falta-et:#D9B271;
+  --aviso-bg:#282319; --aviso-line:#6E5A33;
+  --bien:#5EA872; --bien-bg:#1D3324; --bien-ink:#BFE2C9; --campo:#1E211D; --sobre-falta:#282319;
   --shadow:0 8px 24px rgba(0,0,0,.4);
 }
 html,body{height:100%}
@@ -81,29 +84,28 @@ main{flex:1;min-height:0;overflow:auto}
 .jefe{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .jefe h3{margin:0;font-family:var(--display);font-size:22px}
 .jefe .acciones{display:flex;gap:8px;flex-wrap:wrap}
-.aviso{background:var(--falta-bg);border:2px solid var(--falta);border-left-width:8px;border-radius:12px;padding:12px 14px;margin:12px 0;color:var(--falta-ink)}
-.aviso h4{margin:0 0 8px;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--falta-et);font-weight:800}
+.aviso{background:var(--aviso-bg);border:1px solid var(--aviso-line);border-radius:12px;padding:12px 14px;margin:12px 0;color:var(--ink)}
+.aviso h4{margin:0 0 6px;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--falta-et);font-weight:700}
 .aviso ul{margin:0;padding-left:18px}
-.aviso li{margin:3px 0;font-weight:700;font-size:15.5px}
-.aviso.bien{background:var(--bien-bg);border-color:var(--bien);color:var(--bien-ink)}
+.aviso li{margin:2px 0;font-weight:600;font-size:15px}
+.aviso.bien{background:var(--bien-bg);border-color:var(--bien);color:var(--ink)}
 .aviso.bien h4{color:var(--bien)}
 .grupo{margin-top:18px}
 .grupo > h4{margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.art{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-left:8px solid var(--bien);border-radius:12px;background:var(--surface);margin-bottom:8px}
-.art.bajo{border-color:var(--falta);border-left-color:var(--falta);background:var(--falta-bg)}
-.art.bajo .nom b{color:var(--falta-ink)}
-.art.bajo .cnt input{color:var(--falta-num);border-color:var(--falta);background:var(--sobre-falta)}
+.art{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:8px}
+.art.bajo{border-color:var(--falta);background:var(--falta-bg)}
+.art.bajo .cnt input{border-color:var(--falta);background:var(--sobre-falta)}
 .art .nom{flex:1;min-width:0}
-.art .nom b{display:block;font-size:16.5px;font-weight:800;line-height:1.25}
-.tagfalta{display:inline-block;vertical-align:1px;margin-left:6px;background:var(--falta);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:5px}
+.art .nom b{display:block;font-size:16px;font-weight:700;line-height:1.2}
+.tagfalta{display:inline-block;vertical-align:1px;margin-left:6px;background:var(--falta);color:var(--falta-ink);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 6px;border-radius:5px}
 .art .nom span{font-size:12.5px;color:var(--muted)}
 .art .nom .minedit{display:flex;align-items:center;gap:5px;margin-top:3px}
 .art .nom .minedit input{width:56px;padding:4px 6px;font-family:var(--mono);font-weight:700;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--ink)}
 .art .cnt{display:flex;align-items:center;gap:6px}
 .art .cnt button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);font-size:20px;font-weight:700}
-.art .cnt input{width:68px;text-align:center;font-family:var(--mono);font-weight:800;font-size:20px;padding:9px 4px;border:1.5px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink)}
+.art .cnt input{width:66px;text-align:center;font-family:var(--mono);font-weight:700;font-size:18px;padding:8px 4px;border:1px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink)}
 .art .mini{width:56px;text-align:center;font-family:var(--mono);padding:8px 4px;font-size:14px}
-.art.edit{display:block;border-left-color:var(--muted)}
+.art.edit{display:block}
 .art.edit .campos{display:grid;grid-template-columns:1fr 92px;gap:8px}
 .art.edit .campos label{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .art.edit .campos input{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink);font-size:15.5px}
