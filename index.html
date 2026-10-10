@@ -18,6 +18,8 @@
   --bg:#F3F2EC; --surface:#FFFFFF; --surface2:#E9E7DE; --ink:#1B1A16; --muted:#6B685C; --line:#D9D6CB;
   --accent:#2F6B3F; --accent-ink:#FFFFFF; --accent-soft:#DDEBE0; --ember:#B5451B; --ember-soft:#F6E1D8;
   --ok:#2F6B3F; --shadow:0 8px 24px rgba(27,26,22,.10);
+  --falta:#C0392B; --falta-bg:#FFE8E3; --falta-ink:#8E2318; --falta-num:#B3261E; --falta-et:#A3281B;
+  --bien:#2F6B3F; --bien-bg:#E3F2E7; --bien-ink:#1E4A2A; --campo:#FFFFFF; --sobre-falta:#FFFFFF;
   --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -25,11 +27,15 @@
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#141613; --surface:#1E211D; --surface2:#2A2E28; --ink:#EFEDE4; --muted:#A5A297; --line:#3A3E37;
   --accent:#5EA872; --accent-ink:#0F1A12; --accent-soft:#233A2A; --ember:#E5734A; --ember-soft:#3E2419; --ok:#5EA872;
+  --falta:#E86B55; --falta-bg:#3B1E18; --falta-ink:#FFC3B6; --falta-num:#FF9683; --falta-et:#FFB4A4;
+  --bien:#5EA872; --bien-bg:#1D3324; --bien-ink:#BFE2C9; --campo:#15180F; --sobre-falta:#2A120D;
   --shadow:0 8px 24px rgba(0,0,0,.4);
 }}
 :root[data-theme="dark"]{
   --bg:#141613; --surface:#1E211D; --surface2:#2A2E28; --ink:#EFEDE4; --muted:#A5A297; --line:#3A3E37;
   --accent:#5EA872; --accent-ink:#0F1A12; --accent-soft:#233A2A; --ember:#E5734A; --ember-soft:#3E2419; --ok:#5EA872;
+  --falta:#E86B55; --falta-bg:#3B1E18; --falta-ink:#FFC3B6; --falta-num:#FF9683; --falta-et:#FFB4A4;
+  --bien:#5EA872; --bien-bg:#1D3324; --bien-ink:#BFE2C9; --campo:#15180F; --sobre-falta:#2A120D;
   --shadow:0 8px 24px rgba(0,0,0,.4);
 }
 html,body{height:100%}
@@ -75,28 +81,35 @@ main{flex:1;min-height:0;overflow:auto}
 .jefe{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .jefe h3{margin:0;font-family:var(--display);font-size:22px}
 .jefe .acciones{display:flex;gap:8px;flex-wrap:wrap}
-.aviso{background:#FFE8E3;border:2px solid #C0392B;border-left-width:8px;border-radius:12px;padding:12px 14px;margin:12px 0;color:#5C1710}
-.aviso h4{margin:0 0 8px;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:#A3281B;font-weight:800}
+.aviso{background:var(--falta-bg);border:2px solid var(--falta);border-left-width:8px;border-radius:12px;padding:12px 14px;margin:12px 0;color:var(--falta-ink)}
+.aviso h4{margin:0 0 8px;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--falta-et);font-weight:800}
 .aviso ul{margin:0;padding-left:18px}
 .aviso li{margin:3px 0;font-weight:700;font-size:15.5px}
-.aviso.bien{background:#E3F2E7;border-color:#2F6B3F;color:#1E4A2A}
-.aviso.bien h4{color:#2F6B3F}
+.aviso.bien{background:var(--bien-bg);border-color:var(--bien);color:var(--bien-ink)}
+.aviso.bien h4{color:var(--bien)}
 .grupo{margin-top:18px}
 .grupo > h4{margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.art{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-left:8px solid #2F6B3F;border-radius:12px;background:var(--surface);margin-bottom:8px}
-.art.bajo{border-color:#C0392B;border-left-color:#C0392B;background:#FFE8E3}
-.art.bajo .nom b{color:#8E2318}
-.art.bajo .cnt input{color:#B3261E;border-color:#C0392B;background:#fff}
+.art{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-left:8px solid var(--bien);border-radius:12px;background:var(--surface);margin-bottom:8px}
+.art.bajo{border-color:var(--falta);border-left-color:var(--falta);background:var(--falta-bg)}
+.art.bajo .nom b{color:var(--falta-ink)}
+.art.bajo .cnt input{color:var(--falta-num);border-color:var(--falta);background:var(--sobre-falta)}
 .art .nom{flex:1;min-width:0}
 .art .nom b{display:block;font-size:16.5px;font-weight:800;line-height:1.25}
-.tagfalta{display:inline-block;vertical-align:1px;margin-left:6px;background:#C0392B;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:5px}
+.tagfalta{display:inline-block;vertical-align:1px;margin-left:6px;background:var(--falta);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:5px}
 .art .nom span{font-size:12.5px;color:var(--muted)}
 .art .nom .minedit{display:flex;align-items:center;gap:5px;margin-top:3px}
 .art .nom .minedit input{width:56px;padding:4px 6px;font-family:var(--mono);font-weight:700;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--ink)}
 .art .cnt{display:flex;align-items:center;gap:6px}
 .art .cnt button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);font-size:20px;font-weight:700}
-.art .cnt input{width:68px;text-align:center;font-family:var(--mono);font-weight:800;font-size:20px;padding:9px 4px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink)}
+.art .cnt input{width:68px;text-align:center;font-family:var(--mono);font-weight:800;font-size:20px;padding:9px 4px;border:1.5px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink)}
 .art .mini{width:56px;text-align:center;font-family:var(--mono);padding:8px 4px;font-size:14px}
+.art.edit{display:block;border-left-color:var(--muted)}
+.art.edit .campos{display:grid;grid-template-columns:1fr 92px;gap:8px}
+.art.edit .campos label{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.art.edit .campos input{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink);font-size:15.5px}
+.art.edit .ancho{grid-column:1/-1}
+.art.edit .pie{display:flex;justify-content:flex-end;margin-top:10px}
+.art.edit .pie button{color:var(--ember);font-weight:700;font-size:14px;padding:6px 2px}
 .rec{border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:10px;overflow:hidden}
 .rec > summary{padding:14px 16px;font-weight:800;font-size:18px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .rec > summary::-webkit-details-marker{display:none}
@@ -375,7 +388,8 @@ td.r,th.r{text-align:right}
           <h3>Inventario</h3>
           <div class="acciones">
             <button class="btn" id="inv-lista">📋 Lista de compras</button>
-            <button class="btn" id="inv-add">+ Artículo</button>
+            <button class="btn" id="inv-editar" hidden>✏️ Editar lista</button>
+            <button class="btn primary" id="inv-add" hidden>+ Artículo</button>
           </div>
         </div>
         <p class="hint">El n&uacute;mero grande de la derecha es <b>lo que hay ahorita</b>. El chiquito es <b>lo que deber&iacute;a haber</b> &mdash; t&oacute;calo para cambiarlo. Lo que quede por debajo sale arriba como falta de comprar.</p>
@@ -588,7 +602,9 @@ function aplicarRol(){
     b.hidden = enc && VISTAS_ENCARGADO.indexOf(b.dataset.view) < 0;
   });
   $('#rec-add').hidden = enc;
-  $('#inv-add').hidden = enc;
+  $('#inv-editar').hidden = enc;
+  if(enc){ invEdit = false; }
+  pintaBotonesInv();
   const actual = document.querySelector('nav.tabs button[aria-selected="true"]');
   if(enc && (!actual || actual.hidden)) irA('rec');
 }
@@ -981,9 +997,21 @@ async function saveInv(){ ls.set('vf_inv', state.inv);
   catch(e){ toast('Sin conexión: guardado solo aquí'); } }
 function guardaInvPronto(){ clearTimeout(invT); invT=setTimeout(()=>{ saveInv(); renderInv(); }, 800); }
 function faltantes(){ return state.inv.filter(a=>Number(a.hay) < Number(a.min)); }
+let invEdit = false;
 function nEnt(x){ const n=Number(x); return Number.isInteger(n) ? n : Math.round(n*100)/100; }
 
+function filaArtEdit(a, i){
+  return `<div class="art edit" data-i="${i}">
+    <div class="campos">
+      <div class="ancho"><label>Art&iacute;culo</label><input data-t="nombre" value="${esc(a.nombre)}" placeholder="Carb&oacute;n"></div>
+      <div><label>Grupo</label><input data-t="cat" value="${esc(a.cat)}" placeholder="Desechables"></div>
+      <div><label>Se cuenta en</label><input data-t="unidad" value="${esc(a.unidad)}" placeholder="kg, pieza"></div>
+    </div>
+    <div class="pie"><button data-borrar>Borrar art&iacute;culo</button></div>
+  </div>`;
+}
 function filaArt(a, i){
+  if(invEdit) return filaArtEdit(a, i);
   const bajo = Number(a.hay) < Number(a.min);
   return `<div class="art${bajo?' bajo':''}" data-i="${i}">
     <div class="nom"><b>${esc(a.nombre)}${bajo?' <span class="tagfalta">FALTA</span>':''}</b>
@@ -1001,16 +1029,27 @@ function filaArt(a, i){
 function renderInv(){
   if(!$('#inv-lista-todo')) return;
   const f = faltantes();
+  $('#inv-faltan').hidden = invEdit;
   $('#inv-faltan').innerHTML = f.length ? `<div class="aviso">
       <h4>Falta comprar (${f.length})</h4>
       <ul>${f.map(a=>`<li>${esc(a.nombre)} &mdash; comprar ${nEnt(Math.max(a.min-a.hay,0))} ${esc(a.unidad)}</li>`).join('')}</ul>
     </div>` : `<div class="aviso" style="background:#EAF5EC;border-color:#A9CDB2"><h4 style="color:#2F6B3F">Todo completo</h4><div>No falta nada por comprar.</div></div>`;
+  if(invEdit){
+    $('#inv-lista-todo').innerHTML = state.inv.length
+      ? state.inv.map((a,i)=>filaArt(a,i)).join('')
+      : `<div class="empty">Sin artículos todavía. Toca "+ Artículo".</div>`;
+    return;
+  }
   const cats = [...new Set(state.inv.map(a=>a.cat||'General'))];
   $('#inv-lista-todo').innerHTML = state.inv.length ? cats.map(c=>`<div class="grupo"><h4>${esc(c)}</h4>` +
       state.inv.map((a,i)=>({a,i})).filter(o=>(o.a.cat||'General')===c).map(o=>filaArt(o.a,o.i)).join('') + `</div>`).join('')
     : `<div class="empty">Sin artículos todavía.</div>`;
 }
 $('#inv-lista-todo').addEventListener('input', e=>{
+  const txt=e.target.closest('input[data-t]');
+  if(txt){ const j=+txt.closest('.art').dataset.i;
+    state.inv[j][txt.dataset.t]=txt.value;
+    clearTimeout(invT); invT=setTimeout(saveInv, 900); return; }
   const inp=e.target.closest('input[data-k]'); if(!inp) return;
   const fila=inp.closest('.art'); const i=+fila.dataset.i;
   state.inv[i][inp.dataset.k] = parseFloat(inp.value)||0;
@@ -1019,6 +1058,10 @@ $('#inv-lista-todo').addEventListener('input', e=>{
   invT=setTimeout(()=>{ saveInv(); if(inp.dataset.k==='min') renderInv(); }, 900);
 });
 $('#inv-lista-todo').addEventListener('click', e=>{
+  const bor=e.target.closest('[data-borrar]');
+  if(bor){ const j=+bor.closest('.art').dataset.i;
+    if(!confirm('¿Borrar "'+(state.inv[j].nombre||'este artículo')+'" del inventario?')) return;
+    state.inv.splice(j,1); saveInv(); renderInv(); return; }
   if(e.target.closest('input')) return;
   const fila=e.target.closest('.art'); if(!fila) return;
   const i=+fila.dataset.i; const a=state.inv[i];
@@ -1029,13 +1072,19 @@ $('#inv-lista-todo').addEventListener('click', e=>{
   fila.classList.toggle('bajo', Number(a.hay) < Number(a.min));
   guardaInvPronto();
 });
+function pintaBotonesInv(){
+  $('#inv-editar').textContent = invEdit ? '✓ Listo' : '✏️ Editar lista';
+  $('#inv-editar').classList.toggle('primary', invEdit);
+  $('#inv-add').hidden = !(invEdit && esDueno());
+  $('#inv-lista').hidden = invEdit;
+}
+$('#inv-editar').onclick=()=>{ invEdit = !invEdit; pintaBotonesInv(); renderInv();
+  if(invEdit) toast('Cambia nombres, grupos y unidades. También puedes borrar.'); };
 $('#inv-add').onclick=()=>{
-  const nombre=prompt('¿Qué artículo? (ejemplo: Carbón)'); if(!nombre) return;
-  const unidad=prompt('¿En qué se cuenta? (kg, pieza, bulto, paquete…)','pieza')||'pieza';
-  const min=parseFloat(prompt('¿Cuál es el mínimo que siempre debe haber?','0'))||0;
-  const cat=prompt('¿En qué grupo lo pongo? (Carne, Verdura, Desechables…)','General')||'General';
-  state.inv.push({id:'i'+Date.now().toString(36), nombre, unidad, hay:0, min, cat});
-  saveInv(); renderInv();
+  state.inv.push({id:'i'+Date.now().toString(36), nombre:'', unidad:'pieza', hay:0, min:0, cat:'General'});
+  renderInv();
+  const ins=$('#inv-lista-todo').querySelectorAll('input[data-t="nombre"]');
+  if(ins.length){ ins[ins.length-1].scrollIntoView({block:'center'}); ins[ins.length-1].focus(); }
 };
 function textoCompras(){
   const f=faltantes();
