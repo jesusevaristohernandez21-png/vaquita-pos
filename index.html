@@ -86,6 +86,8 @@ main{flex:1;min-height:0;overflow:auto}
 .art .nom{flex:1;min-width:0}
 .art .nom b{display:block;font-size:16px;font-weight:700;line-height:1.2}
 .art .nom span{font-size:12.5px;color:var(--muted)}
+.art .nom .minedit{display:flex;align-items:center;gap:5px;margin-top:3px}
+.art .nom .minedit input{width:56px;padding:4px 6px;font-family:var(--mono);font-weight:700;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--ink)}
 .art .cnt{display:flex;align-items:center;gap:6px}
 .art .cnt button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);font-size:20px;font-weight:700}
 .art .cnt input{width:64px;text-align:center;font-family:var(--mono);font-weight:700;font-size:17px;padding:8px 4px}
@@ -371,7 +373,7 @@ td.r,th.r{text-align:right}
             <button class="btn" id="inv-add">+ Artículo</button>
           </div>
         </div>
-        <p class="hint">Anota cu&aacute;nto hay de cada cosa. Lo que quede por debajo del m&iacute;nimo aparece arriba como falta de comprar.</p>
+        <p class="hint">El n&uacute;mero grande de la derecha es <b>lo que hay ahorita</b>. El chiquito es <b>lo que deber&iacute;a haber</b> &mdash; t&oacute;calo para cambiarlo. Lo que quede por debajo sale arriba como falta de comprar.</p>
         <div id="inv-faltan"></div>
         <div id="inv-lista-todo"></div>
       </div>
@@ -979,7 +981,11 @@ function nEnt(x){ const n=Number(x); return Number.isInteger(n) ? n : Math.round
 function filaArt(a, i){
   const bajo = Number(a.hay) < Number(a.min);
   return `<div class="art${bajo?' bajo':''}" data-i="${i}">
-    <div class="nom"><b>${esc(a.nombre)}</b><span>m&iacute;nimo ${nEnt(a.min)} ${esc(a.unidad)}</span></div>
+    <div class="nom"><b>${esc(a.nombre)}</b>
+      ${esDueno()
+        ? `<span class="minedit">deber&iacute;a haber <input type="number" inputmode="decimal" data-k="min" value="${nEnt(a.min)}" aria-label="M&iacute;nimo de ${esc(a.nombre)}"> ${esc(a.unidad)}</span>`
+        : `<span>deber&iacute;a haber ${nEnt(a.min)} ${esc(a.unidad)}</span>`}
+    </div>
     <div class="cnt">
       <button data-menos aria-label="menos">&minus;</button>
       <input type="number" inputmode="decimal" data-k="hay" value="${nEnt(a.hay)}" aria-label="Cu&aacute;nto hay">
@@ -1001,11 +1007,14 @@ function renderInv(){
 }
 $('#inv-lista-todo').addEventListener('input', e=>{
   const inp=e.target.closest('input[data-k]'); if(!inp) return;
-  const i=+inp.closest('.art').dataset.i;
-  state.inv[i].hay = parseFloat(inp.value)||0;
-  clearTimeout(invT); invT=setTimeout(saveInv, 800);
+  const fila=inp.closest('.art'); const i=+fila.dataset.i;
+  state.inv[i][inp.dataset.k] = parseFloat(inp.value)||0;
+  fila.classList.toggle('bajo', Number(state.inv[i].hay) < Number(state.inv[i].min));
+  clearTimeout(invT);
+  invT=setTimeout(()=>{ saveInv(); if(inp.dataset.k==='min') renderInv(); }, 900);
 });
 $('#inv-lista-todo').addEventListener('click', e=>{
+  if(e.target.closest('input')) return;
   const fila=e.target.closest('.art'); if(!fila) return;
   const i=+fila.dataset.i; const a=state.inv[i];
   if(e.target.closest('[data-mas]')) a.hay = nEnt(Number(a.hay)+1);
