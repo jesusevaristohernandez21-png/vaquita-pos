@@ -127,7 +127,11 @@ main{flex:1;min-height:0;overflow:auto}
 #ticket .etq{text-align:center;padding:2mm 0}
 #ticket .etq .q{font-size:2.3em;font-weight:800;line-height:1.1;margin:1mm 0}
 #ticket .etq .p{font-size:1.25em;font-weight:700}
-#ticket .etq .d{font-size:.95em;line-height:1.3}
+#ticket .etq .d{font-size:.95em;line-height:1.3;margin-top:1mm}
+#ticket .etq .nota{font-size:1.05em;font-weight:700;margin:.5mm 0 1mm}
+#ticket .etq .lista{border-top:1px solid #000;border-bottom:1px solid #000;padding:1.2mm 0;margin:1.2mm 0}
+#ticket .etq .it{font-size:1.2em;line-height:1.35}
+#ticket .etq .it b{font-size:1.1em}
 #ticket .etq .marca{font-size:.85em;letter-spacing:.1em;text-transform:uppercase}
 #ticket .corte{border-top:1px dashed #000;margin:3mm 0 0;padding-top:1.2mm;text-align:center;font-size:.75em;letter-spacing:.14em;color:#555}
 .rec{border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:10px;overflow:hidden}
@@ -152,6 +156,20 @@ main{flex:1;min-height:0;overflow:auto}
 .mesas button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .mesas button.add{border:1.5px dashed var(--line);background:transparent;color:var(--muted)}
 .mesas button .b{display:inline-block;min-width:18px;padding:0 5px;margin-left:6px;border-radius:999px;background:var(--ember);color:#fff;font-size:11px}
+.personas{padding:8px 12px 10px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.personas .et{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
+.personas .tira{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.personas .tira::-webkit-scrollbar{display:none}
+.personas button{flex:0 0 auto;padding:9px 13px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-weight:700;font-size:14px;white-space:nowrap}
+.personas button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.personas button.add{border-style:dashed;color:var(--muted);font-weight:600}
+.personas button .n{display:inline-block;min-width:17px;padding:0 5px;margin-left:5px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:11px}
+.personas button[aria-pressed="true"] .n{background:var(--accent-ink);color:var(--accent)}
+.personas button .ed{display:inline-block;margin-left:8px;padding:0 4px;font-size:14px;opacity:.85}
+.grupo-p{padding:9px 16px 2px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.grupo-p b{font-size:14.5px;font-weight:800}
+.grupo-p .nt{font-size:12px;color:var(--muted);font-weight:500}
+.grupo-p .st{font-family:var(--mono);font-size:13px;color:var(--muted)}
 .line .env{font-size:11px;color:var(--accent);font-weight:600}
 .comanda{margin:0 16px 8px;padding:13px;border-radius:12px;background:var(--ember-soft);color:var(--ember);font-weight:700;font-size:14px}
 .comanda:disabled{opacity:.4;cursor:default}
@@ -302,6 +320,21 @@ td.r,th.r{text-align:right}
 #ticket .cupon .pal{font-weight:800;font-size:16px;letter-spacing:.14em;margin:.6mm 0 .8mm;border-top:1px solid #000;border-bottom:1px solid #000;padding:.6mm 0}
 #ticket .pie{text-align:center;font-size:10px;margin-top:2mm}
 #ticket .pie .gr{font-weight:700;font-size:11.5px}
+/* tablet de 11": todo a la vista, sin scroll, y carrito mas ancho */
+@media (min-width:1000px){
+  .pos{grid-template-columns:1fr 430px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:9px}
+  .prod{padding:11px 13px;min-height:66px;gap:8px}
+  .prod .n{font-size:17px}
+  .prod .d{font-size:13px;margin-top:2px}
+  .prod .p{font-size:19px}
+  .menu{padding:14px 16px}
+  .cats{margin-bottom:10px}
+}
+@media (min-width:1300px){
+  .pos{grid-template-columns:1fr 460px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+}
 </style>
 </head>
 <body>
@@ -335,6 +368,7 @@ td.r,th.r{text-align:right}
         <aside class="cart" id="cart">
           <h2><span id="cart-title">Cuenta</span> <button id="clear-cart">Vaciar</button></h2>
           <div class="mesas" id="mesas"></div>
+          <div class="personas" id="personas" hidden></div>
           <div class="lines" id="lines"></div>
           <div class="totals">
             <div class="row"><span id="t-count">0 artículos</span><span></span></div>
@@ -496,14 +530,22 @@ td.r,th.r{text-align:right}
     </div>
     <footer><button class="btn" id="mp2-cancel">Cancelar</button><button class="btn primary" id="mp2-ok">Abrir pedido</button></footer></div></div>
 
-  <!-- NOMBRES MODAL -->
-  <div class="modal" id="m-nombres"><div class="card"><header><span id="mn-titulo">&iquest;Para qui&eacute;n?</span><button id="mn-close" aria-label="Cerrar">&times;</button></header>
+  <!-- PERSONAS MODAL -->
+  <div class="modal" id="m-nombres"><div class="card"><header><span id="mn-titulo">Agregar personas</span><button id="mn-close" aria-label="Cerrar">&times;</button></header>
     <div class="body">
-      <p class="hint">Escribe un nombre por rengl&oacute;n. Cada nombre es un paquete.</p>
+      <p class="hint">Un nombre por rengl&oacute;n. Despu&eacute;s tocas a la persona y le vas poniendo lo suyo.</p>
       <textarea id="mn-val" rows="7" placeholder="Luis&#10;Ana&#10;Pedro"></textarea>
       <div id="mn-cuenta" class="mn-cuenta"></div>
     </div>
-    <footer><button class="btn" id="mn-sin">Sin nombres</button><button class="btn primary" id="mn-ok">Agregar</button></footer></div></div>
+    <footer><button class="btn" id="mn-close2">Cancelar</button><button class="btn primary" id="mn-ok">Agregar</button></footer></div></div>
+
+  <!-- NOTA DE PERSONA -->
+  <div class="modal" id="m-nota-p"><div class="card"><header><span id="np-titulo">Persona</span><button id="np-close" aria-label="Cerrar">&times;</button></header>
+    <div class="body">
+      <label class="f">Nombre <input id="np-nom"></label>
+      <label class="f" style="margin-top:12px">C&oacute;mo lo quiere (opcional) <input id="np-nota" placeholder="2 dorados 1 suave, sin cebolla&hellip;"></label>
+    </div>
+    <footer><button class="btn" id="np-del">Quitar persona</button><button class="btn primary" id="np-ok">Guardar</button></footer></div></div>
 
   <div class="modal" id="m-mesa"><div class="card"><header>Nueva mesa<button id="mm-close" aria-label="Cerrar">×</button></header>
     <div class="body"><label class="f">Nombre <input id="mm-val" placeholder="Mesa 1, Para llevar, Juan…"></label></div>
@@ -570,9 +612,10 @@ const state = {
   products: ls.get('vf_products', null) || EXAMPLE.map(p=>({...p})),
   cfg: {...DEFAULT_CFG, ...ls.get('vf_cfg', {})},
   cart: [], pago:'Efectivo', histDate: todayKey(), histSales: ls.get('vf_sales',{})[todayKey()]||{}, cat:'Todo', online:false,
-  mesas: ls.get('vf_mesas', []), mesaId: null,
+  mesas: (ls.get('vf_mesas', [])||[]), mesaId: null,
   rol: ls.get('vf_rol',''), inv: ls.get('vf_inv', []), recetas: ls.get('vf_recetas', [])
 };
+state.mesas.forEach(m=>{ try{ migraPedido(m); }catch(e){} });
 state.quickCart = state.cart;
 function setSync(on, txt){ state.online=on; const s=$('#sync'); s.classList.toggle('on',on); s.querySelector('span').textContent=txt; }
 function cfgToServer(){ const c=state.cfg; return {nombre:c.nombre, direccion:c.dir, telefono:c.tel, mensaje:c.msg, ancho:c.ancho, auto_imprimir:c.auto,
@@ -635,6 +678,7 @@ async function initDb(){
     if(r.rol==='dueno'){
       state.products=r.productos; ls.set('vf_products',state.products);
       if(Array.isArray(r.pedidos)){
+        r.pedidos.forEach(migraPedido);
         // lo del servidor manda, salvo la cuenta que se está capturando ahorita
         const activa = state.mesas.find(x=>x.id===state.mesaId);
         const srv = r.pedidos.filter(x=>!activa || x.id!==activa.id);
@@ -745,10 +789,27 @@ function saveMesas(){
   mesaT = setTimeout(()=>{ api('pedidos',{items:state.mesas}).catch(()=>{}); }, 1200);
 }
 function esPedido(m){ return !!(m && m.tipo==='pedido'); }
+function migraPedido(m){
+  if(!esPedido(m) || !m.items || !m.items.some(l=>l.nombres && l.nombres.length)) return;
+  m.personas = m.personas || [];
+  const nuevos = [];
+  m.items.forEach(l=>{
+    if(l.nombres && l.nombres.length){
+      l.nombres.forEach(n=>{
+        let q = m.personas.find(x=>x.nombre===n);
+        if(!q){ q={id:'q'+Math.random().toString(36).slice(2,9), nombre:n, nota:''}; m.personas.push(q); }
+        const ex = nuevos.find(x=>x.id===l.id && x.precio===l.precio && x.quien===q.id);
+        if(ex) ex.qty++; else nuevos.push({id:l.id, nombre:l.nombre, precio:l.precio, qty:1, quien:q.id, env:l.env?1:0});
+      });
+    } else nuevos.push({...l, quien:l.quien||null});
+  });
+  m.items = nuevos;
+}
 function pedidoActivo(){ const m=mesaActiva(); return esPedido(m) ? m : null; }
 function mesaActiva(){ return state.mesas.find(m=>m.id===state.mesaId) || null; }
 function setMesa(id){
   state.mesaId = id || null;
+  quienSel = null;
   const m = mesaActiva();
   state.cart = m ? m.items : state.quickCart;
   renderCart();
@@ -804,26 +865,78 @@ $('#mp2-ok').onclick=()=>{
 };
 $('#mp2-emp').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#mp2-ok').click(); });
 
-// ---------- ¿para quién? ----------
-let pendNombres=null;
+// ---------- personas del pedido ----------
+let quienSel = null;   // id de la persona seleccionada; null = General
+function personas(){ const m=pedidoActivo(); return m ? (m.personas = m.personas || []) : []; }
+function persona(id){ return personas().find(x=>x.id===id) || null; }
+function nombreDe(id){ const q=persona(id); return q ? q.nombre : 'General'; }
 function nombresDe(txt){ return txt.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean); }
-function pideNombres(p, precio){
-  pendNombres={p, precio};
-  $('#mn-titulo').textContent='¿Para quién? · '+pNom(p);
+function piezasDe(id){ return state.cart.filter(l=>(l.quien||null)===(id||null)).reduce((s,l)=>s+l.qty,0); }
+function totalDe(id){ return state.cart.filter(l=>(l.quien||null)===(id||null)).reduce((s,l)=>s+l.precio*l.qty,0); }
+
+function renderPersonas(){
+  const m = pedidoActivo();
+  const cont = $('#personas');
+  cont.hidden = !m;
+  if(!m) return;
+  const gen = piezasDe(null);
+  cont.innerHTML = `<div class="et">Lo que sigue se le pone a:</div><div class="tira">` +
+    `<button data-q="" aria-pressed="${!quienSel}">General${gen?`<span class="n">${gen}</span>`:''}</button>` +
+    personas().map(q=>{ const n=piezasDe(q.id); const sel=quienSel===q.id;
+      return `<button data-q="${q.id}" aria-pressed="${sel}">${esc(q.nombre)}${n?`<span class="n">${n}</span>`:''}${sel?`<span class="ed" data-edit="${q.id}" role="button" aria-label="Editar ${esc(q.nombre)}">&#9998;</span>`:''}</button>`; }).join('') +
+    `<button class="add" id="persona-add">+ Personas</button></div>`;
+}
+$('#personas').addEventListener('click', e=>{
+  const ed = e.target.closest('[data-edit]');
+  if(ed){ e.stopPropagation(); abreNotaPersona(ed.dataset.edit); return; }
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.id==='persona-add'){ abrePersonas(); return; }
+  quienSel = b.dataset.q || null; renderPersonas();
+});
+function abrePersonas(){
   $('#mn-val').value=''; $('#mn-cuenta').textContent='';
   $('#m-nombres').classList.add('open'); setTimeout(()=>$('#mn-val').focus(),60);
 }
-function cierraNombres(){ $('#m-nombres').classList.remove('open'); pendNombres=null; }
-$('#mn-close').onclick=cierraNombres;
+function cierraNombres(){ $('#m-nombres').classList.remove('open'); }
+$('#mn-close').onclick=$('#mn-close2').onclick=cierraNombres;
 $('#mn-val').addEventListener('input',()=>{
   const n=nombresDe($('#mn-val').value).length;
-  $('#mn-cuenta').textContent = n ? n+' paquete'+(n===1?'':'s') : '';
+  $('#mn-cuenta').textContent = n ? n+' persona'+(n===1?'':'s') : '';
 });
-$('#mn-sin').onclick=()=>{ if(!pendNombres) return; const {p,precio}=pendNombres; cierraNombres(); meteAlCarrito(p, precio, []); };
 $('#mn-ok').onclick=()=>{
-  if(!pendNombres) return;
+  const m=pedidoActivo(); if(!m) return;
   const nn=nombresDe($('#mn-val').value); if(!nn.length){ $('#mn-val').focus(); return; }
-  const {p,precio}=pendNombres; cierraNombres(); meteAlCarrito(p, precio, nn);
+  nn.forEach(n=>{ m.personas=m.personas||[]; m.personas.push({id:'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), nombre:n, nota:''}); });
+  cierraNombres();
+  quienSel = m.personas[m.personas.length-nn.length].id;   // dejar lista la primera
+  saveMesas(); renderPersonas(); renderCart();
+  toast(nn.length+' persona'+(nn.length===1?'':'s')+' · toca a quien le vas a poner');
+};
+
+// editar / quitar una persona
+let qEdit=null;
+function abreNotaPersona(id){
+  const q=persona(id); if(!q) return;
+  qEdit=id; $('#np-titulo').textContent=q.nombre;
+  $('#np-nom').value=q.nombre; $('#np-nota').value=q.nota||'';
+  $('#m-nota-p').classList.add('open'); setTimeout(()=>$('#np-nom').select(),60);
+}
+function cierraNotaPersona(){ $('#m-nota-p').classList.remove('open'); qEdit=null; }
+$('#np-close').onclick=cierraNotaPersona;
+$('#np-ok').onclick=()=>{
+  const q=persona(qEdit); if(!q) return cierraNotaPersona();
+  const n=$('#np-nom').value.trim(); if(n) q.nombre=n;
+  q.nota=$('#np-nota').value.trim();
+  cierraNotaPersona(); saveMesas(); renderCart();
+};
+$('#np-del').onclick=()=>{
+  const m=pedidoActivo(), id=qEdit; if(!m||!id) return;
+  const n=piezasDe(id);
+  if(n && !confirm('"'+nombreDe(id)+'" tiene '+n+' cosa(s). Se van a pasar a General. ¿Continuar?')) return;
+  state.cart.forEach(l=>{ if(l.quien===id) l.quien=null; });
+  m.personas = personas().filter(x=>x.id!==id);
+  if(quienSel===id) quienSel=null;
+  cierraNotaPersona(); renderCart();
 };
 
 function printComanda(){
@@ -833,7 +946,15 @@ function printComanda(){
   $('#ticket').innerHTML = `
     <div class="c"><h1>COMANDA</h1><div style="font-size:1.5em;font-weight:700">${esc(m?m.nombre:'Rápida')}</div>${esPedido(m)&&m.hora?`<div style="font-size:1.3em;font-weight:800">ENTREGA ${esc(m.hora)}</div>`:''}${hhmm(now)}${esPedido(m)&&m.nota?`<div>${esc(m.nota)}</div>`:''}</div>
     <hr>
-    <table>${pend.map(l=>`<tr><td style="font-size:1.35em;font-weight:700;padding:3px 0">${l.qty-(l.env||0)} x ${esc(l.nombre)}</td></tr>`).join('')}</table>
+    <table>${(()=>{ const sum={};
+      pend.forEach(l=>{ const k=l.nombre; sum[k]=(sum[k]||0)+(l.qty-(l.env||0)); });
+      return Object.keys(sum).map(k=>`<tr><td style="font-size:1.35em;font-weight:700;padding:3px 0">${sum[k]} x ${esc(k)}</td></tr>`).join('');
+    })()}</table>
+    ${(()=>{ if(!esPedido(m)) return '';
+      const ns = personas().filter(q=>q.nota && state.cart.some(l=>l.quien===q.id));
+      return ns.length ? `<hr><div style="font-size:1.05em;font-weight:700">NOTAS</div>` +
+        ns.map(q=>`<div style="font-size:1.05em">${esc(q.nombre)}: ${esc(q.nota)}</div>`).join('') : '';
+    })()}
     <hr><br><br>`;
   pend.forEach(l=>l.env=l.qty);
   renderCart();
@@ -847,20 +968,20 @@ function printEtiquetas(){
   const m = pedidoActivo(); if(!m) return;
   const c = state.cfg;
   document.documentElement.style.setProperty('--tw', c.ancho||'58mm');
-  const prod = n => { const p=state.products.find(x=>pNom(x)===n); return p?pDesc(p):''; };
-  const etqs = [];
-  state.cart.forEach(l=>{
-    (l.nombres||[]).forEach(q=>{
-      etqs.push({quien:q, que:l.nombre, det:prod(l.nombre)});
-    });
-  });
-  if(!etqs.length){ toast('Este pedido no tiene nombres'); return; }
+  const grupos = [...personas().map(q=>q.id), null];
+  const etqs = grupos.map(id=>{
+    const lineas = state.cart.filter(l=>(l.quien||null)===(id||null));
+    if(!lineas.length) return null;
+    const q = id ? persona(id) : null;
+    return { quien: id?q.nombre:'GENERAL', nota: q?q.nota:'', lineas };
+  }).filter(Boolean);
+  if(!etqs.length){ toast('Este pedido está vacío'); return; }
   $('#ticket').innerHTML = etqs.map((e,i)=>`
     <div class="etq">
       <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
       <div class="q">${esc(e.quien)}</div>
-      <div class="p">${esc(e.que)}</div>
-      ${e.det?`<div class="d">${esc(e.det)}</div>`:''}
+      ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
+      <div class="lista">${e.lineas.map(l=>`<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`).join('')}</div>
       <div class="d">${esc(m.nombre)}${m.hora?' &middot; '+esc(m.hora):''}</div>
     </div>
     ${i<etqs.length-1?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '<br><br>';
@@ -870,29 +991,38 @@ function printEtiquetas(){
 $('#btn-etiquetas').onclick=printEtiquetas;
 
 function addToCart(p, precio){
-  if(pedidoActivo()){ pideNombres(p, precio); return; }
-  meteAlCarrito(p, precio, null);
-}
-function meteAlCarrito(p, precio, nombres){
-  const ex = state.cart.find(l=>l.id===p.id && l.precio===precio);
-  if(nombres && nombres.length){
-    if(ex){ ex.nombres=[...(ex.nombres||[]), ...nombres]; ex.qty=ex.nombres.length; }
-    else state.cart.push({id:p.id, nombre:pNom(p), precio, qty:nombres.length, nombres:[...nombres]});
-  } else {
-    if(ex) ex.qty++; else state.cart.push({id:p.id, nombre:pNom(p), precio, qty:1});
-  }
+  const q = pedidoActivo() ? (quienSel||null) : null;
+  const ex = state.cart.find(l=>l.id===p.id && l.precio===precio && (l.quien||null)===q);
+  if(ex) ex.qty++; else state.cart.push({id:p.id, nombre:pNom(p), precio, qty:1, quien:q});
   renderCart();
+  if(q) toast(pNom(p)+' → '+nombreDe(q));
 }
 function cartTotal(){ return state.cart.reduce((s,l)=>s+l.precio*l.qty,0); }
 function cartCount(){ return state.cart.reduce((s,l)=>s+l.qty,0); }
-function renderCart(){
-  const t=cartTotal(), n=cartCount();
-  $('#lines').innerHTML = state.cart.length ? state.cart.map((l,i)=>`
-    <div class="line">
-      <div><div class="n">${esc(l.nombre)}</div><div class="sub num">${money(l.precio)} c/u</div>${(l.nombres&&l.nombres.length)?`<div class="quien">${esc(l.nombres.join(' · '))}</div>`:''}${(l.env||0)>=l.qty?'<div class="env">✓ en cocina</div>':(l.env?`<div class="env">${l.env} en cocina · ${l.qty-l.env} nuevo</div>`:'')}</div>
+function filaLinea(l, i){
+  return `<div class="line">
+      <div><div class="n">${esc(l.nombre)}</div><div class="sub num">${money(l.precio)} c/u</div>${(l.env||0)>=l.qty?'<div class="env">✓ en cocina</div>':(l.env?`<div class="env">${l.env} en cocina · ${l.qty-l.env} nuevo</div>`:'')}</div>
       <div class="qty"><button data-i="${i}" data-d="-1" aria-label="menos">−</button><span class="num">${l.qty}</span><button data-i="${i}" data-d="1" aria-label="más">+</button></div>
       <div class="t num">${money(l.precio*l.qty)}</div>
-    </div>`).join('') : `<div class="cart-empty">Toca los productos para armar la cuenta.</div>`;
+    </div>`;
+}
+function renderCart(){
+  const t=cartTotal(), n=cartCount();
+  const ped = pedidoActivo();
+  if(ped){
+    const grupos = [null, ...personas().map(q=>q.id)];
+    const html = grupos.map(id=>{
+      const idx = state.cart.map((l,i)=>({l,i})).filter(o=>(o.l.quien||null)===(id||null));
+      if(!idx.length) return '';
+      const q = id ? persona(id) : null;
+      return `<div class="grupo-p"><b>${id?esc(q.nombre):'General'}</b>${q&&q.nota?`<span class="nt">${esc(q.nota)}</span>`:''}<span class="st">${money(totalDe(id))}</span></div>` +
+             idx.map(o=>filaLinea(o.l,o.i)).join('');
+    }).join('');
+    $('#lines').innerHTML = html || `<div class="cart-empty">Agrega personas y tócales lo que pidieron.</div>`;
+  } else {
+    $('#lines').innerHTML = state.cart.length ? state.cart.map((l,i)=>filaLinea(l,i)).join('')
+      : `<div class="cart-empty">Toca los productos para armar la cuenta.</div>`;
+  }
   $('#t-count').textContent = `${n} artículo${n===1?'':'s'}`;
   $('#t-total').textContent = money(t);
   $('#cb-count').textContent = `${n} artículo${n===1?'':'s'}`;
@@ -903,16 +1033,12 @@ function renderCart(){
   const m=mesaActiva();
   $('#cart-title').textContent = m ? (esPedido(m)? '📦 '+m.nombre+(m.hora?' · '+m.hora:'') : m.nombre) : 'Cuenta';
   $('#clear-cart').textContent = m ? (esPedido(m)?'Cancelar pedido':'Cancelar mesa') : 'Vaciar';
-  $('#btn-etiquetas').hidden = !(esPedido(m) && state.cart.some(l=>l.nombres && l.nombres.length));
-  renderMesas(); saveMesas();
+  $('#btn-etiquetas').hidden = !(esPedido(m) && state.cart.length);
+  renderMesas(); renderPersonas(); saveMesas();
 }
 $('#lines').addEventListener('click', e=>{
   const b=e.target.closest('button[data-i]'); if(!b) return;
-  const l=state.cart[+b.dataset.i]; const d=+b.dataset.d;
-  if(l.nombres && l.nombres.length){
-    if(d<0) l.nombres.pop(); else l.nombres.push('—');
-    l.qty = l.nombres.length;
-  } else l.qty += d;
+  const l=state.cart[+b.dataset.i]; l.qty += +b.dataset.d;
   if((l.env||0)>l.qty) l.env=l.qty;
   if(l.qty<=0) state.cart.splice(+b.dataset.i,1);
   renderCart();
