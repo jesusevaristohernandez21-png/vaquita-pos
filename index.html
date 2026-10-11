@@ -3,14 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7a1f1f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#2F6B3F">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="La Vaquita">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
 <title>La Vaquita Feliz POS</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
 <style>
@@ -120,6 +118,33 @@ main{flex:1;min-height:0;overflow:auto}
 .mg-nuevo{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .mg-nuevo input{flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;background:var(--campo);color:var(--ink);font-size:15.5px}
 #mn-val{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--campo);color:var(--ink);font-size:17px;line-height:1.6}
+.card.ancho{max-width:640px}
+.seg2{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface2);padding:4px;border-radius:12px;margin-bottom:12px}
+.seg2 button{padding:11px 8px;border-radius:9px;font-weight:700;font-size:15px;color:var(--muted)}
+.seg2 button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.lienzo-caja{position:relative;border:2px dashed var(--line);border-radius:12px;background:var(--campo);overflow:hidden}
+.lienzo-caja canvas{display:block;width:100%;height:130px;touch-action:none;cursor:crosshair}
+.lienzo-guia{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:17px;pointer-events:none}
+.lienzo-guia[hidden]{display:none}
+.lienzo-botones{display:flex;gap:8px;margin-top:10px}
+.lienzo-botones .btn{flex:1}
+.firmas{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.firmas .f{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:5px 8px;background:var(--surface)}
+.firmas .f img{height:26px;width:auto}
+.firmas .f button{color:var(--ember);font-size:17px;line-height:1}
+.personas button img{height:20px;width:auto;vertical-align:middle}
+.grupo-p img{height:24px;width:auto;vertical-align:middle}
+#ticket .etq .qimg{display:block;max-width:100%;margin:1mm auto;image-rendering:pixelated}
+#ticket .etq .elogo{display:block;width:46%;margin:0 auto .3mm}
+#ticket .etq .ebarra{border-top:2px solid #000;margin:1mm 0 1.6mm}
+#ticket .etq .eredes{font-size:.95em;font-weight:700;margin-top:1.6mm;letter-spacing:.02em}
+#ticket .etq .egracias{font-size:.9em;margin-top:.5mm;font-style:italic}
+#ticket .etq .ecup{border:1.5px dashed #000;border-radius:1mm;padding:1.4mm 1mm;margin-top:2mm}
+#ticket .etq .ecup .et{font-size:.72em;letter-spacing:.16em;font-weight:700}
+#ticket .etq .ecup .ofr{font-weight:800;font-size:1.3em;line-height:1.12;margin:.6mm 0 .2mm}
+#ticket .etq .ecup .sig{font-size:.85em;margin-bottom:.6mm}
+#ticket .etq .ecup .let{font-size:.8em;line-height:1.25}
+#ticket .etq .ecup .pal{font-weight:800;font-size:1.35em;letter-spacing:.16em;margin:.5mm 0 .7mm;border-top:1px solid #000;border-bottom:1px solid #000;padding:.6mm 0}
 .mn-cuenta{margin-top:10px;font-weight:700;color:var(--accent);font-size:16px;min-height:22px}
 .line .quien{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.35}
 .mesas button.ped{border-color:var(--accent);background:var(--accent-soft)}
@@ -418,8 +443,17 @@ td.r,th.r{text-align:right}
             <label class="f">Teléfono <input id="c-tel"></label>
             <label class="f" style="grid-column:1/-1">Dirección <input id="c-dir"></label>
             <label class="f" style="grid-column:1/-1">Mensaje al pie <input id="c-msg"></label>
+            <label class="f" style="grid-column:1/-1">Redes sociales (sale en el ticket y en las etiquetas) <input id="c-redes" placeholder="@lavaquitafeliz · FB: La Vaquita Feliz"></label>
             <label class="f">Ancho de papel <select id="c-ancho"><option value="58mm">58 mm</option><option value="80mm">80 mm</option></select></label>
             <label class="f">Imprimir al cobrar <select id="c-auto"><option value="1">Sí, automático</option><option value="0">No, solo con botón</option></select></label>
+          </div>
+          <h3 style="margin-top:22px">Cup&oacute;n de cortes&iacute;a</h3>
+          <p class="hint">Sale al final de cada etiqueta y del ticket. D&eacute;jalo vac&iacute;o si no quieres regalar nada.</p>
+          <div class="cfg">
+            <label class="f" style="grid-column:1/-1">Qu&eacute; regalas <input id="c-cupon" placeholder="Agua fresca gratis"></label>
+            <label class="f">Palabra clave <input id="c-cupal" placeholder="VAQUITA"></label>
+            <label class="f">Vigencia <select id="c-cupmes"><option value="1">Palabra distinta cada mes</option><option value="0">La misma, con d&iacute;as fijos</option></select></label>
+            <label class="f">D&iacute;as (solo si es palabra fija) <input id="c-cupdias" inputmode="numeric" placeholder="30"></label>
           </div>
           <h3 style="margin-top:22px">Claves de acceso</h3>
           <p class="hint">Por seguridad las claves no se muestran. Escribe una nueva para cambiarla, o deja el campo vac&iacute;o para no tocarla. <b>Las dos deben estar puestas</b> para que los encargados solo vean Inventario y Recetas.</p>
@@ -531,13 +565,33 @@ td.r,th.r{text-align:right}
     <footer><button class="btn" id="mp2-cancel">Cancelar</button><button class="btn primary" id="mp2-ok">Abrir pedido</button></footer></div></div>
 
   <!-- PERSONAS MODAL -->
-  <div class="modal" id="m-nombres"><div class="card"><header><span id="mn-titulo">Agregar personas</span><button id="mn-close" aria-label="Cerrar">&times;</button></header>
+  <div class="modal" id="m-nombres"><div class="card ancho"><header><span id="mn-titulo">Agregar personas</span><button id="mn-close" aria-label="Cerrar">&times;</button></header>
     <div class="body">
-      <p class="hint">Un nombre por rengl&oacute;n. Despu&eacute;s tocas a la persona y le vas poniendo lo suyo.</p>
-      <textarea id="mn-val" rows="7" placeholder="Luis&#10;Ana&#10;Pedro"></textarea>
-      <div id="mn-cuenta" class="mn-cuenta"></div>
+      <div class="seg2">
+        <button id="mn-tab-pluma" aria-pressed="true">&#9999;&#65039; Con pluma</button>
+        <button id="mn-tab-tecla" aria-pressed="false">&#9000;&#65039; Con teclado</button>
+      </div>
+
+      <div id="mn-pluma">
+        <p class="hint">Escribe el nombre en el recuadro y dale <b>Siguiente</b>. Se repite para cada persona.</p>
+        <div class="lienzo-caja">
+          <canvas id="mn-canvas"></canvas>
+          <div class="lienzo-guia" id="mn-guia">Escribe aqu&iacute; el nombre</div>
+        </div>
+        <div class="lienzo-botones">
+          <button class="btn" id="mn-borrar">Borrar</button>
+          <button class="btn primary" id="mn-sig">Siguiente &rarr;</button>
+        </div>
+        <div id="mn-firmas" class="firmas"></div>
+      </div>
+
+      <div id="mn-tecla" hidden>
+        <p class="hint">Un nombre por rengl&oacute;n.</p>
+        <textarea id="mn-val" rows="6" placeholder="Luis&#10;Ana&#10;Pedro"></textarea>
+        <div id="mn-cuenta" class="mn-cuenta"></div>
+      </div>
     </div>
-    <footer><button class="btn" id="mn-close2">Cancelar</button><button class="btn primary" id="mn-ok">Agregar</button></footer></div></div>
+    <footer><button class="btn" id="mn-close2">Cancelar</button><button class="btn primary" id="mn-ok">Listo</button></footer></div></div>
 
   <!-- NOTA DE PERSONA -->
   <div class="modal" id="m-nota-p"><div class="card"><header><span id="np-titulo">Persona</span><button id="np-close" aria-label="Cerrar">&times;</button></header>
@@ -586,7 +640,7 @@ const EXAMPLE = [
 const DEFAULT_CFG = {nombre:'La Vaquita Feliz', dir:'', tel:'', msg:'¡Gracias por su compra!', ancho:'58mm', auto:'1', ejemplo:true,
   resena_url:'', resena_titulo:'¿Nos regalas 30 segundos?',
   resena_texto:'Escanea y cuéntanos qué tal la pasaste.\nSomos un negocio familiar y leemos\ntodas las reseñas. ¡Gracias!',
-  cupon:'', cupon_palabra:'', cupon_dias:'30', redes:'',
+  cupon:'', cupon_palabra:'', cupon_dias:'30', cupon_mes:'1', redes:'',
   grupos:'Carne, Tortillería, Consomé, Verdura, Salsa, Abarrotes, Bebidas, Desechables, Cocina'};
 
 // ---------- storage: JSONP contra Apps Script + caché local + cola sin conexión ----------
@@ -619,7 +673,7 @@ state.mesas.forEach(m=>{ try{ migraPedido(m); }catch(e){} });
 state.quickCart = state.cart;
 function setSync(on, txt){ state.online=on; const s=$('#sync'); s.classList.toggle('on',on); s.querySelector('span').textContent=txt; }
 function cfgToServer(){ const c=state.cfg; return {nombre:c.nombre, direccion:c.dir, telefono:c.tel, mensaje:c.msg, ancho:c.ancho, auto_imprimir:c.auto,
-  resena_url:c.resena_url, resena_titulo:c.resena_titulo, resena_texto:c.resena_texto, cupon:c.cupon, cupon_palabra:c.cupon_palabra, cupon_dias:c.cupon_dias, redes:c.redes, grupos_inv:c.grupos}; }
+  resena_url:c.resena_url, resena_titulo:c.resena_titulo, resena_texto:c.resena_texto, cupon:c.cupon, cupon_palabra:c.cupon_palabra, cupon_dias:c.cupon_dias, cupon_mes:c.cupon_mes, redes:c.redes, grupos_inv:c.grupos}; }
 function cfgFromServer(c){
   // toleramos espacios/tabuladores sobrantes en las claves de la hoja
   const _n={}; for(const k in c) _n[String(k).trim()] = (typeof c[k]==='string' ? c[k].trim() : c[k]);
@@ -627,7 +681,7 @@ function cfgFromServer(c){
   return {...state.cfg, nombre:c.nombre??state.cfg.nombre, dir:c.direccion??'', tel:c.telefono??'', msg:c.mensaje??'', ancho:c.ancho||'58mm', auto:c.auto_imprimir||'1', ejemplo:false,
   resena_url:c.resena_url??state.cfg.resena_url, resena_titulo:c.resena_titulo||state.cfg.resena_titulo,
   resena_texto:c.resena_texto||state.cfg.resena_texto,
-  cupon:c.cupon??state.cfg.cupon, cupon_palabra:c.cupon_palabra??state.cfg.cupon_palabra, cupon_dias:c.cupon_dias||state.cfg.cupon_dias, redes:c.redes??state.cfg.redes,
+  cupon:c.cupon??state.cfg.cupon, cupon_palabra:c.cupon_palabra??state.cfg.cupon_palabra, cupon_dias:c.cupon_dias||state.cfg.cupon_dias, cupon_mes:c.cupon_mes??state.cfg.cupon_mes, redes:c.redes??state.cfg.redes,
   grupos:c.grupos_inv||state.cfg.grupos}; }
 
 async function saveProducts(){ ls.set('vf_products', state.products);
@@ -666,7 +720,7 @@ async function subscribeHist(){
     ls.get('vf_queue',[]).filter(v=>v.dia===state.histDate).forEach(v=>m[v.folio]=v);
     state.histSales=m; renderHist(); }catch(e){}
 }
-function pintaTodo(){ renderMenu(); renderAdmin(); renderHist(); renderInv(); renderRecetas(); aplicarRol(); }
+function pintaTodo(){ renderMenu(); renderCart(); renderAdmin(); renderHist(); renderInv(); renderRecetas(); aplicarRol(); }
 async function initDb(){
   try{
     const r=await api('inicio',{dia:state.histDate});
@@ -678,6 +732,7 @@ async function initDb(){
     if(r.rol==='dueno'){
       state.products=r.productos; ls.set('vf_products',state.products);
       if(Array.isArray(r.pedidos)){
+        pedidosListos = true;
         r.pedidos.forEach(migraPedido);
         // lo del servidor manda, salvo la cuenta que se está capturando ahorita
         const activa = state.mesas.find(x=>x.id===state.mesaId);
@@ -781,15 +836,17 @@ $('#mp-val').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#mp-ok').cli
 
 // ---------- cart ----------
 // ---------- mesas (pedidos abiertos) ----------
-let mesaT=null;
+let mesaT=null, pedidosListos=false;   // no mandar nada al servidor hasta haber leido lo que ya hay
 function saveMesas(){
   ls.set('vf_mesas', state.mesas);
-  if(!esDueno()) return;
+  if(!esDueno() || !pedidosListos) return;
   clearTimeout(mesaT);
   mesaT = setTimeout(()=>{ api('pedidos',{items:state.mesas}).catch(()=>{}); }, 1200);
 }
 function esPedido(m){ return !!(m && m.tipo==='pedido'); }
+function horaCorta(h){ const m=String(h||'').match(/(\d{1,2}):(\d{2})/); return m ? ('0'+m[1]).slice(-2)+':'+m[2] : ''; }
 function migraPedido(m){
+  if(esPedido(m) && m.hora) m.hora = horaCorta(m.hora);
   if(!esPedido(m) || !m.items || !m.items.some(l=>l.nombres && l.nombres.length)) return;
   m.personas = m.personas || [];
   const nuevos = [];
@@ -829,7 +886,7 @@ function pendientesComanda(){ return state.cart.filter(l=>l.qty>(l.env||0)); }
 function renderMesas(){
   $('#mesas').innerHTML = `<button data-m="" aria-pressed="${state.mesaId?'false':'true'}">Rápida</button>` +
     state.mesas.map(m=>{ const p=m.items.reduce((s,l)=>s+Math.max(l.qty-(l.env||0),0),0);
-      return `<button class="${esPedido(m)?'ped':''}" data-m="${m.id}" aria-pressed="${m.id===state.mesaId}">${esPedido(m)?'📦 ':''}${esc(m.nombre)}${m.hora?`<span class="hr">${esc(m.hora)}</span>`:''}${p?`<span class="b">${p}</span>`:''}</button>`; }).join('') +
+      return `<button class="${esPedido(m)?'ped':''}" data-m="${m.id}" aria-pressed="${m.id===state.mesaId}">${esPedido(m)?'📦 ':''}${esc(m.nombre)}${horaCorta(m.hora)?`<span class="hr">${esc(horaCorta(m.hora))}</span>`:''}${p?`<span class="b">${p}</span>`:''}</button>`; }).join('') +
     `<button class="add" id="mesa-add">+ Mesa</button>` +
     `<button class="add" id="pedido-add">+ Pedido</button>`;
 }
@@ -859,7 +916,7 @@ $('#mp2-ok').onclick=()=>{
   const emp=$('#mp2-emp').value.trim(); if(!emp){ $('#mp2-emp').focus(); return; }
   closePedidoModal();
   const id='m'+Date.now().toString(36);
-  state.mesas.push({id, nombre:emp, tipo:'pedido', hora:$('#mp2-hora').value, nota:$('#mp2-nota').value.trim(), items:[], abierta:Date.now()});
+  state.mesas.push({id, nombre:emp, tipo:'pedido', hora:horaCorta($('#mp2-hora').value), nota:$('#mp2-nota').value.trim(), items:[], abierta:Date.now()});
   saveMesas(); setMesa(id);
   toast('Pedido abierto · '+emp);
 };
@@ -869,7 +926,12 @@ $('#mp2-emp').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#mp2-ok').c
 let quienSel = null;   // id de la persona seleccionada; null = General
 function personas(){ const m=pedidoActivo(); return m ? (m.personas = m.personas || []) : []; }
 function persona(id){ return personas().find(x=>x.id===id) || null; }
-function nombreDe(id){ const q=persona(id); return q ? q.nombre : 'General'; }
+function nombreDe(id){ const q=persona(id); return q ? (q.nombre || 'Sin nombre') : 'General'; }
+function pintaQuien(q, alto){ // devuelve html: la firma si la hay, si no el texto
+  if(!q) return 'General';
+  if(q.firma) return `<img src="${q.firma}" alt="${esc(q.nombre||'nombre')}"${alto?` style="height:${alto}px"`:''}>`;
+  return esc(q.nombre||'Sin nombre');
+}
 function nombresDe(txt){ return txt.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean); }
 function piezasDe(id){ return state.cart.filter(l=>(l.quien||null)===(id||null)).reduce((s,l)=>s+l.qty,0); }
 function totalDe(id){ return state.cart.filter(l=>(l.quien||null)===(id||null)).reduce((s,l)=>s+l.precio*l.qty,0); }
@@ -883,7 +945,7 @@ function renderPersonas(){
   cont.innerHTML = `<div class="et">Lo que sigue se le pone a:</div><div class="tira">` +
     `<button data-q="" aria-pressed="${!quienSel}">General${gen?`<span class="n">${gen}</span>`:''}</button>` +
     personas().map(q=>{ const n=piezasDe(q.id); const sel=quienSel===q.id;
-      return `<button data-q="${q.id}" aria-pressed="${sel}">${esc(q.nombre)}${n?`<span class="n">${n}</span>`:''}${sel?`<span class="ed" data-edit="${q.id}" role="button" aria-label="Editar ${esc(q.nombre)}">&#9998;</span>`:''}</button>`; }).join('') +
+      return `<button data-q="${q.id}" aria-pressed="${sel}">${pintaQuien(q)}${n?`<span class="n">${n}</span>`:''}${sel?`<span class="ed" data-edit="${q.id}" role="button" aria-label="Editar">&#9998;</span>`:''}</button>`; }).join('') +
     `<button class="add" id="persona-add">+ Personas</button></div>`;
 }
 $('#personas').addEventListener('click', e=>{
@@ -893,9 +955,102 @@ $('#personas').addEventListener('click', e=>{
   if(b.id==='persona-add'){ abrePersonas(); return; }
   quienSel = b.dataset.q || null; renderPersonas();
 });
+// ---------- lienzo para escribir con pluma ----------
+let lz = {cv:null, cx:null, pintando:false, vacio:true, pend:[]};
+function iniLienzo(){
+  const cv = $('#mn-canvas'); if(!cv) return;
+  lz.cv = cv;
+  const r = cv.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  cv.width = Math.round(r.width*dpr); cv.height = Math.round(r.height*dpr);
+  const cx = cv.getContext('2d'); lz.cx = cx;
+  cx.scale(dpr,dpr);
+  cx.lineCap='round'; cx.lineJoin='round'; cx.strokeStyle='#111'; cx.lineWidth=3.4;
+  limpiaLienzo();
+}
+function limpiaLienzo(){
+  if(!lz.cx) return;
+  const r = lz.cv.getBoundingClientRect();
+  lz.cx.clearRect(0,0,r.width,r.height);
+  lz.vacio = true; $('#mn-guia').hidden = false;
+}
+function ptLienzo(e){
+  const r = lz.cv.getBoundingClientRect();
+  return {x:e.clientX-r.left, y:e.clientY-r.top};
+}
+function enlazaLienzo(){
+  const cv = $('#mn-canvas'); if(!cv || cv.dataset.listo) return;
+  cv.dataset.listo='1';
+  cv.addEventListener('pointerdown', e=>{
+    cv.setPointerCapture(e.pointerId);
+    lz.pintando=true; lz.vacio=false; $('#mn-guia').hidden=true;
+    const p=ptLienzo(e); lz.cx.beginPath(); lz.cx.moveTo(p.x,p.y); lz.cx.lineTo(p.x+0.1,p.y); lz.cx.stroke();
+  });
+  cv.addEventListener('pointermove', e=>{
+    if(!lz.pintando) return;
+    const p=ptLienzo(e);
+    lz.cx.lineWidth = e.pressure ? 2.2 + e.pressure*2.6 : 3.4;
+    lz.cx.lineTo(p.x,p.y); lz.cx.stroke();
+  });
+  const fin = ()=>{ lz.pintando=false; };
+  cv.addEventListener('pointerup', fin); cv.addEventListener('pointercancel', fin); cv.addEventListener('pointerleave', fin);
+}
+// recorta lo escrito, lo pasa a blanco y negro y lo deja chiquito para la térmica
+function recortaFirma(){
+  const cv = lz.cv; const w=cv.width, h=cv.height;
+  const d = lz.cx.getImageData(0,0,w,h).data;
+  let x0=w, y0=h, x1=-1, y1=-1;
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    if(d[(y*w+x)*4+3] > 40){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; }
+  }
+  if(x1<0) return null;
+  const m=6; x0=Math.max(0,x0-m); y0=Math.max(0,y0-m); x1=Math.min(w-1,x1+m); y1=Math.min(h-1,y1+m);
+  const aw=x1-x0+1, ah=y1-y0+1;
+  const alto = 58;                                  // alto final en px
+  const ancho = Math.min(360, Math.round(aw*alto/ah));
+  const out = document.createElement('canvas'); out.width=ancho; out.height=alto;
+  const oc = out.getContext('2d');
+  oc.fillStyle='#fff'; oc.fillRect(0,0,ancho,alto);
+  oc.drawImage(cv, x0,y0,aw,ah, 0,0,ancho,alto);
+  // umbral a 1 bit: la térmica no imprime grises
+  const id = oc.getImageData(0,0,ancho,alto); const p=id.data;
+  for(let i=0;i<p.length;i+=4){
+    const v = (p[i]*0.3+p[i+1]*0.59+p[i+2]*0.11) < 170 ? 0 : 255;
+    p[i]=p[i+1]=p[i+2]=v; p[i+3]=255;
+  }
+  oc.putImageData(id,0,0);
+  return out.toDataURL('image/png');
+}
+function renderFirmas(){
+  $('#mn-firmas').innerHTML = lz.pend.map((f,i)=>
+    `<div class="f"><img src="${f}" alt="nombre"><button data-fdel="${i}" aria-label="Quitar">&times;</button></div>`).join('');
+}
+$('#mn-firmas').addEventListener('click', e=>{
+  const b=e.target.closest('[data-fdel]'); if(!b) return;
+  lz.pend.splice(+b.dataset.fdel,1); renderFirmas();
+});
+$('#mn-borrar').onclick = limpiaLienzo;
+$('#mn-sig').onclick = ()=>{
+  if(lz.vacio){ toast('Escribe el nombre primero'); return; }
+  const f = recortaFirma(); if(!f) return;
+  lz.pend.push(f); limpiaLienzo(); renderFirmas();
+};
+function modoPluma(on){
+  $('#mn-tab-pluma').setAttribute('aria-pressed', on);
+  $('#mn-tab-tecla').setAttribute('aria-pressed', !on);
+  $('#mn-pluma').hidden = !on; $('#mn-tecla').hidden = on;
+  if(on) setTimeout(()=>{ iniLienzo(); enlazaLienzo(); }, 30);
+  else setTimeout(()=>$('#mn-val').focus(), 40);
+  try{ ls.set('vf_modo_nombre', on?'pluma':'tecla'); }catch(e){}
+}
+$('#mn-tab-pluma').onclick=()=>modoPluma(true);
+$('#mn-tab-tecla').onclick=()=>modoPluma(false);
+
 function abrePersonas(){
   $('#mn-val').value=''; $('#mn-cuenta').textContent='';
-  $('#m-nombres').classList.add('open'); setTimeout(()=>$('#mn-val').focus(),60);
+  lz.pend=[]; renderFirmas();
+  $('#m-nombres').classList.add('open');
+  modoPluma(ls.get('vf_modo_nombre','pluma')!=='tecla');
 }
 function cierraNombres(){ $('#m-nombres').classList.remove('open'); }
 $('#mn-close').onclick=$('#mn-close2').onclick=cierraNombres;
@@ -905,27 +1060,34 @@ $('#mn-val').addEventListener('input',()=>{
 });
 $('#mn-ok').onclick=()=>{
   const m=pedidoActivo(); if(!m) return;
-  const nn=nombresDe($('#mn-val').value); if(!nn.length){ $('#mn-val').focus(); return; }
-  nn.forEach(n=>{ m.personas=m.personas||[]; m.personas.push({id:'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), nombre:n, nota:''}); });
-  cierraNombres();
-  quienSel = m.personas[m.personas.length-nn.length].id;   // dejar lista la primera
+  // si quedó algo escrito en el lienzo sin dar "Siguiente", se toma igual
+  if(!$('#mn-pluma').hidden && !lz.vacio){ const f=recortaFirma(); if(f) lz.pend.push(f); }
+  const nuevos = [];
+  lz.pend.forEach((f,i)=> nuevos.push({id:'q'+Date.now().toString(36)+i, nombre:'', firma:f, nota:''}));
+  nombresDe($('#mn-val').value).forEach((n,i)=> nuevos.push({id:'q'+Date.now().toString(36)+'t'+i, nombre:n, nota:''}));
+  if(!nuevos.length){ toast('Escribe al menos un nombre'); return; }
+  m.personas = (m.personas||[]).concat(nuevos);
+  lz.pend=[]; cierraNombres();
+  quienSel = nuevos[0].id;
   saveMesas(); renderPersonas(); renderCart();
-  toast(nn.length+' persona'+(nn.length===1?'':'s')+' · toca a quien le vas a poner');
+  toast(nuevos.length+' persona'+(nuevos.length===1?'':'s')+' · toca a quien le vas a poner');
 };
 
 // editar / quitar una persona
 let qEdit=null;
 function abreNotaPersona(id){
   const q=persona(id); if(!q) return;
-  qEdit=id; $('#np-titulo').textContent=q.nombre;
-  $('#np-nom').value=q.nombre; $('#np-nota').value=q.nota||'';
+  qEdit=id; $('#np-titulo').innerHTML = q.firma ? `<img src="${q.firma}" style="height:26px;vertical-align:middle">` : esc(q.nombre||'Persona');
+  $('#np-nom').value=q.nombre||''; $('#np-nota').value=q.nota||'';
+  $('#np-nom').placeholder = q.firma ? 'Escríbelo si quieres reemplazar lo de la pluma' : '';
   $('#m-nota-p').classList.add('open'); setTimeout(()=>$('#np-nom').select(),60);
 }
 function cierraNotaPersona(){ $('#m-nota-p').classList.remove('open'); qEdit=null; }
 $('#np-close').onclick=cierraNotaPersona;
 $('#np-ok').onclick=()=>{
   const q=persona(qEdit); if(!q) return cierraNotaPersona();
-  const n=$('#np-nom').value.trim(); if(n) q.nombre=n;
+  const n=$('#np-nom').value.trim();
+  if(n){ q.nombre=n; delete q.firma; }     // si escribe texto, manda el texto
   q.nota=$('#np-nota').value.trim();
   cierraNotaPersona(); saveMesas(); renderCart();
 };
@@ -944,7 +1106,7 @@ function printComanda(){
   const c=state.cfg; document.documentElement.style.setProperty('--tw', c.ancho||'58mm');
   const now=Date.now();
   $('#ticket').innerHTML = `
-    <div class="c"><h1>COMANDA</h1><div style="font-size:1.5em;font-weight:700">${esc(m?m.nombre:'Rápida')}</div>${esPedido(m)&&m.hora?`<div style="font-size:1.3em;font-weight:800">ENTREGA ${esc(m.hora)}</div>`:''}${hhmm(now)}${esPedido(m)&&m.nota?`<div>${esc(m.nota)}</div>`:''}</div>
+    <div class="c"><h1>COMANDA</h1><div style="font-size:1.5em;font-weight:700">${esc(m?m.nombre:'Rápida')}</div>${esPedido(m)&&horaCorta(m.hora)?`<div style="font-size:1.3em;font-weight:800">ENTREGA ${esc(horaCorta(m.hora))}</div>`:''}${hhmm(now)}${esPedido(m)&&m.nota?`<div>${esc(m.nota)}</div>`:''}</div>
     <hr>
     <table>${(()=>{ const sum={};
       pend.forEach(l=>{ const k=l.nombre; sum[k]=(sum[k]||0)+(l.qty-(l.env||0)); });
@@ -973,16 +1135,22 @@ function printEtiquetas(){
     const lineas = state.cart.filter(l=>(l.quien||null)===(id||null));
     if(!lineas.length) return null;
     const q = id ? persona(id) : null;
-    return { quien: id?q.nombre:'GENERAL', nota: q?q.nota:'', lineas };
+    return { quien: id?(q.nombre||''):'GENERAL', firma: q?q.firma:'', nota: q?q.nota:'', lineas };
   }).filter(Boolean);
   if(!etqs.length){ toast('Este pedido está vacío'); return; }
+  const redes = (c.redes||'').trim();
   $('#ticket').innerHTML = etqs.map((e,i)=>`
     <div class="etq">
+      ${window.LOGO_TICKET ? `<img class="elogo" src="${window.LOGO_TICKET}" alt="">` : ''}
       <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
-      <div class="q">${esc(e.quien)}</div>
+      <div class="ebarra"></div>
+      ${e.firma ? `<img class="qimg" src="${e.firma}" alt="">` : `<div class="q">${esc(e.quien||'Sin nombre')}</div>`}
       ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
       <div class="lista">${e.lineas.map(l=>`<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`).join('')}</div>
-      <div class="d">${esc(m.nombre)}${m.hora?' &middot; '+esc(m.hora):''}</div>
+      <div class="d">${esc(m.nombre)}${horaCorta(m.hora)?' &middot; '+esc(horaCorta(m.hora)):''}</div>
+      ${cuponEtq(c)}
+      ${redes?`<div class="eredes">${esc(redes).replace(/\n/g,'<br>')}</div>`:''}
+      ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
     </div>
     ${i<etqs.length-1?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '<br><br>';
   toast(etqs.length+' etiqueta'+(etqs.length===1?'':'s'));
@@ -1015,7 +1183,7 @@ function renderCart(){
       const idx = state.cart.map((l,i)=>({l,i})).filter(o=>(o.l.quien||null)===(id||null));
       if(!idx.length) return '';
       const q = id ? persona(id) : null;
-      return `<div class="grupo-p"><b>${id?esc(q.nombre):'General'}</b>${q&&q.nota?`<span class="nt">${esc(q.nota)}</span>`:''}<span class="st">${money(totalDe(id))}</span></div>` +
+      return `<div class="grupo-p"><b>${id?pintaQuien(q,24):'General'}</b>${q&&q.nota?`<span class="nt">${esc(q.nota)}</span>`:''}<span class="st">${money(totalDe(id))}</span></div>` +
              idx.map(o=>filaLinea(o.l,o.i)).join('');
     }).join('');
     $('#lines').innerHTML = html || `<div class="cart-empty">Agrega personas y tócales lo que pidieron.</div>`;
@@ -1031,7 +1199,7 @@ function renderCart(){
   $('#btn-cobrar-exacto').disabled = !state.cart.length;
   $('#btn-comanda').disabled = !pendientesComanda().length;
   const m=mesaActiva();
-  $('#cart-title').textContent = m ? (esPedido(m)? '📦 '+m.nombre+(m.hora?' · '+m.hora:'') : m.nombre) : 'Cuenta';
+  $('#cart-title').textContent = m ? (esPedido(m)? '📦 '+m.nombre+(horaCorta(m.hora)?' · '+horaCorta(m.hora):'') : m.nombre) : 'Cuenta';
   $('#clear-cart').textContent = m ? (esPedido(m)?'Cancelar pedido':'Cancelar mesa') : 'Vaciar';
   $('#btn-etiquetas').hidden = !(esPedido(m) && state.cart.length);
   renderMesas(); renderPersonas(); saveMesas();
@@ -1114,6 +1282,34 @@ function fechaMas(dias){
   const d = new Date(Date.now() + (dias||30)*86400000);
   return d.toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'});
 }
+const MESES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+const MESES_L=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+// La palabra clave puede cambiar cada mes para que no la repitan de un mes a otro.
+function palabraCupon(c){
+  const base=String(c.cupon_palabra||'').trim().toUpperCase();
+  if(!base) return '';
+  return String(c.cupon_mes||'')==='1' ? base+'-'+MESES3[new Date().getMonth()] : base;
+}
+function vigenciaCupon(c){
+  if(String(c.cupon_mes||'')==='1'){
+    const d=new Date(), f=new Date(d.getFullYear(), d.getMonth()+1, 0);
+    return 'V\u00e1lida todo '+MESES_L[d.getMonth()]+' (al '+f.getDate()+')';
+  }
+  return 'V\u00e1lida hasta el '+fechaMas(parseInt(c.cupon_dias||'30',10)||30);
+}
+function cuponEtq(c){
+  const ofr=String(c.cupon||'').trim(); if(!ofr) return '';
+  const pal=palabraCupon(c);
+  return `
+      <div class="ecup">
+        <div class="et">CORTES&Iacute;A</div>
+        <div class="ofr">${esc(ofr)}</div>
+        <div class="sig">en tu siguiente compra</div>
+        ${pal?`<div class="let">Solo di la palabra:</div>
+        <div class="pal">${esc(pal)}</div>`:''}
+        <div class="let">${vigenciaCupon(c)}<br>1 por persona</div>
+      </div>`;
+}
 function bloqueResena(c){
   const url = (c.resena_url||'').trim();
   const qr  = qrDataURL(url, 4);
@@ -1129,15 +1325,14 @@ function bloqueResena(c){
 function bloqueCupon(c){
   const ofr = (c.cupon||'').trim();
   if(!ofr) return '';
-  const pal  = (c.cupon_palabra||'').trim().toUpperCase();
-  const dias = parseInt(c.cupon_dias||'30', 10) || 30;
+  const pal  = palabraCupon(c);
   return `
     <div class="cupon">
       <div class="et">CORTES&Iacute;A PARA TU PR&Oacute;XIMA VISITA</div>
       <div class="ofr">${esc(ofr)}</div>
       ${pal ? `<div class="let">Solo di la palabra:</div>
       <div class="pal">${esc(pal)}</div>` : `<div class="let">Presenta este ticket.</div>`}
-      <div class="let">V&aacute;lida hasta el ${fechaMas(dias)} &middot; una por mesa</div>
+      <div class="let">${vigenciaCupon(c)} &middot; una por persona</div>
     </div>`;
 }
 function printTicket(sale){
@@ -1229,8 +1424,10 @@ function renderAdmin(){
       <input data-i="${i}" data-k="cat" value="${esc(p.cat||'')}" placeholder="Categoría" list="catlist" aria-label="Categoría">
       <button class="mini danger" data-del="${i}">Quitar</button>
     </div>`).join('') + `<datalist id="catlist">${cats().slice(1).map(c=>`<option value="${esc(c)}">`).join('')}</datalist>`;
-  $('#c-nombre').value=state.cfg.nombre||''; $('#c-tel').value=state.cfg.tel||''; $('#c-dir').value=state.cfg.dir||''; $('#c-msg').value=state.cfg.msg||'';
+  $('#c-nombre').value=state.cfg.nombre||''; $('#c-tel').value=state.cfg.tel||''; $('#c-dir').value=state.cfg.dir||''; $('#c-msg').value=state.cfg.msg||''; $('#c-redes').value=state.cfg.redes||'';
   $('#c-ancho').value=state.cfg.ancho||'58mm'; $('#c-auto').value=state.cfg.auto||'1';
+  $('#c-cupon').value=state.cfg.cupon||''; $('#c-cupal').value=state.cfg.cupon_palabra||'';
+  $('#c-cupmes').value=String(state.cfg.cupon_mes||'1'); $('#c-cupdias').value=state.cfg.cupon_dias||'30';
   $('#ex-badge').hidden = !state.cfg.ejemplo;
 }
 $('#prodlist').addEventListener('input',e=>{
@@ -1261,10 +1458,12 @@ $('#c-guardar-pin').onclick=async()=>{
 };
 $('#c-salir').onclick=()=>{ PIN=''; ls.set('vf_pin',''); state.rol=''; ls.set('vf_rol',''); location.reload(); };
 
-['c-nombre','c-tel','c-dir','c-msg','c-ancho','c-auto'].forEach(id=>{
+['c-nombre','c-tel','c-dir','c-msg','c-redes','c-ancho','c-auto','c-cupon','c-cupal','c-cupmes','c-cupdias'].forEach(id=>{
   $('#'+id).addEventListener('input',()=>{
-    state.cfg.nombre=$('#c-nombre').value; state.cfg.tel=$('#c-tel').value; state.cfg.dir=$('#c-dir').value; state.cfg.msg=$('#c-msg').value;
+    state.cfg.nombre=$('#c-nombre').value; state.cfg.tel=$('#c-tel').value; state.cfg.dir=$('#c-dir').value; state.cfg.msg=$('#c-msg').value; state.cfg.redes=$('#c-redes').value;
     state.cfg.ancho=$('#c-ancho').value; state.cfg.auto=$('#c-auto').value;
+    state.cfg.cupon=$('#c-cupon').value; state.cfg.cupon_palabra=$('#c-cupal').value;
+    state.cfg.cupon_mes=$('#c-cupmes').value; state.cfg.cupon_dias=$('#c-cupdias').value||'30';
     clearTimeout(saveT); saveT=setTimeout(()=>{ saveCfg(); toast('Guardado'); },600);
   });
 });
@@ -1523,13 +1722,8 @@ renderMenu(); renderCart(); renderAdmin(); renderInv(); renderRecetas(); aplicar
 subscribeHist();
 initDb();
 })();
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(e => console.warn('sw', e));
-  });
-}
+
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
 </script>
 </body>
 </html>
