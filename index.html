@@ -360,6 +360,22 @@ td.r,th.r{text-align:right}
   .pos{grid-template-columns:1fr 460px}
   .grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 }
+
+/* reloj circular para elegir la hora */
+.reloj{margin-top:6px}
+.rdisp{display:flex;align-items:center;justify-content:center;gap:4px}
+.rbig{font-family:var(--display);font-size:38px;font-weight:700;line-height:1;background:var(--surface2);border:2px solid transparent;color:var(--ink);border-radius:12px;padding:6px 12px;cursor:pointer}
+.rbig.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.rsep{font-family:var(--display);font-size:34px;font-weight:700;color:var(--muted)}
+.rap{display:flex;flex-direction:column;gap:4px;margin-left:10px}
+.rap button{font-size:14px;font-weight:700;padding:5px 11px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.rap button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.rdial{position:relative;width:250px;height:250px;margin:12px auto 4px;border-radius:50%;background:var(--surface2);touch-action:none;user-select:none}
+.rnum{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:var(--ink);pointer-events:none}
+.rnum.sel{background:var(--accent);color:var(--accent-ink)}
+.rmano{position:absolute;left:calc(50% - 2px);top:calc(50% - 92px);width:4px;height:92px;background:var(--accent);transform-origin:50% 100%;border-radius:3px;pointer-events:none;transition:transform .12s ease-out}
+.rcentro{position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--accent);pointer-events:none}
+.rpista{text-align:center;font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -451,10 +467,11 @@ td.r,th.r{text-align:right}
           <p class="hint">Sale al final de cada etiqueta y del ticket. D&eacute;jalo vac&iacute;o si no quieres regalar nada.</p>
           <div class="cfg">
             <label class="f" style="grid-column:1/-1">Qu&eacute; regalas <input id="c-cupon" placeholder="Agua fresca gratis"></label>
-            <label class="f">Palabra clave <input id="c-cupal" placeholder="VAQUITA"></label>
+            <label class="f">Palabra fija (si no es por mes) <input id="c-cupal" placeholder="VAQUITA"></label>
             <label class="f">Vigencia <select id="c-cupmes"><option value="1">Palabra distinta cada mes</option><option value="0">La misma, con d&iacute;as fijos</option></select></label>
             <label class="f">D&iacute;as (solo si es palabra fija) <input id="c-cupdias" inputmode="numeric" placeholder="30"></label>
           </div>
+          <p class="hint" id="c-cuphoy" style="margin-top:8px"></p>
           <h3 style="margin-top:22px">Claves de acceso</h3>
           <p class="hint">Por seguridad las claves no se muestran. Escribe una nueva para cambiarla, o deja el campo vac&iacute;o para no tocarla. <b>Las dos deben estar puestas</b> para que los encargados solo vean Inventario y Recetas.</p>
           <div class="cfg">
@@ -559,7 +576,16 @@ td.r,th.r{text-align:right}
   <div class="modal" id="m-pedido"><div class="card"><header>Pedido de empresa<button id="mp2-close" aria-label="Cerrar">&times;</button></header>
     <div class="body">
       <label class="f">&iquest;De qui&eacute;n es el pedido? <input id="mp2-emp" placeholder="Contabilidad Grupo XYZ, Oficina de Ana…"></label>
-      <label class="f" style="margin-top:12px">&iquest;A qu&eacute; hora lo entregan? <input id="mp2-hora" type="time"></label>
+      <div class="f" style="margin-top:12px">&iquest;A qu&eacute; hora lo entregan?</div>
+      <div class="reloj">
+        <div class="rdisp">
+          <button type="button" class="rbig" id="rl-h">02</button><span class="rsep">:</span><button type="button" class="rbig" id="rl-m">30</button>
+          <div class="rap"><button type="button" id="rl-am">AM</button><button type="button" id="rl-pm">PM</button></div>
+        </div>
+        <div class="rdial" id="rl-dial"><div class="rmano" id="rl-mano"></div><div class="rcentro"></div></div>
+        <div class="rpista" id="rl-pista">Toca la hora en el reloj</div>
+      </div>
+      <input id="mp2-hora" type="hidden">
       <label class="f" style="margin-top:12px">Nota (opcional) <input id="mp2-nota" placeholder="Pasan por &eacute;l / lo llevamos / sin cebolla"></label>
     </div>
     <footer><button class="btn" id="mp2-cancel">Cancelar</button><button class="btn primary" id="mp2-ok">Abrir pedido</button></footer></div></div>
@@ -907,7 +933,7 @@ $('#mm-val').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#mm-ok').cli
 function openPedidoModal(){
   $('#mp2-emp').value=''; $('#mp2-nota').value='';
   const d=new Date(); d.setHours(d.getHours()+2);
-  $('#mp2-hora').value = String(d.getHours()).padStart(2,'0')+':'+String(Math.floor(d.getMinutes()/5)*5).padStart(2,'0');
+  rlSet24(String(d.getHours()).padStart(2,'0')+':'+String(Math.floor(d.getMinutes()/5)*5).padStart(2,'0'));
   $('#m-pedido').classList.add('open'); setTimeout(()=>$('#mp2-emp').focus(),50);
 }
 function closePedidoModal(){ $('#m-pedido').classList.remove('open'); }
@@ -921,6 +947,59 @@ $('#mp2-ok').onclick=()=>{
   toast('Pedido abierto · '+emp);
 };
 $('#mp2-emp').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#mp2-ok').click(); });
+
+// ---------- reloj circular ----------
+const RL = {h:12, m:0, ap:'PM', modo:'h'};
+function rlSet24(hhmm){
+  const m = String(hhmm||'').match(/(\d{1,2}):(\d{2})/);
+  let H = m ? parseInt(m[1],10) : 12, M = m ? parseInt(m[2],10) : 0;
+  RL.ap = H >= 12 ? 'PM' : 'AM';
+  RL.h = (H % 12) || 12; RL.m = M; RL.modo = 'h';
+  rlPinta();
+}
+function rl24(){
+  let H = RL.h % 12; if(RL.ap === 'PM') H += 12;
+  return String(H).padStart(2,'0') + ':' + String(RL.m).padStart(2,'0');
+}
+function rlPinta(){
+  $('#rl-h').textContent = String(RL.h).padStart(2,'0');
+  $('#rl-m').textContent = String(RL.m).padStart(2,'0');
+  $('#rl-h').classList.toggle('on', RL.modo==='h');
+  $('#rl-m').classList.toggle('on', RL.modo==='m');
+  $('#rl-am').classList.toggle('on', RL.ap==='AM');
+  $('#rl-pm').classList.toggle('on', RL.ap==='PM');
+  $('#rl-pista').textContent = RL.modo==='h' ? 'Toca la hora en el reloj' : 'Ahora los minutos';
+  const dial = $('#rl-dial');
+  dial.querySelectorAll('.rnum').forEach(n=>n.remove());
+  const R = 92, cx = 125, cy = 125;
+  for(let i=0;i<12;i++){
+    const val = RL.modo==='h' ? (i===0?12:i) : i*5;
+    const ang = (i*30 - 90) * Math.PI/180;
+    const d = document.createElement('div');
+    d.className = 'rnum' + ((RL.modo==='h' ? val===RL.h : Math.round(RL.m/5)*5%60===val) ? ' sel' : '');
+    d.style.left = (cx + R*Math.cos(ang)) + 'px';
+    d.style.top  = (cy + R*Math.sin(ang)) + 'px';
+    d.textContent = RL.modo==='h' ? String(val) : String(val).padStart(2,'0');
+    dial.appendChild(d);
+  }
+  const giro = RL.modo==='h' ? (RL.h%12)*30 : (RL.m/60)*360;
+  $('#rl-mano').style.transform = 'rotate(' + giro + 'deg)';
+  const hid = $('#mp2-hora'); if(hid) hid.value = rl24();
+}
+function rlDesdeToque(ev){
+  const r = $('#rl-dial').getBoundingClientRect();
+  const x = (ev.clientX - r.left) - r.width/2, y = (ev.clientY - r.top) - r.height/2;
+  let ang = Math.atan2(y, x) * 180/Math.PI + 90; if(ang < 0) ang += 360;
+  const paso = Math.round(ang/30) % 12;
+  if(RL.modo==='h'){ RL.h = paso===0 ? 12 : paso; RL.modo='m'; }
+  else { RL.m = paso*5 % 60; }
+  rlPinta();
+}
+$('#rl-dial').addEventListener('pointerdown', e=>{ e.preventDefault(); rlDesdeToque(e); });
+$('#rl-h').onclick = ()=>{ RL.modo='h'; rlPinta(); };
+$('#rl-m').onclick = ()=>{ RL.modo='m'; rlPinta(); };
+$('#rl-am').onclick = ()=>{ RL.ap='AM'; rlPinta(); };
+$('#rl-pm').onclick = ()=>{ RL.ap='PM'; rlPinta(); };
 
 // ---------- personas del pedido ----------
 let quienSel = null;   // id de la persona seleccionada; null = General
@@ -1285,10 +1364,15 @@ function fechaMas(dias){
 const MESES3=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
 const MESES_L=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 // La palabra clave puede cambiar cada mes para que no la repitan de un mes a otro.
+// Palabras distintas por mes: no se adivinan y no sirve la del mes pasado.
+const PALABRAS_MES=['PENCA','MAGUEY','BORREGO','CONSOME','MIXIOTE','TATEMA','PANCITA','SALSERO','HORNO','PULQUE','NOPAL','CAZUELA'];
+function palabraDelMes(d){
+  d = d || new Date();
+  return PALABRAS_MES[(d.getFullYear()*12 + d.getMonth()) % PALABRAS_MES.length];
+}
 function palabraCupon(c){
-  const base=String(c.cupon_palabra||'').trim().toUpperCase();
-  if(!base) return '';
-  return String(c.cupon_mes||'')==='1' ? base+'-'+MESES3[new Date().getMonth()] : base;
+  if(String(c.cupon_mes||'')==='1') return palabraDelMes();
+  return String(c.cupon_palabra||'').trim().toUpperCase();
 }
 function vigenciaCupon(c){
   if(String(c.cupon_mes||'')==='1'){
@@ -1428,6 +1512,7 @@ function renderAdmin(){
   $('#c-ancho').value=state.cfg.ancho||'58mm'; $('#c-auto').value=state.cfg.auto||'1';
   $('#c-cupon').value=state.cfg.cupon||''; $('#c-cupal').value=state.cfg.cupon_palabra||'';
   $('#c-cupmes').value=String(state.cfg.cupon_mes||'1'); $('#c-cupdias').value=state.cfg.cupon_dias||'30';
+  pintaPalabraHoy();
   $('#ex-badge').hidden = !state.cfg.ejemplo;
 }
 $('#prodlist').addEventListener('input',e=>{
@@ -1458,12 +1543,19 @@ $('#c-guardar-pin').onclick=async()=>{
 };
 $('#c-salir').onclick=()=>{ PIN=''; ls.set('vf_pin',''); state.rol=''; ls.set('vf_rol',''); location.reload(); };
 
+function pintaPalabraHoy(){
+  const e=$('#c-cuphoy'); if(!e) return;
+  const p=palabraCupon(state.cfg);
+  e.innerHTML = p ? ('Palabra de <b>este mes</b>: <b>'+esc(p)+'</b>. El mes que entra cambia sola a <b>'+esc(palabraDelMes(new Date(new Date().getFullYear(), new Date().getMonth()+1, 1)))+'</b>.')
+                  : 'Sin palabra clave: el cup\u00f3n saldr\u00e1 sin c\u00f3digo.';
+}
 ['c-nombre','c-tel','c-dir','c-msg','c-redes','c-ancho','c-auto','c-cupon','c-cupal','c-cupmes','c-cupdias'].forEach(id=>{
   $('#'+id).addEventListener('input',()=>{
     state.cfg.nombre=$('#c-nombre').value; state.cfg.tel=$('#c-tel').value; state.cfg.dir=$('#c-dir').value; state.cfg.msg=$('#c-msg').value; state.cfg.redes=$('#c-redes').value;
     state.cfg.ancho=$('#c-ancho').value; state.cfg.auto=$('#c-auto').value;
     state.cfg.cupon=$('#c-cupon').value; state.cfg.cupon_palabra=$('#c-cupal').value;
     state.cfg.cupon_mes=$('#c-cupmes').value; state.cfg.cupon_dias=$('#c-cupdias').value||'30';
+    pintaPalabraHoy();
     clearTimeout(saveT); saveT=setTimeout(()=>{ saveCfg(); toast('Guardado'); },600);
   });
 });
