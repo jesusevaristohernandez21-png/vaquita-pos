@@ -154,7 +154,8 @@ main{flex:1;min-height:0;overflow:auto}
 #ticket .etq .p{font-size:1.25em;font-weight:700}
 #ticket .etq .d{font-size:.95em;line-height:1.3;margin-top:1mm}
 #ticket .etq .nota{font-size:1.05em;font-weight:700;margin:.5mm 0 1mm}
-#ticket .etq .lista{border-top:1px solid #000;border-bottom:1px solid #000;padding:1.2mm 0;margin:1.2mm 0}
+#ticket .etq .lista{border-top:1px solid #000;border-bottom:1px solid #000;padding:1.2mm 0;margin:1.2mm 0;text-align:left}
+#ticket .etq .itd{font-size:.92em;line-height:1.2;margin:0 0 1mm 5mm}
 #ticket .etq .it{font-size:1.2em;line-height:1.35}
 #ticket .etq .it b{font-size:1.1em}
 #ticket .etq .marca{font-size:.85em;letter-spacing:.1em;text-transform:uppercase}
@@ -1211,9 +1212,9 @@ function printComanda(){
   $('#ticket').innerHTML = `
     <div class="c"><h1>COMANDA</h1><div style="font-size:1.5em;font-weight:700">${esc(m?m.nombre:'Rápida')}</div>${esPedido(m)&&horaCorta(m.hora)?`<div style="font-size:1.3em;font-weight:800">ENTREGA ${esc(horaCorta(m.hora))}</div>`:''}${hhmm(now)}${esPedido(m)&&m.nota?`<div>${esc(m.nota)}</div>`:''}</div>
     <hr>
-    <table>${(()=>{ const sum={};
-      pend.forEach(l=>{ const k=l.nombre; sum[k]=(sum[k]||0)+(l.qty-(l.env||0)); });
-      return Object.keys(sum).map(k=>`<tr><td style="font-size:1.35em;font-weight:700;padding:3px 0">${sum[k]} x ${esc(k)}</td></tr>`).join('');
+    <table>${(()=>{ const sum={}, des={};
+      pend.forEach(l=>{ const k=l.nombre; sum[k]=(sum[k]||0)+(l.qty-(l.env||0)); des[k]=descLinea(l); });
+      return Object.keys(sum).map(k=>`<tr><td style="padding:3px 0"><span style="font-size:1.35em;font-weight:700">${sum[k]} x ${esc(k)}</span>${des[k]?`<br><span style="font-size:1em">${esc(des[k])}</span>`:''}</td></tr>`).join('');
     })()}</table>
     ${(()=>{ if(!esPedido(m)) return '';
       const ns = personas().filter(q=>q.nota && state.cart.some(l=>l.quien===q.id));
@@ -1259,7 +1260,8 @@ function printEtiquetas(){
       <div class="ebarra"></div>
       ${e.firma ? `<img class="qimg" src="${e.firma}" alt="">` : `<div class="q">${esc(e.quien||'Sin nombre')}</div>`}
       ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
-      <div class="lista">${e.lineas.map(l=>`<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`).join('')}</div>
+      <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
+        return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
       <div class="d">${esc(m.nombre)}${horaCorta(m.hora)?' &middot; '+esc(horaCorta(m.hora)):''}</div>
       ${cuponEtq(c)}
       ${redes?`<div class="eredes">${esc(redes).replace(/\n/g,'<br>')}</div>`:''}
@@ -1280,6 +1282,11 @@ function addToCart(p, precio){
 }
 function cartTotal(){ return state.cart.reduce((s,l)=>s+l.precio*l.qty,0); }
 function cartCount(){ return state.cart.reduce((s,l)=>s+l.qty,0); }
+// "PAQUETE 1|3 tacos + consome" -> la parte de la derecha, para que el que empaca sepa que lleva
+function descLinea(l){
+  const p = state.products.find(x=>x.id===l.id);
+  return p ? pDesc(p) : '';
+}
 function filaLinea(l, i){
   return `<div class="line">
       <div><div class="n">${esc(l.nombre)}</div><div class="sub num">${money(l.precio)} c/u</div>${(l.env||0)>=l.qty?'<div class="env">✓ en cocina</div>':(l.env?`<div class="env">${l.env} en cocina · ${l.qty-l.env} nuevo</div>`:'')}</div>
