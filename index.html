@@ -361,6 +361,13 @@ td.r,th.r{text-align:right}
   .grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 }
 
+.acciones-cuenta{display:flex;gap:8px;padding:0 16px 8px}
+.acciones-cuenta button{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;margin:0;padding:8px 6px;line-height:1.15;font-size:14px}
+.acciones-cuenta button[hidden]{display:none}
+.acciones-cuenta .ic{font-size:17px;line-height:1}
+.acciones-cuenta small{font-size:10.5px;font-weight:600;opacity:.75;letter-spacing:.01em}
+.cobrar{padding:15px}
+
 /* reloj circular para elegir la hora */
 .reloj{margin-top:6px}
 .rdisp{display:flex;align-items:center;justify-content:center;gap:4px}
@@ -415,9 +422,11 @@ td.r,th.r{text-align:right}
             <div class="row"><span id="t-count">0 artículos</span><span></span></div>
             <div class="big"><small>Total</small><span class="num" id="t-total">$0.00</span></div>
           </div>
-          <button class="comanda" id="btn-comanda" disabled>🍳 Enviar comanda a cocina</button>
-          <button class="comanda" id="btn-etiquetas" hidden>🏷️ Imprimir etiquetas</button>
-          <button class="cobrar-exacto" id="btn-cobrar-exacto" disabled>⚡ Cobrar exacto e imprimir</button>
+          <div class="acciones-cuenta">
+            <button class="comanda" id="btn-comanda" disabled><span class="ic">🍳</span>Comanda<small>a cocina</small></button>
+            <button class="comanda" id="btn-etiquetas" hidden><span class="ic">🏷️</span>Etiquetas<small>por persona</small></button>
+            <button class="cobrar-exacto" id="btn-cobrar-exacto" disabled><span class="ic">⚡</span>Exacto<small>cobra e imprime</small></button>
+          </div>
           <button class="cobrar" id="btn-cobrar" disabled>Cobrar</button>
         </aside>
       </div>
