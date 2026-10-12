@@ -375,8 +375,8 @@ td.r,th.r{text-align:right}
 
 /* ---- impresion en hoja carta (Epson L3250 y similares) ---- */
 :root[data-papel="carta"] #ticket{font-size:13px;line-height:1.35}
-:root[data-papel="carta"] #ticket .etq-hoja{display:grid;grid-template-columns:1fr 1fr;gap:0}
-:root[data-papel="carta"] #ticket .etq{border:1px dashed #666;margin:0;padding:6mm 4mm;min-height:84mm;
+:root[data-papel="carta"] #ticket .etq-hoja{display:grid;grid-template-columns:repeat(auto-fill,80mm);gap:0;justify-content:start}
+:root[data-papel="carta"] #ticket .etq{border:1px dashed #666;margin:0;padding:5mm 4mm;width:80mm;height:150mm;box-sizing:border-box;
   display:flex;flex-direction:column;justify-content:center;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
 :root[data-papel="carta"] #ticket .etq .elogo{width:34%}
 :root[data-papel="carta"] #ticket .etq .q{font-size:2.6em}
@@ -384,7 +384,7 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] #ticket .etq .it{font-size:1.1em}
 @media print{
   :root[data-papel="carta"] #ticket{width:80mm;padding:9mm 8mm}
-  :root[data-papel="carta"] #ticket.hoja{width:190mm}
+  :root[data-papel="carta"] #ticket.hoja{width:auto;padding:5mm}
   :root[data-papel="carta"] #ticket .corte{display:none}
 }
 
