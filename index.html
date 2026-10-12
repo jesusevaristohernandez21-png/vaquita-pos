@@ -135,7 +135,9 @@ main{flex:1;min-height:0;overflow:auto}
 .personas button img{height:20px;width:auto;vertical-align:middle}
 .grupo-p img{height:24px;width:auto;vertical-align:middle}
 #ticket .etq .qimg{display:block;max-width:100%;margin:1mm auto;image-rendering:pixelated}
-#ticket .etq .elogo{display:block;width:46%;margin:0 auto .3mm}
+#ticket .etq .ecab{display:flex;align-items:center;justify-content:center;gap:2mm}
+#ticket .etq .etit{text-align:left}
+#ticket .etq .elogo{display:block;width:34%;margin:0}
 #ticket .etq .ebarra{border-top:2px solid #000;margin:1mm 0 1.6mm}
 #ticket .etq .eredes{font-size:.95em;font-weight:700;margin-top:1.6mm;letter-spacing:.02em}
 #ticket .etq .egracias{font-size:.9em;margin-top:.5mm;font-style:italic}
@@ -379,8 +381,10 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] #ticket .etq-hoja{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(86mm,auto);gap:0}
 :root[data-papel="carta"] #ticket .etq{border:1px dashed #666;margin:0;padding:2.5mm 3mm;box-sizing:border-box;font-size:10.5px;
   display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
-:root[data-papel="carta"] #ticket .etq .elogo{width:12%;margin-bottom:0}
-:root[data-papel="carta"] #ticket .etq .marca{font-size:.8em}
+:root[data-papel="carta"] #ticket .etq .ecab{gap:3mm;justify-content:flex-start;padding:0 1mm}
+:root[data-papel="carta"] #ticket .etq .elogo{width:auto;height:16mm;margin:0}
+:root[data-papel="carta"] #ticket .etq .marca{font-size:1.15em;font-weight:800;letter-spacing:.06em}
+:root[data-papel="carta"] #ticket .etq .etit .eredes{font-size:.85em;font-weight:600;letter-spacing:0;margin-top:.4mm;line-height:1.2}
 :root[data-papel="carta"] #ticket .etq .ebarra{margin:.6mm 0 1mm;border-top-width:1.5px}
 :root[data-papel="carta"] #ticket .etq .q{font-size:1.9em;margin:.2mm 0}
 :root[data-papel="carta"] #ticket .etq .qimg{max-height:11mm;width:auto;margin:.4mm auto}
@@ -393,7 +397,6 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] #ticket .etq .ecup .ofr{font-size:1.05em;margin:.2mm 0 0}
 :root[data-papel="carta"] #ticket .etq .ecup .sig{display:none}
 :root[data-papel="carta"] #ticket .etq .ecup .pal{font-size:1.15em;margin:.2mm 0 .3mm;padding:.3mm 0}
-:root[data-papel="carta"] #ticket .etq .eredes{margin-top:.6mm;font-size:.85em}
 :root[data-papel="carta"] #ticket .etq .egracias{display:none}
 @media print{
   :root[data-papel="carta"] #ticket{width:80mm;padding:9mm 8mm}
@@ -1268,8 +1271,14 @@ function printEtiquetas(){
   const hoja = aplicaPapel(true);
   $('#ticket').innerHTML = '<div class="etq-hoja">' + etqs.map((e,i)=>`
     <div class="etq">
-      ${window.LOGO_TICKET ? `<img class="elogo" src="${window.LOGO_TICKET}" alt="">` : ''}
-      <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
+      <div class="ecab">
+        ${window.LOGO_TICKET ? `<img class="elogo" src="${window.LOGO_TICKET}" alt="">` : ''}
+        <div class="etit">
+          <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
+          ${redes ? `<div class="eredes">${esc(redes).replace(/\n/g,' &middot; ')}</div>`
+                  : (c.dir ? `<div class="eredes">${esc(c.dir)}${c.tel?' &middot; '+esc(c.tel):''}</div>` : '')}
+        </div>
+      </div>
       <div class="ebarra"></div>
       ${e.firma ? `<img class="qimg" src="${e.firma}" alt="">` : `<div class="q">${esc(e.quien||'Sin nombre')}</div>`}
       ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
@@ -1277,7 +1286,6 @@ function printEtiquetas(){
         return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
       <div class="d">${esc(m.nombre)}${horaCorta(m.hora)?' &middot; '+esc(horaCorta(m.hora)):''}</div>
       ${cuponEtq(c)}
-      ${redes?`<div class="eredes">${esc(redes).replace(/\n/g,'<br>')}</div>`:''}
       ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
     </div>
     ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div><br><br>';
