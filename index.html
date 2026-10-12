@@ -385,6 +385,9 @@ td.r,th.r{text-align:right}
 @media print{
   :root[data-papel="carta"] #ticket{width:80mm;padding:9mm 8mm}
   :root[data-papel="carta"] #ticket.hoja{width:196mm;padding:5mm}
+  body.hojas > *:not(#ticket){display:none !important}
+  body.hojas, html:has(body.hojas){height:auto !important;overflow:visible !important}
+  body.hojas #ticket{position:static !important;overflow:visible !important}
   :root[data-papel="carta"] #ticket .corte{display:none}
 }
 
@@ -1230,6 +1233,10 @@ function aplicaPapel(etiquetas){
   const hoja = (a === 'carta');
   document.documentElement.setAttribute('data-papel', hoja ? 'carta' : 'rollo');
   document.documentElement.style.setProperty('--tw', hoja ? '190mm' : a);
+  // en hoja carta el ticket tiene que colgar del body y estar en flujo normal,
+  // si no Chrome lo corta en la primera pagina
+  if(t && t.parentNode !== document.body) document.body.appendChild(t);
+  document.body.classList.add('hojas');
   return hoja;
 }
 function printEtiquetas(){
