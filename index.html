@@ -375,13 +375,26 @@ td.r,th.r{text-align:right}
 
 /* ---- impresion en hoja carta (Epson L3250 y similares) ---- */
 :root[data-papel="carta"] #ticket{font-size:13px;line-height:1.35}
-:root[data-papel="carta"] #ticket .etq-hoja{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:131mm;gap:0}
-:root[data-papel="carta"] #ticket .etq{border:1px dashed #666;margin:0;padding:5mm 4mm;box-sizing:border-box;
-  display:flex;flex-direction:column;justify-content:center;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
-:root[data-papel="carta"] #ticket .etq .elogo{width:34%}
-:root[data-papel="carta"] #ticket .etq .q{font-size:2.6em}
-:root[data-papel="carta"] #ticket .etq .qimg{max-height:16mm;width:auto}
-:root[data-papel="carta"] #ticket .etq .it{font-size:1.1em}
+/* 6 etiquetas por hoja: 2 columnas x 3 filas, aprovechando toda la pagina */
+:root[data-papel="carta"] #ticket .etq-hoja{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(86mm,auto);gap:0}
+:root[data-papel="carta"] #ticket .etq{border:1px dashed #666;margin:0;padding:2.5mm 3mm;box-sizing:border-box;font-size:10.5px;
+  display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+:root[data-papel="carta"] #ticket .etq .elogo{width:12%;margin-bottom:0}
+:root[data-papel="carta"] #ticket .etq .marca{font-size:.8em}
+:root[data-papel="carta"] #ticket .etq .ebarra{margin:.6mm 0 1mm;border-top-width:1.5px}
+:root[data-papel="carta"] #ticket .etq .q{font-size:1.9em;margin:.2mm 0}
+:root[data-papel="carta"] #ticket .etq .qimg{max-height:11mm;width:auto;margin:.4mm auto}
+:root[data-papel="carta"] #ticket .etq .lista{padding:.8mm 0;margin:.8mm 0}
+:root[data-papel="carta"] #ticket .etq .it{font-size:1.15em;line-height:1.2}
+:root[data-papel="carta"] #ticket .etq .itd{font-size:.95em;margin:0 0 .5mm 4mm;line-height:1.15}
+:root[data-papel="carta"] #ticket .etq .ecup{padding:.8mm;margin-top:.8mm}
+:root[data-papel="carta"] #ticket .etq .ecup .et{font-size:.7em}
+:root[data-papel="carta"] #ticket .etq .ecup .let{font-size:.75em}
+:root[data-papel="carta"] #ticket .etq .ecup .ofr{font-size:1.05em;margin:.2mm 0 0}
+:root[data-papel="carta"] #ticket .etq .ecup .sig{display:none}
+:root[data-papel="carta"] #ticket .etq .ecup .pal{font-size:1.15em;margin:.2mm 0 .3mm;padding:.3mm 0}
+:root[data-papel="carta"] #ticket .etq .eredes{margin-top:.6mm;font-size:.85em}
+:root[data-papel="carta"] #ticket .etq .egracias{display:none}
 @media print{
   :root[data-papel="carta"] #ticket{width:80mm;padding:9mm 8mm}
   :root[data-papel="carta"] #ticket.hoja{width:196mm;padding:5mm}
