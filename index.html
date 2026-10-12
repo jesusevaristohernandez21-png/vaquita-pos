@@ -368,6 +368,21 @@ td.r,th.r{text-align:right}
 .acciones-cuenta small{font-size:10.5px;font-weight:600;opacity:.75;letter-spacing:.01em}
 .cobrar{padding:15px}
 
+/* ---- impresion en hoja carta (Epson L3250 y similares) ---- */
+:root[data-papel="carta"] #ticket{font-size:13px;line-height:1.35}
+:root[data-papel="carta"] #ticket .etq-hoja{display:grid;grid-template-columns:1fr 1fr;gap:0}
+:root[data-papel="carta"] #ticket .etq{border:1px dashed #666;margin:0;padding:6mm 4mm;min-height:84mm;
+  display:flex;flex-direction:column;justify-content:center;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+:root[data-papel="carta"] #ticket .etq .elogo{width:34%}
+:root[data-papel="carta"] #ticket .etq .q{font-size:2.6em}
+:root[data-papel="carta"] #ticket .etq .qimg{max-height:16mm;width:auto}
+:root[data-papel="carta"] #ticket .etq .it{font-size:1.1em}
+@media print{
+  :root[data-papel="carta"] #ticket{width:80mm;padding:9mm 8mm}
+  :root[data-papel="carta"] #ticket.hoja{width:190mm}
+  :root[data-papel="carta"] #ticket .corte{display:none}
+}
+
 /* reloj circular para elegir la hora */
 .reloj{margin-top:6px}
 .rdisp{display:flex;align-items:center;justify-content:center;gap:4px}
@@ -469,7 +484,7 @@ td.r,th.r{text-align:right}
             <label class="f" style="grid-column:1/-1">Dirección <input id="c-dir"></label>
             <label class="f" style="grid-column:1/-1">Mensaje al pie <input id="c-msg"></label>
             <label class="f" style="grid-column:1/-1">Redes sociales (sale en el ticket y en las etiquetas) <input id="c-redes" placeholder="@lavaquitafeliz · FB: La Vaquita Feliz"></label>
-            <label class="f">Ancho de papel <select id="c-ancho"><option value="58mm">58 mm</option><option value="80mm">80 mm</option></select></label>
+            <label class="f">Ancho de papel <select id="c-ancho"><option value="58mm">Rollo t&eacute;rmico 58 mm</option><option value="80mm">Rollo t&eacute;rmico 80 mm</option><option value="carta">Hoja carta (impresora normal)</option></select></label>
             <label class="f">Imprimir al cobrar <select id="c-auto"><option value="1">Sí, automático</option><option value="0">No, solo con botón</option></select></label>
           </div>
           <h3 style="margin-top:22px">Cup&oacute;n de cortes&iacute;a</h3>
@@ -1191,7 +1206,7 @@ $('#np-del').onclick=()=>{
 
 function printComanda(){
   const m=mesaActiva(); const pend=pendientesComanda(); if(!pend.length) return;
-  const c=state.cfg; document.documentElement.style.setProperty('--tw', c.ancho||'58mm');
+  const c=state.cfg; aplicaPapel();
   const now=Date.now();
   $('#ticket').innerHTML = `
     <div class="c"><h1>COMANDA</h1><div style="font-size:1.5em;font-weight:700">${esc(m?m.nombre:'Rápida')}</div>${esPedido(m)&&horaCorta(m.hora)?`<div style="font-size:1.3em;font-weight:800">ENTREGA ${esc(horaCorta(m.hora))}</div>`:''}${hhmm(now)}${esPedido(m)&&m.nota?`<div>${esc(m.nota)}</div>`:''}</div>
@@ -1214,10 +1229,19 @@ function printComanda(){
 $('#btn-comanda').onclick=printComanda;
 
 // ---------- etiquetas por paquete ----------
+function aplicaPapel(etiquetas){
+  const t = document.getElementById('ticket');
+  if(t) t.classList.toggle('hoja', !!etiquetas);
+  const a = state.cfg.ancho || '58mm';
+  const hoja = (a === 'carta');
+  document.documentElement.setAttribute('data-papel', hoja ? 'carta' : 'rollo');
+  document.documentElement.style.setProperty('--tw', hoja ? '190mm' : a);
+  return hoja;
+}
 function printEtiquetas(){
   const m = pedidoActivo(); if(!m) return;
   const c = state.cfg;
-  document.documentElement.style.setProperty('--tw', c.ancho||'58mm');
+  aplicaPapel();
   const grupos = [...personas().map(q=>q.id), null];
   const etqs = grupos.map(id=>{
     const lineas = state.cart.filter(l=>(l.quien||null)===(id||null));
@@ -1227,7 +1251,8 @@ function printEtiquetas(){
   }).filter(Boolean);
   if(!etqs.length){ toast('Este pedido está vacío'); return; }
   const redes = (c.redes||'').trim();
-  $('#ticket').innerHTML = etqs.map((e,i)=>`
+  const hoja = aplicaPapel(true);
+  $('#ticket').innerHTML = '<div class="etq-hoja">' + etqs.map((e,i)=>`
     <div class="etq">
       ${window.LOGO_TICKET ? `<img class="elogo" src="${window.LOGO_TICKET}" alt="">` : ''}
       <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
@@ -1240,7 +1265,7 @@ function printEtiquetas(){
       ${redes?`<div class="eredes">${esc(redes).replace(/\n/g,'<br>')}</div>`:''}
       ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
     </div>
-    ${i<etqs.length-1?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '<br><br>';
+    ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div><br><br>';
   toast(etqs.length+' etiqueta'+(etqs.length===1?'':'s'));
   setTimeout(()=>window.print(), 80);
 }
@@ -1429,7 +1454,7 @@ function bloqueCupon(c){
     </div>`;
 }
 function printTicket(sale){
-  const c=state.cfg; document.documentElement.style.setProperty('--tw', c.ancho||'58mm');
+  const c=state.cfg; aplicaPapel();
   const d=new Date(sale.ts);
   const mesa = (sale.nota||'').trim();
   $('#ticket').innerHTML = `
@@ -1461,7 +1486,7 @@ function printTicket(sale){
   setTimeout(()=>window.print(), 80);
 }
 function printCorte(){
-  const c=state.cfg; document.documentElement.style.setProperty('--tw', c.ancho||'58mm');
+  const c=state.cfg; aplicaPapel();
   const s=Object.values(state.histSales).filter(v=>!v.cancelada);
   const byPago={}; s.forEach(v=>byPago[v.pago]=(byPago[v.pago]||0)+v.total);
   const byProd={}; s.forEach(v=>v.items.forEach(i=>{ byProd[i.n]=byProd[i.n]||{q:0,t:0}; byProd[i.n].q+=i.q; byProd[i.n].t+=i.p*i.q; }));
@@ -1561,7 +1586,7 @@ function pintaPalabraHoy(){
 ['c-nombre','c-tel','c-dir','c-msg','c-redes','c-ancho','c-auto','c-cupon','c-cupal','c-cupmes','c-cupdias'].forEach(id=>{
   $('#'+id).addEventListener('input',()=>{
     state.cfg.nombre=$('#c-nombre').value; state.cfg.tel=$('#c-tel').value; state.cfg.dir=$('#c-dir').value; state.cfg.msg=$('#c-msg').value; state.cfg.redes=$('#c-redes').value;
-    state.cfg.ancho=$('#c-ancho').value; state.cfg.auto=$('#c-auto').value;
+    state.cfg.ancho=$('#c-ancho').value; state.cfg.auto=$('#c-auto').value; aplicaPapel();
     state.cfg.cupon=$('#c-cupon').value; state.cfg.cupon_palabra=$('#c-cupal').value;
     state.cfg.cupon_mes=$('#c-cupmes').value; state.cfg.cupon_dias=$('#c-cupdias').value||'30';
     pintaPalabraHoy();
@@ -1741,7 +1766,7 @@ $('#mc-close').onclick=()=>$('#m-compras').classList.remove('open');
 $('#mc-copiar').onclick=()=>{ const t=$('#mc-txt'); t.select(); try{ document.execCommand('copy'); toast('Copiado'); }catch(e){ toast('Selecciónalo y cópialo'); } };
 $('#mc-wa').onclick=()=>{ window.open('https://wa.me/?text='+encodeURIComponent($('#mc-txt').value),'_blank'); };
 $('#mc-imp').onclick=()=>{
-  const c=state.cfg; document.documentElement.style.setProperty('--tw', c.ancho||'58mm');
+  const c=state.cfg; aplicaPapel();
   $('#ticket').innerHTML = `<div class="c"><h1>COMPRAS</h1>${new Date().toLocaleDateString('es-MX')}</div><hr>
     <div style="font-size:1.15em;white-space:pre-wrap">${esc(textoCompras().split('\n').slice(3).join('\n'))}</div><br><br>`;
   setTimeout(()=>window.print(), 80);
