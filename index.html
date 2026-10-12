@@ -620,7 +620,7 @@ td.r,th.r{text-align:right}
     <footer><button class="btn" id="mp2-cancel">Cancelar</button><button class="btn primary" id="mp2-ok">Abrir pedido</button></footer></div></div>
 
   <!-- PERSONAS MODAL -->
-  <div class="modal" id="m-nombres"><div class="card ancho"><header><span id="mn-titulo">Agregar personas</span><button id="mn-close" aria-label="Cerrar">&times;</button></header>
+  <div class="modal" id="m-nombres"><div class="card ancho"><header><span id="mn-titulo">Agregar una persona</span><button id="mn-close" aria-label="Cerrar">&times;</button></header>
     <div class="body">
       <div class="seg2">
         <button id="mn-tab-pluma" aria-pressed="true">&#9999;&#65039; Con pluma</button>
@@ -628,25 +628,23 @@ td.r,th.r{text-align:right}
       </div>
 
       <div id="mn-pluma">
-        <p class="hint">Escribe el nombre en el recuadro y dale <b>Siguiente</b>. Se repite para cada persona.</p>
+        <p class="hint">Escribe <b>un</b> nombre en el recuadro y dale <b>Agregar</b>. Despu&eacute;s le t&oacute;cale lo que pidi&oacute;, y hasta entonces agregas al siguiente.</p>
         <div class="lienzo-caja">
           <canvas id="mn-canvas"></canvas>
           <div class="lienzo-guia" id="mn-guia">Escribe aqu&iacute; el nombre</div>
         </div>
         <div class="lienzo-botones">
           <button class="btn" id="mn-borrar">Borrar</button>
-          <button class="btn primary" id="mn-sig">Siguiente &rarr;</button>
         </div>
-        <div id="mn-firmas" class="firmas"></div>
       </div>
 
       <div id="mn-tecla" hidden>
-        <p class="hint">Un nombre por rengl&oacute;n.</p>
-        <textarea id="mn-val" rows="6" placeholder="Luis&#10;Ana&#10;Pedro"></textarea>
+        <p class="hint">El nombre de <b>una</b> persona.</p>
+        <input id="mn-val" placeholder="Luis">
         <div id="mn-cuenta" class="mn-cuenta"></div>
       </div>
     </div>
-    <footer><button class="btn" id="mn-close2">Cancelar</button><button class="btn primary" id="mn-ok">Listo</button></footer></div></div>
+    <footer><button class="btn" id="mn-close2">Cancelar</button><button class="btn primary" id="mn-ok">Agregar</button></footer></div></div>
 
   <!-- NOTA DE PERSONA -->
   <div class="modal" id="m-nota-p"><div class="card"><header><span id="np-titulo">Persona</span><button id="np-close" aria-label="Cerrar">&times;</button></header>
@@ -1129,20 +1127,7 @@ function recortaFirma(){
   oc.putImageData(id,0,0);
   return out.toDataURL('image/png');
 }
-function renderFirmas(){
-  $('#mn-firmas').innerHTML = lz.pend.map((f,i)=>
-    `<div class="f"><img src="${f}" alt="nombre"><button data-fdel="${i}" aria-label="Quitar">&times;</button></div>`).join('');
-}
-$('#mn-firmas').addEventListener('click', e=>{
-  const b=e.target.closest('[data-fdel]'); if(!b) return;
-  lz.pend.splice(+b.dataset.fdel,1); renderFirmas();
-});
 $('#mn-borrar').onclick = limpiaLienzo;
-$('#mn-sig').onclick = ()=>{
-  if(lz.vacio){ toast('Escribe el nombre primero'); return; }
-  const f = recortaFirma(); if(!f) return;
-  lz.pend.push(f); limpiaLienzo(); renderFirmas();
-};
 function modoPluma(on){
   $('#mn-tab-pluma').setAttribute('aria-pressed', on);
   $('#mn-tab-tecla').setAttribute('aria-pressed', !on);
@@ -1156,29 +1141,33 @@ $('#mn-tab-tecla').onclick=()=>modoPluma(false);
 
 function abrePersonas(){
   $('#mn-val').value=''; $('#mn-cuenta').textContent='';
-  lz.pend=[]; renderFirmas();
+  lz.pend=[];
   $('#m-nombres').classList.add('open');
   modoPluma(ls.get('vf_modo_nombre','pluma')!=='tecla');
 }
 function cierraNombres(){ $('#m-nombres').classList.remove('open'); }
 $('#mn-close').onclick=$('#mn-close2').onclick=cierraNombres;
-$('#mn-val').addEventListener('input',()=>{
-  const n=nombresDe($('#mn-val').value).length;
-  $('#mn-cuenta').textContent = n ? n+' persona'+(n===1?'':'s') : '';
-});
+$('#mn-val').addEventListener('input',()=>{ $('#mn-cuenta').textContent=''; });
+$('#mn-val').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#mn-ok').click(); } });
+// Una persona a la vez: se agrega, se selecciona sola y se cierra,
+// para que ahi mismo le toquen lo que pidio antes de pasar al siguiente.
 $('#mn-ok').onclick=()=>{
   const m=pedidoActivo(); if(!m) return;
-  // si quedó algo escrito en el lienzo sin dar "Siguiente", se toma igual
-  if(!$('#mn-pluma').hidden && !lz.vacio){ const f=recortaFirma(); if(f) lz.pend.push(f); }
-  const nuevos = [];
-  lz.pend.forEach((f,i)=> nuevos.push({id:'q'+Date.now().toString(36)+i, nombre:'', firma:f, nota:''}));
-  nombresDe($('#mn-val').value).forEach((n,i)=> nuevos.push({id:'q'+Date.now().toString(36)+'t'+i, nombre:n, nota:''}));
-  if(!nuevos.length){ toast('Escribe al menos un nombre'); return; }
-  m.personas = (m.personas||[]).concat(nuevos);
+  let nuevo = null;
+  if(!$('#mn-pluma').hidden){
+    if(lz.vacio){ toast('Escribe el nombre primero'); return; }
+    const f = recortaFirma(); if(!f) return;
+    nuevo = {id:'q'+Date.now().toString(36), nombre:'', firma:f, nota:''};
+  } else {
+    const n = (nombresDe($('#mn-val').value)[0]||'').trim();
+    if(!n){ toast('Escribe el nombre primero'); return; }
+    nuevo = {id:'q'+Date.now().toString(36), nombre:n, nota:''};
+  }
+  m.personas = (m.personas||[]).concat([nuevo]);
   lz.pend=[]; cierraNombres();
-  quienSel = nuevos[0].id;
+  quienSel = nuevo.id;
   saveMesas(); renderPersonas(); renderCart();
-  toast(nuevos.length+' persona'+(nuevos.length===1?'':'s')+' · toca a quien le vas a poner');
+  toast('Ahora t\u00f3cale lo que pidi\u00f3');
 };
 
 // editar / quitar una persona
