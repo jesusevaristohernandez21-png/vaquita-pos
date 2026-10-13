@@ -501,7 +501,7 @@ td.r,th.r{text-align:right}
             <div class="big"><small>Total</small><span class="num" id="t-total">$0.00</span></div>
           </div>
           <div class="acciones-cuenta">
-            <button class="comanda" id="btn-comanda" disabled><span class="ic">🍳</span>Comanda<small>a cocina</small></button>
+            <button class="comanda" id="btn-ver" disabled><span class="ic">👁</span>Ver ticket<small>antes de cobrar</small></button>
             <button class="comanda" id="btn-etiquetas" hidden><span class="ic">🏷️</span>Etiquetas<small>por persona</small></button>
             <button class="cobrar-exacto" id="btn-cobrar-exacto" disabled><span class="ic">⚡</span>Exacto<small>cobra e imprime</small></button>
           </div>
@@ -1292,7 +1292,7 @@ function printComanda(){
   toast('Comanda enviada'+(m?' · '+m.nombre:''));
   setTimeout(()=>window.print(), 80);
 }
-$('#btn-comanda').onclick=printComanda;
+$('#btn-ver').onclick=()=>verTicket();
 
 // ---------- etiquetas por paquete ----------
 function aplicaPapel(etiquetas){
@@ -1392,7 +1392,7 @@ function renderCart(){
   $('#cb-total').textContent = money(t);
   $('#btn-cobrar').disabled = !state.cart.length;
   $('#btn-cobrar-exacto').disabled = !state.cart.length;
-  $('#btn-comanda').disabled = !pendientesComanda().length;
+  $('#btn-ver').disabled = !state.cart.length;
   const m=mesaActiva();
   $('#cart-title').textContent = m ? (esPedido(m)? '📦 '+m.nombre+(horaCorta(m.hora)?' · '+horaCorta(m.hora):'') : m.nombre) : 'Cuenta';
   $('#clear-cart').textContent = m ? (esPedido(m)?'Cancelar pedido':'Cancelar mesa') : 'Vaciar';
