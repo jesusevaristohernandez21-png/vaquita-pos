@@ -158,15 +158,15 @@ main{flex:1;min-height:0;overflow:auto}
 :is(#ticket,#tkprev) .etq{text-align:center;padding:2mm 0}
 :is(#ticket,#tkprev) .etq .q{font-size:2.3em;font-weight:800;line-height:1.1;margin:1mm 0}
 :is(#ticket,#tkprev) .etq .p{font-size:1.25em;font-weight:700}
-:is(#ticket,#tkprev) .etq .d{font-size:.95em;line-height:1.3;margin-top:1mm}
+:is(#ticket,#tkprev) .etq .d{font-size:.95em;line-height:1.3;margin-top:1mm;font-weight:700}
 :is(#ticket,#tkprev) .etq .nota{font-size:1.05em;font-weight:700;margin:.5mm 0 1mm}
 :is(#ticket,#tkprev) .etq .lista{border-top:1px solid #000;border-bottom:1px solid #000;padding:1.2mm 0;margin:1.2mm 0;text-align:left}
 :is(#ticket,#tkprev) .grp{display:flex;justify-content:space-between;align-items:center;gap:2mm;
   border-top:1px solid #000;margin-top:1.4mm;padding-top:.8mm;font-weight:800;font-size:12.5px}
 :is(#ticket,#tkprev) .grp .tfirma{height:7mm;width:auto;image-rendering:pixelated}
 :is(#ticket,#tkprev) .gnota{font-size:10px;margin-bottom:.4mm}
-:is(#ticket,#tkprev) .etq .itd{font-size:.92em;line-height:1.2;margin:0 0 1mm 5mm}
-:is(#ticket,#tkprev) .etq .it{font-size:1.2em;line-height:1.35}
+:is(#ticket,#tkprev) .etq .itd{font-size:.92em;line-height:1.2;margin:0 0 1mm 5mm;font-weight:600}
+:is(#ticket,#tkprev) .etq .it{font-size:1.2em;line-height:1.35;font-weight:700}
 :is(#ticket,#tkprev) .etq .it b{font-size:1.1em}
 :is(#ticket,#tkprev) .etq .marca{font-size:.85em;letter-spacing:.1em;text-transform:uppercase}
 :is(#ticket,#tkprev) .corte{border-top:1px dashed #000;margin:3mm 0 0;padding-top:1.2mm;text-align:center;font-size:.75em;letter-spacing:.14em;color:#555}
@@ -390,11 +390,11 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] :is(#ticket,#tkprev){font-size:13px;line-height:1.35}
 /* 6 etiquetas por hoja: 2 columnas x 3 filas, aprovechando toda la pagina */
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq-hoja{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(88mm,auto);gap:0}
-:root[data-papel="carta"] :is(#ticket,#tkprev) .etq{border:1px dashed #666;margin:0;padding:2.5mm 3mm;box-sizing:border-box;font-size:10.5px;
+:root[data-papel="carta"] :is(#ticket,#tkprev) .etq{border:1px dashed #666;margin:0;padding:2.5mm 3mm;box-sizing:border-box;font-size:10.5px;font-weight:600;color:#000;
   display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
 /* en hoja carta la impresora es de tinta: la etiqueta va a color */
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .marca{color:#2F6B3F}
-:root[data-papel="carta"] :is(#ticket,#tkprev) .etq .etit .eredes{color:#4A4740}
+:root[data-papel="carta"] :is(#ticket,#tkprev) .etq .etit .eredes{color:#3A3832;font-weight:700}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .rsb.fb{background:#1877F2;font-family:Georgia,serif}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .rsb.ig{background:#C13584;font-size:.85em;letter-spacing:.02em}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .ebarra{border-top-color:#2F6B3F;border-top-width:2px}
@@ -419,7 +419,7 @@ td.r,th.r{text-align:right}
   color:#B5451B;letter-spacing:.02em;margin:.2mm 0 .4mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .eop{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:1.5mm;text-align:left}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .eop b{display:block;font-size:1.15em;line-height:1.05;color:#2F6B3F}
-:root[data-papel="carta"] :is(#ticket,#tkprev) .etq .eop span{display:block;font-size:.85em;color:#4A4740;margin-top:.5mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev) .etq .eop span{display:block;font-size:.85em;color:#4A4740;margin-top:.5mm;font-weight:700}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .eic{height:5.5mm;width:auto;display:block}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .eic.grande{height:9mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .epie2{display:flex;align-items:center;justify-content:center;gap:1.8mm;
@@ -435,7 +435,7 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .itd{font-size:.95em;margin:0 0 .5mm 4mm;line-height:1.15}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .ecup{padding:.8mm;margin-top:.8mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .ecup .et{font-size:.7em}
-:root[data-papel="carta"] :is(#ticket,#tkprev) .etq .ecup .let{font-size:.75em}
+:root[data-papel="carta"] :is(#ticket,#tkprev) .etq .ecup .let{font-size:.78em;font-weight:700}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .ecup .ofr{font-size:1.05em;margin:.2mm 0 0}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .ecup .sig{display:none}
 :root[data-papel="carta"] :is(#ticket,#tkprev) .etq .ecup .pal{font-size:1.15em;margin:.2mm 0 .3mm;padding:.3mm 0}
@@ -633,7 +633,8 @@ td.r,th.r{text-align:right}
       <div class="vistabox"><div id="tkprev"></div></div>
       <div class="waline">
         <input id="mv-tel" inputmode="tel" placeholder="Celular del cliente (opcional)">
-        <button class="btn wa" id="mv-wa">📲 Enviar por WhatsApp</button>
+        <button class="btn wa" id="mv-wa">📲 Enviar imagen</button>
+        <button class="btn" id="mv-wa-txt">Como texto</button>
       </div>
     </div>
     <footer><button class="btn" id="mv-cancel">Corregir la cuenta</button><button class="btn primary" id="mv-ok">Est&aacute; bien, cobrar</button></footer></div></div>
@@ -1718,7 +1719,128 @@ function enviarWhats(){
   window.open(url, '_blank');
   toast(tel ? 'Abriendo WhatsApp…' : 'Elige el contacto en WhatsApp');
 }
-$('#mv-wa').onclick=enviarWhats;
+$('#mv-wa-txt').onclick=enviarWhats;
+
+// ---------- la cuenta como imagen (se ve igual que el ticket) ----------
+function imagenCuenta(sale){
+  const c = state.cfg, W = 760, P = 36, AN = W - P*2;
+  const cv = document.createElement('canvas'), x = cv.getContext('2d');
+  const F = (px, peso, fam) => (peso||'400')+' '+px+'px '+(fam||'"Helvetica Neue",Arial,sans-serif');
+
+  // 1) armamos la lista de cosas a dibujar y vamos midiendo el alto
+  const ops = []; let H = P;
+  const logo = window.LOGO_COLOR ? new Image() : null;
+  const LOGO_H = 150;
+  if(logo){ logo.src = window.LOGO_COLOR; ops.push({t:'logo', y:H, h:LOGO_H}); H += LOGO_H + 14; }
+  const linea = (txt, px, peso, color, al, sep) => {
+    x.font = F(px, peso);
+    const partes = [];
+    String(txt).split('\n').forEach(p=>{
+      let cur = '';
+      p.split(' ').forEach(w=>{
+        const t = cur ? cur+' '+w : w;
+        if(x.measureText(t).width > AN && cur){ partes.push(cur); cur = w; } else cur = t;
+      });
+      partes.push(cur);
+    });
+    partes.forEach(t=>{ ops.push({t:'txt', s:t, y:H+px, px, peso, color, al}); H += Math.round(px*1.3); });
+    H += (sep||0);
+  };
+  const dosCols = (izq, der, px, peso, color) => {
+    ops.push({t:'2c', a:izq, b:der, y:H+px, px, peso, color}); H += Math.round(px*1.35);
+  };
+  const regla = (grosor, color, sep) => { ops.push({t:'ln', y:H+4, g:grosor||1, color:color||'#000'}); H += 8+(sep||6); };
+
+  linea(c.nombre||'La Vaquita Feliz', 34, '800', '#B5451B', 'center', 2);
+  if(c.dir) linea(c.dir, 19, '400', '#555', 'center', 0);
+  if(c.tel) linea('Pedidos al '+c.tel, 19, '700', '#555', 'center', 6);
+  regla(2, '#2F6B3F', 8);
+  const d = new Date(sale.ts);
+  dosCols(d.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}), hhmm(sale.ts), 19, '400', '#555');
+  if(sale.nota) linea(sale.nota, 22, '700', '#1B1A16', 'left', 4);
+  regla(1, '#CFCCC2', 8);
+
+  const items = sale.items||[];
+  const porPersona = items.some(i=>i.w);
+  const renglones = (li)=> li.forEach(i=>{
+    dosCols(i.q+'  '+i.n, money(i.p*i.q), 22, '600', '#1B1A16');
+    if(i.d) linea('      '+i.d, 17, '400', '#777', 'left', 2);
+  });
+  if(porPersona){
+    const ids = [...new Set(items.map(i=>i.w||''))];
+    ids.sort((a,b)=> (a===''?1:0)-(b===''?1:0));
+    ids.forEach(id=>{
+      const li = items.filter(i=>(i.w||'')===id);
+      const st = li.reduce((a,i)=>a+i.p*i.q,0);
+      const q = (sale.quienes||[]).find(v=>v.id===id);
+      H += 6;
+      dosCols(id ? ((q&&q.n)?q.n:'Sin nombre') : 'General', money(st), 25, '800', '#2F6B3F');
+      if(q&&q.t) linea(q.t, 17, '400', '#B5451B', 'left', 0);
+      renglones(li);
+      H += 4;
+    });
+  } else renglones(items);
+
+  regla(2, '#000', 6);
+  dosCols('TOTAL', money(sale.total), 34, '800', '#1B1A16'); H += 6;
+  if(sale.pago==='Efectivo' && sale.recibido>sale.total){
+    dosCols('Efectivo', money(sale.recibido), 20, '400', '#555');
+    dosCols('Cambio', money(sale.cambio), 20, '400', '#555');
+  }
+
+  // cupon
+  const ofr = String(c.cupon||'').trim();
+  let cup = null;
+  if(ofr){
+    H += 14; const y0 = H; H += 14;
+    const corto = ofr.replace(/\s*(gratis|de\s+cortes[ií]a|sin\s+costo)\s*/ig,' ').replace(/\s+/g,' ').trim() || ofr;
+    linea('CORTESÍA', 16, '700', '#B5451B', 'center', 2);
+    linea(corto, 24, '700', '#1B1A16', 'center', 0);
+    linea('GRATIS', 44, '800', '#B5451B', 'center', 2);
+    const pal = palabraCupon(c);
+    if(pal){ linea('di la palabra', 16, '400', '#555', 'center', 0); linea(pal, 30, '800', '#2F6B3F', 'center', 2); }
+    linea(vigenciaCupon(c), 16, '400', '#555', 'center', 0);
+    H += 14; cup = {y0, y1:H};
+  }
+  H += P;
+
+  // 2) ahora si, dibujamos
+  cv.width = W; cv.height = H;
+  x.fillStyle = '#fff'; x.fillRect(0,0,W,H);
+  if(cup){ x.fillStyle='#FDF3EE'; x.strokeStyle='#B5451B'; x.lineWidth=2; x.setLineDash([7,5]);
+    x.beginPath(); x.rect(P, cup.y0, AN, cup.y1-cup.y0); x.fill(); x.stroke(); x.setLineDash([]); }
+  ops.forEach(o=>{
+    if(o.t==='logo'){ if(logo && logo.complete && logo.naturalWidth){
+        const w = o.h*logo.naturalWidth/logo.naturalHeight; x.drawImage(logo, (W-w)/2, o.y, w, o.h); } return; }
+    if(o.t==='ln'){ x.strokeStyle=o.color; x.lineWidth=o.g; x.beginPath(); x.moveTo(P,o.y); x.lineTo(W-P,o.y); x.stroke(); return; }
+    x.fillStyle = o.color||'#000'; x.font = F(o.px, o.peso);
+    if(o.t==='2c'){ x.textAlign='left'; x.fillText(o.a, P, o.y); x.textAlign='right'; x.fillText(o.b, W-P, o.y); return; }
+    if(o.al==='center'){ x.textAlign='center'; x.fillText(o.s, W/2, o.y); }
+    else { x.textAlign='left'; x.fillText(o.s, P, o.y); }
+  });
+  return cv;
+}
+async function enviarWhatsImagen(){
+  if(!state.cart.length){ toast('La cuenta está vacía'); return; }
+  const sale = ventaProvisional();
+  // el logo tiene que estar cargado antes de dibujar
+  if(window.LOGO_COLOR){ await new Promise(r=>{ const im=new Image(); im.onload=im.onerror=r; im.src=window.LOGO_COLOR; }); }
+  const cv = imagenCuenta(sale);
+  const blob = await new Promise(r=>cv.toBlob(r,'image/png'));
+  const arch = new File([blob], 'cuenta-vaquita.png', {type:'image/png'});
+  const pie = (sale.nota? sale.nota+' · ':'') + 'Total '+money(sale.total);
+  if(navigator.canShare && navigator.canShare({files:[arch]})){
+    try{ await navigator.share({files:[arch], text:pie}); return; }catch(e){ if(e && e.name==='AbortError') return; }
+  }
+  // sin compartir nativo: se descarga la imagen y se abre WhatsApp
+  const a = document.createElement('a');
+  a.href = window.URL.createObjectURL(blob); a.download = 'cuenta-vaquita.png'; a.click();
+  setTimeout(()=>window.URL.revokeObjectURL(a.href), 4000);
+  toast('Imagen descargada: adjúntala en WhatsApp');
+  let tel = soloDigitos($('#mv-tel').value); if(tel && tel.length===10) tel='52'+tel;
+  window.open(tel? 'https://wa.me/'+tel : 'https://wa.me/', '_blank');
+}
+$('#mv-wa').onclick=enviarWhatsImagen;
 $('#mv-close').onclick=$('#mv-cancel').onclick=()=>{ cierraVista(); closeCobrar(); };
 $('#mv-ok').onclick=()=>{ cierraVista(); if(!$('#m-cobrar').classList.contains('open')) openCobrar(); };
 $('#m-ver').onclick=verTicket;
