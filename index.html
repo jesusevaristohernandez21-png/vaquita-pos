@@ -406,14 +406,18 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] #ticket .etq{border-color:#B9B6AB}
 :root[data-papel="carta"] #ticket .etq .ecab{gap:3mm;justify-content:flex-start;padding:0 1mm}
 :root[data-papel="carta"] #ticket .etq .elogo{width:auto;height:14mm;margin:0;border-radius:1.5mm}
-:root[data-papel="carta"] #ticket .etq .epie2{display:flex;align-items:center;justify-content:space-between;gap:2mm;
-  margin-top:auto;padding-top:1.2mm;border-top:1.5px solid #2F6B3F;line-height:1.1}
-:root[data-papel="carta"] #ticket .etq .eop,
-:root[data-papel="carta"] #ticket .etq .ered{display:flex;align-items:center;gap:1.2mm;text-align:left}
-:root[data-papel="carta"] #ticket .etq .eic{height:5mm;width:auto;display:block}
-:root[data-papel="carta"] #ticket .etq .eop b{display:block;font-size:.95em;color:#B5451B}
-:root[data-papel="carta"] #ticket .etq .eop span{display:block;font-size:.8em;color:#4A4740}
-:root[data-papel="carta"] #ticket .etq .ered span{font-size:.8em;font-weight:700;color:#4A4740;max-width:26mm}
+:root[data-papel="carta"] #ticket .etq .ezona{display:flex;align-items:stretch;gap:2mm;margin-top:1mm}
+:root[data-papel="carta"] #ticket .etq .ezona .ecup{flex:1 1 0;margin:0;display:flex;flex-direction:column;justify-content:center}
+:root[data-papel="carta"] #ticket .etq .gratis{font-family:var(--display);font-size:2.3em;font-weight:800;line-height:.95;
+  color:#B5451B;letter-spacing:.02em;margin:.2mm 0 .4mm}
+:root[data-papel="carta"] #ticket .etq .eop{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:1.5mm;text-align:left}
+:root[data-papel="carta"] #ticket .etq .eop b{display:block;font-size:1.15em;line-height:1.05;color:#2F6B3F}
+:root[data-papel="carta"] #ticket .etq .eop span{display:block;font-size:.85em;color:#4A4740;margin-top:.5mm}
+:root[data-papel="carta"] #ticket .etq .eic{height:5.5mm;width:auto;display:block}
+:root[data-papel="carta"] #ticket .etq .eic.grande{height:9mm}
+:root[data-papel="carta"] #ticket .etq .epie2{display:flex;align-items:center;justify-content:center;gap:1.8mm;
+  margin-top:auto;padding-top:1.2mm;border-top:1.5px solid #2F6B3F}
+:root[data-papel="carta"] #ticket .etq .epie2 span{font-size:1.05em;font-weight:800;color:#1B1A16}
 :root[data-papel="carta"] #ticket .etq .marca{font-size:1.2em;font-weight:800;letter-spacing:.05em;color:#B5451B}
 :root[data-papel="carta"] #ticket .etq .etit .eredes{font-size:.85em;font-weight:600;letter-spacing:0;margin-top:.4mm;line-height:1.2}
 :root[data-papel="carta"] #ticket .etq .ebarra{margin:.6mm 0 1mm;border-top-width:1.5px}
@@ -1323,7 +1327,7 @@ function printEtiquetas(){
       <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
         return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
       <div class="d">${esc(m.nombre)}${horaCorta(m.hora)?' &middot; '+esc(horaCorta(m.hora)):''}</div>
-      ${cuponEtq(c)}
+      ${hoja ? `<div class="ezona">${cuponEtq(c,true)}${opinionEtq()}</div>` : cuponEtq(c)}
       ${hoja ? pieEtq(c) : (c.msg?`<div class="egracias">${esc(c.msg)}</div>`:'')}
     </div>
     ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div><br><br>';
@@ -1494,24 +1498,36 @@ function redesEtq(c){
   return c.dir ? esc(c.dir)+(c.tel?' &middot; '+esc(c.tel):'') : '';
 }
 // Pie de la etiqueta: pedir la opinion en Google y las redes del negocio.
+function opinionEtq(){
+  return `
+      <div class="eop">
+        ${window.IC_MAPS?`<img class="eic grande" src="${window.IC_MAPS}" alt="">`:''}
+        <div><b>&iquest;Nos regalas<br>tu opini&oacute;n?</b><span>Busc&aacute;nos en Google</span></div>
+      </div>`;
+}
 function pieEtq(c){
   const cuenta = String(c.fb||c.ig||c.nombre||'La Vaquita Feliz').trim();
   return `
       <div class="epie2">
-        <div class="eop">
-          ${window.IC_MAPS?`<img class="eic" src="${window.IC_MAPS}" alt="">`:''}
-          <div><b>&iquest;Nos regalas tu opini&oacute;n?</b><span>Busc&aacute;nos en Google</span></div>
-        </div>
-        <div class="ered">
-          ${window.IC_FB?`<img class="eic" src="${window.IC_FB}" alt="">`:''}
-          ${window.IC_TT?`<img class="eic" src="${window.IC_TT}" alt="">`:''}
-          <span>${esc(cuenta)}</span>
-        </div>
+        ${window.IC_FB?`<img class="eic" src="${window.IC_FB}" alt="">`:''}
+        ${window.IC_TT?`<img class="eic" src="${window.IC_TT}" alt="">`:''}
+        <span>${esc(cuenta)}</span>
       </div>`;
 }
-function cuponEtq(c){
-  const ofr=String(c.cupon||'').trim(); if(!ofr) return '';
+function cuponEtq(c, hoja){
+  let ofr=String(c.cupon||'').trim(); if(!ofr) return '';
+  // "Agua fresca de cortesía" -> "Agua fresca" + GRATIS en grande
+  const corto = ofr.replace(/\s*(gratis|de\s+cortes[ií]a|sin\s+costo)\s*/ig,' ').replace(/\s+/g,' ').trim() || ofr;
   const pal=palabraCupon(c);
+  if(hoja) return `
+      <div class="ecup">
+        <div class="et">CORTES&Iacute;A</div>
+        <div class="ofr">${esc(corto)}</div>
+        <div class="gratis">GRATIS</div>
+        ${pal?`<div class="let">di la palabra</div>
+        <div class="pal">${esc(pal)}</div>`:''}
+        <div class="let">${vigenciaCupon(c)}</div>
+      </div>`;
   return `
       <div class="ecup">
         <div class="et">CORTES&Iacute;A</div>
