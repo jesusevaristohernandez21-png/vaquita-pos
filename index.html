@@ -135,6 +135,10 @@ main{flex:1;min-height:0;overflow:auto}
 .personas button img{height:20px;width:auto;vertical-align:middle}
 .grupo-p img{height:24px;width:auto;vertical-align:middle}
 #ticket .etq .qimg{display:block;max-width:100%;margin:1mm auto;image-rendering:pixelated}
+#ticket .etq .rs{white-space:nowrap}
+#ticket .etq .rssep{margin:0 1.5mm;opacity:.5}
+#ticket .etq .rsb{display:inline-block;min-width:3.6mm;text-align:center;border-radius:1mm;
+  padding:0 .8mm;margin-right:.9mm;background:#000;color:#fff;font-weight:800}
 #ticket .etq .ecab{display:flex;align-items:center;justify-content:center;gap:2mm}
 #ticket .etq .etit{text-align:left}
 #ticket .etq .elogo{display:block;width:34%;margin:0}
@@ -383,7 +387,9 @@ td.r,th.r{text-align:right}
   display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
 /* en hoja carta la impresora es de tinta: la etiqueta va a color */
 :root[data-papel="carta"] #ticket .etq .marca{color:#2F6B3F}
-:root[data-papel="carta"] #ticket .etq .etit .eredes{color:#6B685C}
+:root[data-papel="carta"] #ticket .etq .etit .eredes{color:#4A4740}
+:root[data-papel="carta"] #ticket .etq .rsb.fb{background:#1877F2;font-family:Georgia,serif}
+:root[data-papel="carta"] #ticket .etq .rsb.ig{background:#C13584;font-size:.85em;letter-spacing:.02em}
 :root[data-papel="carta"] #ticket .etq .ebarra{border-top-color:#2F6B3F;border-top-width:2px}
 :root[data-papel="carta"] #ticket .etq .q{color:#1B1A16}
 :root[data-papel="carta"] #ticket .etq .qimg{filter:none}
@@ -524,7 +530,9 @@ td.r,th.r{text-align:right}
             <label class="f">Teléfono <input id="c-tel"></label>
             <label class="f" style="grid-column:1/-1">Dirección <input id="c-dir"></label>
             <label class="f" style="grid-column:1/-1">Mensaje al pie <input id="c-msg"></label>
-            <label class="f" style="grid-column:1/-1">Redes sociales (sale en el ticket y en las etiquetas) <input id="c-redes" placeholder="@lavaquitafeliz · FB: La Vaquita Feliz"></label>
+            <label class="f">Facebook <input id="c-fb" placeholder="La Vaquita Feliz"></label>
+            <label class="f">Instagram <input id="c-ig" placeholder="@lavaquitafeliz"></label>
+            <label class="f" style="grid-column:1/-1">Otra l&iacute;nea de redes (opcional, si no usas las de arriba) <input id="c-redes" placeholder="TikTok: @lavaquitafeliz"></label>
             <label class="f">Ancho de papel <select id="c-ancho"><option value="58mm">Rollo t&eacute;rmico 58 mm</option><option value="80mm">Rollo t&eacute;rmico 80 mm</option><option value="carta">Hoja carta (impresora normal)</option></select></label>
             <label class="f">Imprimir al cobrar <select id="c-auto"><option value="1">Sí, automático</option><option value="0">No, solo con botón</option></select></label>
           </div>
@@ -729,7 +737,7 @@ const EXAMPLE = [
 const DEFAULT_CFG = {nombre:'La Vaquita Feliz', dir:'', tel:'', msg:'¡Gracias por su compra!', ancho:'58mm', auto:'1', ejemplo:true,
   resena_url:'', resena_titulo:'¿Nos regalas 30 segundos?',
   resena_texto:'Escanea y cuéntanos qué tal la pasaste.\nSomos un negocio familiar y leemos\ntodas las reseñas. ¡Gracias!',
-  cupon:'', cupon_palabra:'', cupon_dias:'30', cupon_mes:'1', redes:'',
+  cupon:'', cupon_palabra:'', cupon_dias:'30', cupon_mes:'1', redes:'', fb:'', ig:'',
   grupos:'Carne, Tortillería, Consomé, Verdura, Salsa, Abarrotes, Bebidas, Desechables, Cocina'};
 
 // ---------- storage: JSONP contra Apps Script + caché local + cola sin conexión ----------
@@ -762,7 +770,7 @@ state.mesas.forEach(m=>{ try{ migraPedido(m); }catch(e){} });
 state.quickCart = state.cart;
 function setSync(on, txt){ state.online=on; const s=$('#sync'); s.classList.toggle('on',on); s.querySelector('span').textContent=txt; }
 function cfgToServer(){ const c=state.cfg; return {nombre:c.nombre, direccion:c.dir, telefono:c.tel, mensaje:c.msg, ancho:c.ancho, auto_imprimir:c.auto,
-  resena_url:c.resena_url, resena_titulo:c.resena_titulo, resena_texto:c.resena_texto, cupon:c.cupon, cupon_palabra:c.cupon_palabra, cupon_dias:c.cupon_dias, cupon_mes:c.cupon_mes, redes:c.redes, grupos_inv:c.grupos}; }
+  resena_url:c.resena_url, resena_titulo:c.resena_titulo, resena_texto:c.resena_texto, cupon:c.cupon, cupon_palabra:c.cupon_palabra, cupon_dias:c.cupon_dias, cupon_mes:c.cupon_mes, redes:c.redes, facebook:c.fb, instagram:c.ig, grupos_inv:c.grupos}; }
 function cfgFromServer(c){
   // toleramos espacios/tabuladores sobrantes en las claves de la hoja
   const _n={}; for(const k in c) _n[String(k).trim()] = (typeof c[k]==='string' ? c[k].trim() : c[k]);
@@ -770,7 +778,7 @@ function cfgFromServer(c){
   return {...state.cfg, nombre:c.nombre??state.cfg.nombre, dir:c.direccion??'', tel:c.telefono??'', msg:c.mensaje??'', ancho:c.ancho||'58mm', auto:c.auto_imprimir||'1', ejemplo:false,
   resena_url:c.resena_url??state.cfg.resena_url, resena_titulo:c.resena_titulo||state.cfg.resena_titulo,
   resena_texto:c.resena_texto||state.cfg.resena_texto,
-  cupon:c.cupon??state.cfg.cupon, cupon_palabra:c.cupon_palabra??state.cfg.cupon_palabra, cupon_dias:c.cupon_dias||state.cfg.cupon_dias, cupon_mes:c.cupon_mes??state.cfg.cupon_mes, redes:c.redes??state.cfg.redes,
+  cupon:c.cupon??state.cfg.cupon, cupon_palabra:c.cupon_palabra??state.cfg.cupon_palabra, cupon_dias:c.cupon_dias||state.cfg.cupon_dias, cupon_mes:c.cupon_mes??state.cfg.cupon_mes, redes:c.redes??state.cfg.redes, fb:c.facebook??state.cfg.fb, ig:c.instagram??state.cfg.ig,
   grupos:c.grupos_inv||state.cfg.grupos}; }
 
 async function saveProducts(){ ls.set('vf_products', state.products);
@@ -1292,8 +1300,7 @@ function printEtiquetas(){
         ${window.LOGO_TICKET ? `<img class="elogo" src="${window.LOGO_TICKET}" alt="">` : ''}
         <div class="etit">
           <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
-          ${redes ? `<div class="eredes">${esc(redes).replace(/\n/g,' &middot; ')}</div>`
-                  : (c.dir ? `<div class="eredes">${esc(c.dir)}${c.tel?' &middot; '+esc(c.tel):''}</div>` : '')}
+          ${(()=>{ const r=redesEtq(c); return r?`<div class="eredes">${r}</div>`:''; })()}
         </div>
       </div>
       <div class="ebarra"></div>
@@ -1460,6 +1467,18 @@ function vigenciaCupon(c){
   }
   return 'V\u00e1lida hasta el '+fechaMas(parseInt(c.cupon_dias||'30',10)||30);
 }
+// Distintivos de redes: no uso los logotipos de Facebook/Instagram (son marcas registradas),
+// sino una placa con sus iniciales en los colores del negocio.
+function redesEtq(c){
+  const fb = String(c.fb||'').trim(), ig = String(c.ig||'').trim();
+  const p = [];
+  if(fb) p.push(`<span class="rs"><b class="rsb fb">f</b>${esc(fb)}</span>`);
+  if(ig) p.push(`<span class="rs"><b class="rsb ig">IG</b>${esc(ig)}</span>`);
+  if(p.length) return p.join('<span class="rssep">&middot;</span>');
+  const r = String(c.redes||'').trim();
+  if(r) return esc(r).replace(/\n/g,' &middot; ');
+  return c.dir ? esc(c.dir)+(c.tel?' &middot; '+esc(c.tel):'') : '';
+}
 function cuponEtq(c){
   const ofr=String(c.cupon||'').trim(); if(!ofr) return '';
   const pal=palabraCupon(c);
@@ -1625,7 +1644,7 @@ function renderAdmin(){
       <input data-i="${i}" data-k="cat" value="${esc(p.cat||'')}" placeholder="Categoría" list="catlist" aria-label="Categoría">
       <button class="mini danger" data-del="${i}">Quitar</button>
     </div>`).join('') + `<datalist id="catlist">${cats().slice(1).map(c=>`<option value="${esc(c)}">`).join('')}</datalist>`;
-  $('#c-nombre').value=state.cfg.nombre||''; $('#c-tel').value=state.cfg.tel||''; $('#c-dir').value=state.cfg.dir||''; $('#c-msg').value=state.cfg.msg||''; $('#c-redes').value=state.cfg.redes||'';
+  $('#c-nombre').value=state.cfg.nombre||''; $('#c-tel').value=state.cfg.tel||''; $('#c-dir').value=state.cfg.dir||''; $('#c-msg').value=state.cfg.msg||''; $('#c-redes').value=state.cfg.redes||''; $('#c-fb').value=state.cfg.fb||''; $('#c-ig').value=state.cfg.ig||'';
   $('#c-ancho').value=state.cfg.ancho||'58mm'; $('#c-auto').value=state.cfg.auto||'1';
   $('#c-cupon').value=state.cfg.cupon||''; $('#c-cupal').value=state.cfg.cupon_palabra||'';
   $('#c-cupmes').value=String(state.cfg.cupon_mes||'1'); $('#c-cupdias').value=state.cfg.cupon_dias||'30';
@@ -1666,9 +1685,9 @@ function pintaPalabraHoy(){
   e.innerHTML = p ? ('Palabra de <b>este mes</b>: <b>'+esc(p)+'</b>. El mes que entra cambia sola a <b>'+esc(palabraDelMes(new Date(new Date().getFullYear(), new Date().getMonth()+1, 1)))+'</b>.')
                   : 'Sin palabra clave: el cup\u00f3n saldr\u00e1 sin c\u00f3digo.';
 }
-['c-nombre','c-tel','c-dir','c-msg','c-redes','c-ancho','c-auto','c-cupon','c-cupal','c-cupmes','c-cupdias'].forEach(id=>{
+['c-nombre','c-tel','c-dir','c-msg','c-redes','c-fb','c-ig','c-ancho','c-auto','c-cupon','c-cupal','c-cupmes','c-cupdias'].forEach(id=>{
   $('#'+id).addEventListener('input',()=>{
-    state.cfg.nombre=$('#c-nombre').value; state.cfg.tel=$('#c-tel').value; state.cfg.dir=$('#c-dir').value; state.cfg.msg=$('#c-msg').value; state.cfg.redes=$('#c-redes').value;
+    state.cfg.nombre=$('#c-nombre').value; state.cfg.tel=$('#c-tel').value; state.cfg.dir=$('#c-dir').value; state.cfg.msg=$('#c-msg').value; state.cfg.redes=$('#c-redes').value; state.cfg.fb=$('#c-fb').value; state.cfg.ig=$('#c-ig').value;
     state.cfg.ancho=$('#c-ancho').value; state.cfg.auto=$('#c-auto').value; aplicaPapel();
     state.cfg.cupon=$('#c-cupon').value; state.cfg.cupon_palabra=$('#c-cupal').value;
     state.cfg.cupon_mes=$('#c-cupmes').value; state.cfg.cupon_dias=$('#c-cupdias').value||'30';
