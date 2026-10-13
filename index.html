@@ -381,6 +381,23 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] #ticket .etq-hoja{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(86mm,auto);gap:0}
 :root[data-papel="carta"] #ticket .etq{border:1px dashed #666;margin:0;padding:2.5mm 3mm;box-sizing:border-box;font-size:10.5px;
   display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+/* en hoja carta la impresora es de tinta: la etiqueta va a color */
+:root[data-papel="carta"] #ticket .etq .marca{color:#2F6B3F}
+:root[data-papel="carta"] #ticket .etq .etit .eredes{color:#6B685C}
+:root[data-papel="carta"] #ticket .etq .ebarra{border-top-color:#2F6B3F;border-top-width:2px}
+:root[data-papel="carta"] #ticket .etq .q{color:#1B1A16}
+:root[data-papel="carta"] #ticket .etq .qimg{filter:none}
+:root[data-papel="carta"] #ticket .etq .lista{border-top-color:#C9DCCF;border-bottom-color:#C9DCCF}
+:root[data-papel="carta"] #ticket .etq .it b{color:#B5451B}
+:root[data-papel="carta"] #ticket .etq .itd{color:#6B685C}
+:root[data-papel="carta"] #ticket .etq .d{color:#6B685C}
+:root[data-papel="carta"] #ticket .etq .nota{color:#B5451B}
+:root[data-papel="carta"] #ticket .etq .ecup{border-color:#B5451B;background:#FDF3EE}
+:root[data-papel="carta"] #ticket .etq .ecup .et{color:#B5451B}
+:root[data-papel="carta"] #ticket .etq .ecup .ofr{color:#B5451B}
+:root[data-papel="carta"] #ticket .etq .ecup .pal{color:#2F6B3F;border-color:#2F6B3F}
+:root[data-papel="carta"] #ticket .etq .ecup .let{color:#6B685C}
+:root[data-papel="carta"] #ticket .etq{border-color:#B9B6AB}
 :root[data-papel="carta"] #ticket .etq .ecab{gap:3mm;justify-content:flex-start;padding:0 1mm}
 :root[data-papel="carta"] #ticket .etq .elogo{width:auto;height:16mm;margin:0}
 :root[data-papel="carta"] #ticket .etq .marca{font-size:1.15em;font-weight:800;letter-spacing:.06em}
