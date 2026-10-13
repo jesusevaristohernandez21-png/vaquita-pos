@@ -380,6 +380,9 @@ td.r,th.r{text-align:right}
 .cobrar{padding:15px}
 
 #m-vista{z-index:60}
+.waline{display:flex;gap:8px;margin-top:12px}
+.waline input{flex:1;min-width:0;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--campo);color:var(--ink);font-size:16px}
+.btn.wa{background:#25D366;color:#fff;border-color:#25D366;font-weight:700;white-space:nowrap}
 .vistabox{background:#E9E7DE;border-radius:12px;padding:12px;display:flex;justify-content:center;max-height:52vh;overflow:auto}
 #tkprev{display:block;width:72mm;background:#fff;color:#000;padding:4mm 3mm;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
 
@@ -628,6 +631,10 @@ td.r,th.r{text-align:right}
     <div class="body">
       <p class="hint">Rev&iacute;salo antes de cobrar: que no falte ni sobre nada.</p>
       <div class="vistabox"><div id="tkprev"></div></div>
+      <div class="waline">
+        <input id="mv-tel" inputmode="tel" placeholder="Celular del cliente (opcional)">
+        <button class="btn wa" id="mv-wa">📲 Enviar por WhatsApp</button>
+      </div>
     </div>
     <footer><button class="btn" id="mv-cancel">Corregir la cuenta</button><button class="btn primary" id="mv-ok">Est&aacute; bien, cobrar</button></footer></div></div>
 
@@ -1664,6 +1671,54 @@ function verTicket(){
   $('#m-vista').classList.add('open');
 }
 function cierraVista(){ $('#m-vista').classList.remove('open'); }
+
+// ---------- mandar la cuenta por WhatsApp ----------
+function textoCuenta(sale){
+  const c = state.cfg, L = [];
+  L.push('*'+(c.nombre||'La Vaquita Feliz')+'*');
+  if(sale.nota) L.push(sale.nota);
+  L.push('');
+  const items = sale.items||[];
+  const porPersona = items.some(i=>i.w);
+  const renglon = i => '• '+i.q+' '+i.n+' — '+money(i.p*i.q) + (i.d?'\n   _'+i.d+'_':'');
+  if(porPersona){
+    const ids = [...new Set(items.map(i=>i.w||''))];
+    ids.sort((a,b)=> (a===''?1:0)-(b===''?1:0));
+    ids.forEach(id=>{
+      const li = items.filter(i=>(i.w||'')===id);
+      const st = li.reduce((a,i)=>a+i.p*i.q,0);
+      const q = (sale.quienes||[]).find(x=>x.id===id);
+      const nom = id ? ((q&&q.n) ? q.n : 'Sin nombre') : 'General';
+      L.push('*'+nom+'* — '+money(st));
+      if(q&&q.t) L.push('_'+q.t+'_');
+      li.forEach(i=>L.push(renglon(i)));
+      L.push('');
+    });
+  } else {
+    items.forEach(i=>L.push(renglon(i)));
+    L.push('');
+  }
+  L.push('*TOTAL: '+money(sale.total)+'*');
+  const pal = palabraCupon(c), ofr = String(c.cupon||'').trim();
+  if(ofr){
+    L.push('');
+    L.push('🎁 '+ofr+' en tu siguiente compra'+(pal?' — di la palabra *'+pal+'*':''));
+    L.push(vigenciaCupon(c));
+  }
+  if(c.tel){ L.push(''); L.push('Pedidos al '+c.tel); }
+  return L.join('\n');
+}
+function soloDigitos(t){ return String(t||'').replace(/\D/g,''); }
+function enviarWhats(){
+  if(!state.cart.length){ toast('La cuenta está vacía'); return; }
+  const txt = encodeURIComponent(textoCuenta(ventaProvisional()));
+  let tel = soloDigitos($('#mv-tel').value);
+  if(tel && tel.length===10) tel = '52'+tel;            // celular mexicano
+  const url = tel ? ('https://wa.me/'+tel+'?text='+txt) : ('https://wa.me/?text='+txt);
+  window.open(url, '_blank');
+  toast(tel ? 'Abriendo WhatsApp…' : 'Elige el contacto en WhatsApp');
+}
+$('#mv-wa').onclick=enviarWhats;
 $('#mv-close').onclick=$('#mv-cancel').onclick=()=>{ cierraVista(); closeCobrar(); };
 $('#mv-ok').onclick=()=>{ cierraVista(); if(!$('#m-cobrar').classList.contains('open')) openCobrar(); };
 $('#m-ver').onclick=verTicket;
