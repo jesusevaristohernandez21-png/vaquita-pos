@@ -627,6 +627,11 @@ td.r,th.r{text-align:right}
     <footer><button class="btn" id="mc-copiar">Copiar</button><button class="btn" id="mc-wa">WhatsApp</button><button class="btn primary" id="mc-imp">Imprimir</button></footer></div></div>
 
   <!-- COBRAR MODAL -->
+  <div class="modal" id="m-partir"><div class="card"><header>&iquest;Una etiqueta por paquete?<button id="mp3-close" aria-label="Cerrar">&times;</button></header>
+    <div class="body"><p class="hint">Hay paquetes repetidos. Si son para personas distintas conviene una etiqueta para cada uno, as&iacute; cada quien se lleva su cup&oacute;n.</p>
+      <div id="mp3-lista"></div></div>
+    <footer><button class="btn" id="mp3-no">Una sola etiqueta</button><button class="btn primary" id="mp3-si">S&iacute;, separarlas</button></footer></div></div>
+
   <div class="modal" id="m-vista"><div class="card ancho"><header>As&iacute; va a salir el ticket<button id="mv-close" aria-label="Cerrar">&times;</button></header>
     <div class="body">
       <p class="hint">Rev&iacute;salo antes de cobrar: que no falte ni sobre nada.</p>
@@ -1316,18 +1321,41 @@ function aplicaPapel(etiquetas){
   document.body.classList.add('hojas');
   return hoja;
 }
-function printEtiquetas(){
-  const m = pedidoActivo(); if(!m) return;
-  const c = state.cfg;
-  aplicaPapel();
+function mcd(a,b){ while(b){ const t=a%b; a=b; b=t; } return a; }
+// 5 paquetes iguales (o 5 paquetes + 5 refrescos) se pueden separar en 5 etiquetas,
+// una para cada compañero. Solo cuando todas las cantidades son múltiplos del mismo número.
+function vecesSeparables(lineas){
+  let g = 0; lineas.forEach(l=>{ g = mcd(g, l.qty); });
+  return g > 1 ? g : 1;
+}
+function gruposEtiqueta(){
   const grupos = [...personas().map(q=>q.id), null];
-  const etqs = grupos.map(id=>{
+  return grupos.map(id=>{
     const lineas = state.cart.filter(l=>(l.quien||null)===(id||null));
     if(!lineas.length) return null;
     const q = id ? persona(id) : null;
-    return { quien: id?(q.nombre||''):'GENERAL', firma: q?q.firma:'', nota: q?q.nota:'', lineas };
+    return { quien: id?(q.nombre||''):'GENERAL', firma: q?q.firma:'', nota: q?q.nota:'',
+             lineas, veces: vecesSeparables(lineas) };
   }).filter(Boolean);
+}
+function printEtiquetas(separar){
+  const m = pedidoActivo(); if(!m) return;
+  const c = state.cfg;
+  aplicaPapel();
+  let etqs = gruposEtiqueta();
   if(!etqs.length){ toast('Este pedido está vacío'); return; }
+  // ¿hay algo que se pueda separar y todavía no lo preguntamos?
+  if(separar === undefined && etqs.some(e=>e.veces>1)){ preguntaPartir(etqs); return; }
+  if(separar){
+    const out = [];
+    etqs.forEach(e=>{
+      if(e.veces>1){
+        for(let k=1;k<=e.veces;k++)
+          out.push({...e, lineas: e.lineas.map(l=>({...l, qty: l.qty/e.veces})), de:k, deN:e.veces});
+      } else out.push(e);
+    });
+    etqs = out;
+  }
   const redes = (c.redes||'').trim();
   const hoja = aplicaPapel(true);
   $('#ticket').innerHTML = '<div class="etq-hoja">' + etqs.map((e,i)=>`
@@ -1346,7 +1374,7 @@ function printEtiquetas(){
       ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
       <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
         return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
-      <div class="d">${esc(m.nombre)}${horaCorta(m.hora)?' &middot; '+esc(horaCorta(m.hora)):''}</div>
+      <div class="d">${esc(m.nombre)}${horaCorta(m.hora)?' &middot; '+esc(horaCorta(m.hora)):''}${e.deN?' &middot; <b>'+e.de+' de '+e.deN+'</b>':''}</div>
       ${hoja ? `<div class="ezona">${cuponEtq(c,true)}${opinionEtq()}</div>` : cuponEtq(c)}
       ${hoja ? pieEtq(c) : (c.msg?`<div class="egracias">${esc(c.msg)}</div>`:'')}
     </div>
@@ -1354,7 +1382,19 @@ function printEtiquetas(){
   toast(etqs.length+' etiqueta'+(etqs.length===1?'':'s'));
   setTimeout(()=>window.print(), 80);
 }
-$('#btn-etiquetas').onclick=printEtiquetas;
+$('#btn-etiquetas').onclick=()=>printEtiquetas();
+function preguntaPartir(etqs){
+  const filas = etqs.filter(e=>e.veces>1).map(e=>{
+    const qué = e.lineas.map(l=>(l.qty/e.veces)+' '+l.nombre).join(' + ');
+    return `<div class="hint" style="margin:6px 0"><b>${esc(e.quien||'General')}</b>: ${e.veces} etiquetas de <b>${esc(qué)}</b></div>`;
+  }).join('');
+  $('#mp3-lista').innerHTML = filas;
+  $('#m-partir').classList.add('open');
+}
+function cierraPartir(){ $('#m-partir').classList.remove('open'); }
+$('#mp3-close').onclick=cierraPartir;
+$('#mp3-no').onclick=()=>{ cierraPartir(); printEtiquetas(false); };
+$('#mp3-si').onclick=()=>{ cierraPartir(); printEtiquetas(true); };
 
 function addToCart(p, precio){
   const q = pedidoActivo() ? (quienSel||null) : null;
