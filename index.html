@@ -1612,7 +1612,11 @@ function renderCart(){
   const m=mesaActiva();
   $('#cart-title').textContent = m ? (esPedido(m)? '📦 '+m.nombre+(horaCorta(m.hora)?' · '+horaCorta(m.hora):'') : m.nombre) : 'Cuenta';
   $('#clear-cart').textContent = m ? (esPedido(m)?'Cancelar pedido':'Cancelar mesa') : 'Vaciar';
-  $('#btn-etiquetas').hidden = !(esPedido(m) && state.cart.length);
+  // En un pedido el boton se ve siempre, apagado mientras no haya nada,
+  // igual que "Ver ticket". Escondido de plano solo en Rapida y en Mesa,
+  // donde no hay personas a quien etiquetar.
+  $('#btn-etiquetas').hidden = !esPedido(m);
+  $('#btn-etiquetas').disabled = !state.cart.length;
   renderMesas(); renderPersonas(); saveMesas();
 }
 $('#lines').addEventListener('click', e=>{
