@@ -392,6 +392,19 @@ td.r,th.r{text-align:right}
 #tkras .corte{display:none}
 /* html2canvas separa feo los numeros tabulares: se apagan solo en el lienzo */
 #tkras, #tkras *{font-variant-numeric:normal !important}
+/* Etiquetas en rollo termico: una por tramo, grandes, para leerlas de lejos
+   al repartir los paquetes. Solo aplica al lienzo, no al ticket normal. */
+#tkras.etq-rollo{font-size:19px;padding:0 2.5mm}
+#tkras.etq-rollo .etq{padding:4mm 0 5mm}
+#tkras.etq-rollo .etq .elogo{width:30%}
+#tkras.etq-rollo .etq .ebarra{border-top-width:3px;margin:2mm 0 2.5mm}
+#tkras.etq-rollo .etq .q{font-size:2.7em;line-height:1.05;margin:2mm 0}
+#tkras.etq-rollo .etq .qimg{max-height:22mm}
+#tkras.etq-rollo .etq .nota{font-size:1.2em;margin:1mm 0 1.5mm}
+#tkras.etq-rollo .etq .lista{padding:2.5mm 0;margin:2.5mm 0;border-top-width:2px;border-bottom-width:2px}
+#tkras.etq-rollo .etq .it{font-size:1.4em;line-height:1.3}
+#tkras.etq-rollo .etq .itd{font-size:1em;margin:0 0 1.5mm 6mm}
+#tkras.etq-rollo .etq .d{font-size:1.15em;margin-top:2mm}
 
 /* ---- impresion en hoja carta (Epson L3250 y similares) ---- */
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){font-size:13px;line-height:1.35}
@@ -1375,6 +1388,20 @@ function aMono(cv, maxDots){
   return { w: w, h: h, b64: btoa(bin) };
 }
 
+// Un nombre largo no cabe de un renglon: se le baja el tamano hasta que entra,
+// en vez de dejar que se salga de la etiqueta y se corte.
+function encogeNombres(ras){
+  [...ras.querySelectorAll('.etq .q')].forEach(function(q){
+    const caja = q.clientWidth;
+    if(!caja) return;
+    let px = parseFloat(getComputedStyle(q).fontSize) || 0;
+    let n = 0;
+    while(q.scrollWidth > caja + 1 && px > 13 && n < 40){
+      px -= 1.5; q.style.fontSize = px.toFixed(1) + 'px'; n++;
+    }
+  });
+}
+
 // dibuja lo que hay en #ticket y lo devuelve como una o varias imagenes
 async function rasterTicket(){
   const h2c = await cargaDibujador();
@@ -1382,14 +1409,17 @@ async function rasterTicket(){
   const ras = $('#tkras');
   ras.style.setProperty('--rw', EPSON.mm().toFixed(2) + 'mm');
   ras.innerHTML = $('#ticket').innerHTML;
+  const etqs = [...ras.querySelectorAll('.etq')];
+  ras.classList.toggle('etq-rollo', etqs.length > 0);
   await Promise.all([...ras.querySelectorAll('img')].map(function(im){
     return (im.complete && im.naturalWidth) ? null : new Promise(function(r){ im.onload = im.onerror = r; });
   }));
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  encogeNombres(ras);
+  await new Promise(r=>requestAnimationFrame(r));
   const ancho = ras.getBoundingClientRect().width;
   if(!ancho){ ras.innerHTML=''; throw new Error('no se pudo dibujar'); }
   const escala = dots / ancho;
-  const etqs = [...ras.querySelectorAll('.etq')];
   const piezas = etqs.length ? etqs : [ras];
   const out = [];
   try{
@@ -1398,7 +1428,7 @@ async function rasterTicket(){
       const im = aMono(cv, dots);
       if(im) out.push(im);
     }
-  } finally { ras.innerHTML = ''; }
+  } finally { ras.innerHTML = ''; ras.classList.remove('etq-rollo'); }
   if(!out.length) throw new Error('nada que imprimir');
   return out;
 }
