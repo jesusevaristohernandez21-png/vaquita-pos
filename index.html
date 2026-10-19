@@ -460,6 +460,31 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .sig{display:none}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .pal{font-size:1.15em;margin:.2mm 0 .3mm;padding:.3mm 0}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .egracias{display:none}
+
+/* ---- Una etiqueta por hoja carta, a tamano completo ----
+   Antes salian 6 por hoja y no se leia ninguna. Ahora cada paquete lleva su
+   hoja, con el nombre grande para identificarlo de un vistazo al entregar. */
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq-hoja{grid-template-columns:1fr;grid-auto-rows:auto}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq{
+  font-size:26px;padding:14mm 16mm;min-height:262mm;border-width:2px;
+  break-after:page;page-break-after:always}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq:last-child{break-after:auto;page-break-after:auto}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecab{gap:6mm;padding:0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .elogo{height:28mm;border-radius:3mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ebarra{margin:4mm 0 5mm;border-top-width:3px}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .q{font-size:2.9em;line-height:1.05;margin:4mm 0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .qimg{max-height:34mm;margin:3mm auto}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .nota{font-size:1.3em;margin:3mm 0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .lista{padding:5mm 0;margin:5mm 0;border-top-width:2px;border-bottom-width:2px}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .it{font-size:1.55em;line-height:1.3}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .itd{font-size:1.1em;margin:0 0 3mm 8mm;line-height:1.25}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .d{font-size:1.35em;margin-top:4mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ezona{gap:5mm;margin-top:auto}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .epie2{margin-top:5mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup{padding:4mm 3mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .eic{height:9mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .eic.grande{height:15mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .epie2{padding-top:4mm;border-top-width:2px;gap:3mm}
 @media print{
   :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){width:80mm;padding:9mm 8mm}
   :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras).hoja{width:196mm;padding:5mm}
