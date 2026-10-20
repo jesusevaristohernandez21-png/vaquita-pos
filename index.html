@@ -398,13 +398,18 @@ td.r,th.r{text-align:right}
 #tkras.etq-rollo .etq{padding:4mm 0 5mm}
 #tkras.etq-rollo .etq .elogo{width:30%}
 #tkras.etq-rollo .etq .ebarra{border-top-width:3px;margin:2mm 0 2.5mm}
-#tkras.etq-rollo .etq .q{font-size:2.7em;line-height:1.05;margin:2mm 0}
+/* En termica el negro solido sale limpio y se lee a un metro: el nombre va en
+   negativo, que es lo que primero busca el que reparte los paquetes. */
+#tkras.etq-rollo .etq .q{font-size:2.6em;line-height:1.1;margin:2.5mm 0;
+  background:#000;color:#fff;padding:2.5mm 2mm;word-break:break-word}
 #tkras.etq-rollo .etq .qimg{max-height:22mm}
 #tkras.etq-rollo .etq .nota{font-size:1.2em;margin:1mm 0 1.5mm}
 #tkras.etq-rollo .etq .lista{padding:2.5mm 0;margin:2.5mm 0;border-top-width:2px;border-bottom-width:2px}
 #tkras.etq-rollo .etq .it{font-size:1.4em;line-height:1.3}
 #tkras.etq-rollo .etq .itd{font-size:1em;margin:0 0 1.5mm 6mm}
-#tkras.etq-rollo .etq .d{font-size:1.15em;margin-top:2mm}
+#tkras.etq-rollo .etq .d{font-size:1.15em;font-weight:700;margin-top:3mm}
+#tkras.etq-rollo .etq .d b{font-size:1.45em;display:block;margin-top:1mm}
+#tkras.etq-rollo .etq .d .sep{display:none}
 
 /* ---- impresion en hoja carta (Epson L3250 y similares) ---- */
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){font-size:13px;line-height:1.35}
@@ -550,7 +555,7 @@ td.r,th.r{text-align:right}
           </div>
           <div class="acciones-cuenta">
             <button class="comanda" id="btn-ver" disabled><span class="ic">👁</span>Ver ticket<small>antes de cobrar</small></button>
-            <button class="comanda" id="btn-etiquetas" hidden><span class="ic">🏷️</span>Etiquetas<small>por persona</small></button>
+            <button class="comanda" id="btn-etiquetas" hidden><span class="ic">🏷️</span>Etiquetas<small>una por paquete</small></button>
             <button class="cobrar-exacto" id="btn-cobrar-exacto" disabled><span class="ic">⚡</span>Exacto<small>cobra e imprime</small></button>
           </div>
           <button class="cobrar" id="btn-cobrar" disabled>Cobrar</button>
@@ -1562,7 +1567,9 @@ function gruposEtiqueta(){
   }).filter(Boolean);
 }
 function printEtiquetas(separar){
-  const m = pedidoActivo(); if(!m) return;
+  // Sirve en Pedido, en Mesa y en Rapida: en los dos ultimos no hay personas,
+  // asi que sale una etiqueta por paquete, que es como se usan de todos modos.
+  const m = mesaActiva();
   const c = state.cfg;
   aplicaPapel();
   let etqs = gruposEtiqueta();
@@ -1597,7 +1604,7 @@ function printEtiquetas(separar){
       ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
       <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
         return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
-      <div class="d">${esc(m.nombre)}${horaCorta(m.hora)?' &middot; '+esc(horaCorta(m.hora)):''}${e.deN?' &middot; <b>'+e.de+' de '+e.deN+'</b>':''}</div>
+      <div class="d">${esc(m?m.nombre:'Para llevar')}${(m&&horaCorta(m.hora))?' &middot; '+esc(horaCorta(m.hora)):''}${e.deN?'<span class="sep"> &middot; </span><b>'+e.de+' de '+e.deN+'</b>':''}</div>
       ${hoja ? `<div class="ezona">${cuponEtq(c,true)}${opinionEtq()}</div>` : cuponEtq(c)}
       ${hoja ? pieEtq(c) : (c.msg?`<div class="egracias">${esc(c.msg)}</div>`:'')}
     </div>
@@ -1670,7 +1677,7 @@ function renderCart(){
   // En un pedido el boton se ve siempre, apagado mientras no haya nada,
   // igual que "Ver ticket". Escondido de plano solo en Rapida y en Mesa,
   // donde no hay personas a quien etiquetar.
-  $('#btn-etiquetas').hidden = !esPedido(m);
+  $('#btn-etiquetas').hidden = false;
   $('#btn-etiquetas').disabled = !state.cart.length;
   renderMesas(); renderPersonas(); saveMesas();
 }
