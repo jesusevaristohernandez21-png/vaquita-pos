@@ -486,25 +486,38 @@ td.r,th.r{text-align:right}
    hoja, con el nombre grande para identificarlo de un vistazo al entregar. */
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq-hoja{grid-template-columns:1fr;grid-auto-rows:auto}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq{
-  font-size:26px;padding:14mm 16mm;min-height:262mm;border-width:2px;
+  font-size:24px;padding:10mm 12mm;min-height:262mm;border-width:2px;
   break-after:page;page-break-after:always}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq:last-child{break-after:auto;page-break-after:auto}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecab{gap:6mm;padding:0}
-:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .elogo{height:28mm;border-radius:3mm}
-:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ebarra{margin:4mm 0 5mm;border-top-width:3px}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .elogo{height:21mm;border-radius:2.5mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ebarra{margin:3mm 0 3mm;border-top-width:3px}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .q{font-size:2.9em;line-height:1.05;margin:4mm 0}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .qimg{max-height:34mm;margin:3mm auto}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .nota{font-size:1.3em;margin:3mm 0}
-:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .lista{padding:5mm 0;margin:5mm 0;border-top-width:2px;border-bottom-width:2px}
-:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .it{font-size:1.55em;line-height:1.3}
-:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .itd{font-size:1.1em;margin:0 0 3mm 8mm;line-height:1.25}
-:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .d{font-size:1.35em;margin-top:4mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .lista{padding:4mm 0;margin:4mm 0;border-top-width:2px;border-bottom-width:2px}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .it{font-size:1.45em;line-height:1.3}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .itd{font-size:1.05em;margin:0 0 2mm 7mm;line-height:1.25}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .d{font-size:1.25em;margin-top:3mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ezona{gap:5mm;margin-top:auto}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .epie2{margin-top:5mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup{padding:4mm 3mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .eic{height:9mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .eic.grande{height:15mm}
-:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .epie2{padding-top:4mm;border-top-width:2px;gap:3mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .epie2{padding-top:3mm;border-top-width:2px;gap:3mm}
+/* Mismo diseno que la etiqueta termica: el nombre en negro y GRATIS a lo ancho */
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .q{
+  background:#000;color:#fff;padding:3mm;margin:4mm 0;font-size:2.7em;line-height:1.05}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ezona{
+  display:block;margin-top:auto}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ezona .ecup{
+  border-width:2.5px;padding:4mm 3mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .et{font-size:.85em;letter-spacing:.22em}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .ofr{font-size:1.2em;margin:1.5mm 0 0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .gratis{font-size:2.8em;margin:.5mm 0 1.5mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .pal{font-size:1.55em;letter-spacing:.2em;padding:1.5mm 0;margin:1.5mm 0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .let{font-size:1em}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .eop{margin-top:3mm;justify-content:center}
 @media print{
   :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){width:80mm;padding:9mm 8mm}
   :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras).hoja{width:196mm;padding:5mm}
@@ -1443,10 +1456,12 @@ function ajustaHoja(){
   t.style.cssText = 'display:block;position:fixed;left:-20000px;top:0;width:196mm;padding:5mm;box-sizing:border-box;visibility:hidden';
   const maxAlto = Math.round(266 * 96 / 25.4);   // una hoja carta, menos margenes
   [...t.querySelectorAll('.etq')].forEach(function(e){
-    e.style.fontSize = '';
-    let px = parseFloat(getComputedStyle(e).fontSize) || 26, n = 0;
-    while(e.scrollHeight > maxAlto && px > 11 && n < 60){
-      px -= 0.8; e.style.fontSize = px.toFixed(1) + 'px'; n++;
+    e.style.zoom = '';
+    // se encoge la etiqueta entera, no solo la letra: asi los margenes, que van
+    // en milimetros, bajan parejo y el diseno no se deforma
+    let z = 1, n = 0;
+    while(e.scrollHeight * z > maxAlto && z > 0.62 && n < 40){
+      z -= 0.02; e.style.zoom = z.toFixed(2); n++;
     }
   });
   if(antes === null) t.removeAttribute('style'); else t.setAttribute('style', antes);
