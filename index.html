@@ -141,7 +141,7 @@ main{flex:1;min-height:0;overflow:auto}
   padding:0 .8mm;margin-right:.9mm;background:#000;color:#fff;font-weight:800}
 :is(#ticket,#tkprev,#tkras) .etq .ecab{display:flex;align-items:center;justify-content:center;gap:2mm}
 :is(#ticket,#tkprev,#tkras) .etq .etit{text-align:left}
-:is(#ticket,#tkprev,#tkras) .etq .elogo{display:block;width:34%;margin:0}
+:is(#ticket,#tkprev,#tkras) .etq .elogo{display:block;width:34%;margin:0;aspect-ratio:1}
 :is(#ticket,#tkprev,#tkras) .etq .ebarra{border-top:2px solid #000;margin:1mm 0 1.6mm}
 :is(#ticket,#tkprev,#tkras) .etq .eredes{font-size:.95em;font-weight:700;margin-top:1.6mm;letter-spacing:.02em}
 :is(#ticket,#tkprev,#tkras) .etq .egracias{font-size:.9em;margin-top:.5mm;font-style:italic}
@@ -318,6 +318,12 @@ td.r,th.r{text-align:right}
   body *{visibility:hidden}
   :is(#ticket,#tkprev,#tkras),:is(#ticket,#tkprev,#tkras) *{visibility:visible}
   :is(#ticket,#tkprev,#tkras){display:block;position:absolute;left:0;top:0;width:var(--tw,58mm);padding:2mm 3mm;font-family:"Courier New",ui-monospace,monospace;font-size:11px;color:#000;background:#fff;line-height:1.3}
+  /* La hoja que se manda a imprimir tiene que medir lo que mide el papel. Si no,
+     el documento queda del ancho de la pantalla de la tablet (~317 mm) y el
+     servicio de impresion de Android lo encoge para que quepa en los 80 mm:
+     de ahi salia TODO en miniatura, por mas que le subieramos la letra. */
+  html,body{width:var(--tw,58mm) !important;min-width:0 !important;max-width:var(--tw,58mm) !important;
+    margin:0 !important;padding:0 !important;overflow:hidden !important}
   @page{margin:0;size:auto}
 }
 :is(#ticket,#tkprev,#tkras) .c{text-align:center}
@@ -333,7 +339,7 @@ td.r,th.r{text-align:right}
   font-family:"Helvetica Neue",Arial,system-ui,sans-serif;font-size:11.5px;line-height:1.32}
 /* Cabecera: logotipo grande a la izquierda, nombre y domicilio al lado */
 :is(#ticket,#tkprev,#tkras) .cab{display:flex;align-items:center;gap:2.5mm;margin-bottom:1.5mm}
-:is(#ticket,#tkprev,#tkras) .cab .logo{display:block;width:38%;flex:0 0 38%;margin:0}
+:is(#ticket,#tkprev,#tkras) .cab .logo{display:block;width:38%;flex:0 0 38%;margin:0;aspect-ratio:1}
 :is(#ticket,#tkprev,#tkras) .cabtxt{flex:1;min-width:0;text-align:left}
 :is(#ticket,#tkprev,#tkras) .cabtxt .marca{font-weight:800;font-size:1.15em;line-height:1.1;letter-spacing:.01em}
 :is(#ticket,#tkprev,#tkras) .cabtxt .dom{text-align:left;margin-top:.6mm}
@@ -1683,9 +1689,31 @@ function vigilaCola(id){
 
 // Un solo lugar para imprimir. Si la Epson de red esta apagada o falla,
 // se cae solito al dialogo del navegador y nadie se queda sin ticket.
+// En rollo, la HOJA que se manda a imprimir tiene que medir exactamente lo que mide
+// el pedazo de papel que queremos. Si no se dice, Chrome usa carta (216 mm de ancho)
+// y el servicio de impresion de Android encoge todo para meterlo en los 80 mm del
+// rollo: de ahi salia TODO en miniatura por mas que le subieramos la letra.
+function ajustaRollo(){
+  const t = $('#ticket');
+  const tw = (state.cfg.ancho || '58mm');
+  const prev = {display:t.style.display, position:t.style.position, left:t.style.left,
+                top:t.style.top, width:t.style.width, padding:t.style.padding,
+                boxSizing:t.style.boxSizing, visibility:t.style.visibility, fontSize:t.style.fontSize};
+  t.style.display='block'; t.style.position='fixed'; t.style.left='-20000px'; t.style.top='0';
+  t.style.width=tw; t.style.padding='2mm 3mm'; t.style.boxSizing='border-box'; t.style.visibility='hidden';
+  // aqui si se puede medir: aprovechamos para encoger los nombres que no caben
+  try{ encogeNombres(t); }catch(e){}
+  const mm = Math.ceil(t.scrollHeight / (96/25.4)) + 10;   // + un respiro para el corte
+  for(const k in prev) t.style[k] = prev[k];
+  let hs = document.getElementById('hoja-size');
+  if(!hs){ hs = document.createElement('style'); hs.id='hoja-size'; document.head.appendChild(hs); }
+  hs.textContent = '@media print{@page{margin:0;size:' + tw + ' ' + mm + 'mm}}';
+  return mm;
+}
 function imprimir(){
   // en hoja carta, que la pieza quepa en una sola hoja
   if(document.documentElement.getAttribute('data-papel') === 'carta'){ try{ ajustaHoja(); }catch(e){} }
+  else { try{ ajustaRollo(); }catch(e){} }
   if(!EPSON.activa()){ setTimeout(function(){ window.print(); }, 80); return; }
   toast('Mandando a la impresora...');
   mandaAEpson().then(function(id){ vigilaCola(id); })
@@ -1727,6 +1755,11 @@ function aplicaPapel(etiquetas){
   const hoja = (a === 'carta');
   document.documentElement.setAttribute('data-papel', hoja ? 'carta' : 'rollo');
   document.documentElement.style.setProperty('--tw', hoja ? '190mm' : a);
+  // El tamano de la HOJA que se manda a imprimir. Sin esto Chrome usa el papel
+  // por omision (carta, 216 mm) y el servicio de impresion de Android encoge
+  // todo para meterlo en los 80 mm del rollo: por eso salia en miniatura.
+  const hs0 = document.getElementById('hoja-size');
+  if(hs0 && hoja) hs0.textContent = '';   // en carta manda el papel de la impresora
   // en hoja carta el ticket tiene que colgar del body y estar en flujo normal,
   // si no Chrome lo corta en la primera pagina
   if(t && t.parentNode !== document.body) document.body.appendChild(t);
