@@ -866,8 +866,7 @@ td.r,th.r{text-align:right}
       <footer>
         <button class="btn" id="m-cancel">Cancelar</button>
         <button class="btn" id="m-ver">👁 Ver ticket</button>
-        <button class="btn" id="m-ok-noprint">Cobrar</button>
-        <button class="btn primary" id="m-ok">Cobrar e imprimir</button>
+        <button class="btn primary" id="m-ok">Cobrar</button>
       </footer>
     </div>
   </div>
@@ -1925,8 +1924,9 @@ async function hacerCobro(imprimir){
   saveSale(sale);
   if(imprimir) printTicket(sale);
 }
-$('#m-ok').onclick=()=>hacerCobro(true);
-$('#m-ok-noprint').onclick=()=>hacerCobro(false);
+/* Un solo boton: cobra y manda a la termica. Si alguna vez no quiere que imprima
+   solo, lo apaga en Configuracion -> Imprimir al cobrar. */
+$('#m-ok').onclick=()=>hacerCobro(state.cfg.auto !== '0');
 
 // ---------- ticket ----------
 function pad(s,w){ s=String(s); return s.length>=w? s.slice(0,w): s+' '.repeat(w-s.length); }
