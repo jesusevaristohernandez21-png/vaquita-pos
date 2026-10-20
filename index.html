@@ -419,8 +419,10 @@ td.r,th.r{text-align:right}
 /* El cupon es la razon de ser de la etiqueta, pero va despues del nombre */
 #tkras.etq-rollo .etq .ecup{border-width:2px;padding:2mm 2mm;margin-top:3mm}
 #tkras.etq-rollo .etq .ecup .et{font-size:.8em;letter-spacing:.2em}
-#tkras.etq-rollo .etq .ecup .ofr{font-size:1.15em;line-height:1.15;margin:1mm 0 .5mm}
-#tkras.etq-rollo .etq .ecup .sig{font-size:.95em;margin-bottom:1.5mm}
+#tkras.etq-rollo .etq .ecup .ofr{font-size:1.15em;line-height:1.15;margin:1mm 0 0}
+#tkras.etq-rollo .etq .gratis{font-size:2.9em;font-weight:800;line-height:.95;
+  letter-spacing:.03em;margin:.5mm 0 1mm}
+#tkras.etq-rollo .etq .ecup .sig{font-size:.9em;margin-bottom:1.5mm}
 #tkras.etq-rollo .etq .ecup .pal{font-size:1.45em;letter-spacing:.18em;padding:1mm 0;margin:.8mm 0}
 #tkras.etq-rollo .etq .ecup .let{font-size:.9em;line-height:1.3}
 #tkras.etq-rollo .etq .egracias{display:none}
@@ -1836,10 +1838,12 @@ function cuponEtq(c, hoja){
         <div class="pal">${esc(pal)}</div>`:''}
         <div class="let">${vigenciaCupon(c)}</div>
       </div>`;
+  // En rollo tambien va GRATIS en grande: es lo que hace que la vean.
   return `
       <div class="ecup">
         <div class="et">CORTES&Iacute;A</div>
-        <div class="ofr">${esc(ofr)}</div>
+        <div class="ofr">${esc(corto)}</div>
+        <div class="gratis">GRATIS</div>
         <div class="sig">en tu siguiente compra</div>
         ${pal?`<div class="let">Solo di la palabra:</div>
         <div class="pal">${esc(pal)}</div>`:''}
