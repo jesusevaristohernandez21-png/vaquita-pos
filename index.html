@@ -410,75 +410,75 @@ td.r,th.r{text-align:right}
 #tkras, #tkras *{font-variant-numeric:normal !important}
 /* Etiquetas en rollo termico: una por tramo, grandes, para leerlas de lejos
    al repartir los paquetes. Solo aplica al lienzo, no al ticket normal. */
-#tkras.etq-rollo{font-size:21px;padding:0 1mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja){font-size:21px;padding:0 1mm}
 /* El ticket en rollo venia con la letra de un rollo de 58 mm: en 80 mm se veia
    diminuto. Aqui va a la medida del rollo grande y con mas peso. */
-:is(#tkras.tk-rollo,#tkprev){font-size:19px;line-height:1.4;font-weight:600;padding:0 1mm}
-:is(#tkras.tk-rollo,#tkprev) .cab{gap:3mm;margin-bottom:2mm}
-:is(#tkras.tk-rollo,#tkprev) .cab .logo{width:44%;flex:0 0 44%}
-:is(#tkras.tk-rollo,#tkprev) .cabtxt .marca{font-size:1.35em}
-:is(#tkras.tk-rollo,#tkprev) .redes .rs{margin:1.2mm 0}
-:is(#tkras.tk-rollo,#tkprev) .redes .rs span{font-size:.95em}
-:is(#tkras.tk-rollo,#tkprev) .redes .rsb{min-width:5.5mm;font-size:1em}
-:is(#tkras.tk-rollo,#tkprev) .dom{font-size:.8em;font-weight:600;line-height:1.3}
-:is(#tkras.tk-rollo,#tkprev) .meta{font-size:.95em;font-weight:700}
-:is(#tkras.tk-rollo,#tkprev) .mesa{font-size:.9em;font-weight:800;padding:0 2mm}
-:is(#tkras.tk-rollo,#tkprev) .it{display:grid;grid-template-columns:auto 1fr;
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)){font-size:19px;line-height:1.4;font-weight:600;padding:0 1mm}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .cab{gap:3mm;margin-bottom:2mm}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .cab .logo{width:44%;flex:0 0 44%}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .cabtxt .marca{font-size:1.35em}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .redes .rs{margin:1.2mm 0}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .redes .rs span{font-size:.95em}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .redes .rsb{min-width:5.5mm;font-size:1em}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .dom{font-size:.8em;font-weight:600;line-height:1.3}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .meta{font-size:.95em;font-weight:700}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .mesa{font-size:.9em;font-weight:800;padding:0 2mm}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .it{display:grid;grid-template-columns:auto 1fr;
   grid-template-areas:"q n" "p p";column-gap:2mm;
   font-size:1.6em;font-weight:800;padding:1.5mm 0;line-height:1.2}
-:is(#tkras.tk-rollo,#tkprev) .it .q{grid-area:q;min-width:6mm;font-weight:800}
-:is(#tkras.tk-rollo,#tkprev) .it .n{grid-area:n}
-:is(#tkras.tk-rollo,#tkprev) .it .p{grid-area:p;text-align:right;font-size:.88em;line-height:1.15}
-:is(#tkras.tk-rollo,#tkprev) .it .n small{font-size:.72em;font-weight:600;line-height:1.2}
-:is(#tkras.tk-rollo,#tkprev) .tot-row{font-size:1.7em;font-weight:800;padding:2mm 0}
-:is(#tkras.tk-rollo,#tkprev) .pay{font-size:1.1em;font-weight:800}
-:is(#tkras.tk-rollo,#tkprev) .invita .tit{font-size:1.05em;font-weight:800}
-:is(#tkras.tk-rollo,#tkprev) .invita .sub{font-size:.88em;font-weight:600}
-:is(#tkras.tk-rollo,#tkprev) .invita img{margin-bottom:1mm}
-:is(#tkras.tk-rollo,#tkprev) .invita .busca{font-size:1.05em;font-weight:700;margin-top:2.5mm;line-height:1.3}
-:is(#tkras.tk-rollo,#tkprev) .invita .busca b{font-size:1.3em;font-weight:800}
-:is(#tkras.tk-rollo,#tkprev) .invita img{width:34mm;height:34mm}
-:is(#tkras.tk-rollo,#tkprev) .cupon{border-width:2px;padding:3mm 2mm;margin-top:3mm}
-:is(#tkras.tk-rollo,#tkprev) .cupon .et{font-size:.82em;font-weight:800}
-:is(#tkras.tk-rollo,#tkprev) .cupon .ofr{font-size:1.15em;font-weight:800}
-:is(#tkras.tk-rollo,#tkprev) .cupon .pal{font-size:1.5em;font-weight:800;padding:1.5mm 0;margin:1.5mm 0}
-:is(#tkras.tk-rollo,#tkprev) .cupon .let{font-size:.9em;font-weight:700}
-:is(#tkras.tk-rollo,#tkprev) .pie{font-size:.95em;font-weight:700;margin-top:3mm}
-:is(#tkras.tk-rollo,#tkprev) .pie .gr{font-size:1.2em;font-weight:800}
-:is(#tkras.tk-rollo,#tkprev) .rule{border-top-width:2px}
-#tkras.etq-rollo .etq{padding:3mm 0 7mm}
-#tkras.etq-rollo .etq .elogo{width:30%}
-#tkras.etq-rollo .etq .ebarra{border-top-width:3px;margin:2mm 0 2.5mm}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .it .q{grid-area:q;min-width:6mm;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .it .n{grid-area:n}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .it .p{grid-area:p;text-align:right;font-size:.88em;line-height:1.15}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .it .n small{font-size:.72em;font-weight:600;line-height:1.2}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .tot-row{font-size:1.7em;font-weight:800;padding:2mm 0}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .pay{font-size:1.1em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .invita .tit{font-size:1.05em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .invita .sub{font-size:.88em;font-weight:600}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .invita img{margin-bottom:1mm}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .invita .busca{font-size:1.05em;font-weight:700;margin-top:2.5mm;line-height:1.3}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .invita .busca b{font-size:1.3em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .invita img{width:34mm;height:34mm}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .cupon{border-width:2px;padding:3mm 2mm;margin-top:3mm}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .cupon .et{font-size:.82em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .cupon .ofr{font-size:1.15em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .cupon .pal{font-size:1.5em;font-weight:800;padding:1.5mm 0;margin:1.5mm 0}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .cupon .let{font-size:.9em;font-weight:700}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .pie{font-size:.95em;font-weight:700;margin-top:3mm}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .pie .gr{font-size:1.2em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .rule{border-top-width:2px}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq{padding:2mm 0 3mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .elogo{width:30%}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ebarra{border-top-width:3px;margin:1.5mm 0 2mm}
 /* En termica el negro solido sale limpio y se lee a un metro: el nombre va en
    negativo, que es lo que primero busca el que reparte los paquetes. */
-#tkras.etq-rollo .etq .q{font-size:2.4em;line-height:1.1;margin:2mm 0;
-  background:#000;color:#fff;padding:2mm;word-break:break-word}
-#tkras.etq-rollo .etq .qimg{max-height:22mm}
-#tkras.etq-rollo .etq .nota{font-size:1.2em;margin:1mm 0 1.5mm}
-#tkras.etq-rollo .etq .lista{padding:2mm 0;margin:2mm 0;border-top-width:2px;border-bottom-width:2px}
-#tkras.etq-rollo .etq .it{font-size:1.4em;line-height:1.3}
-#tkras.etq-rollo .etq .itd{font-size:1em;margin:0 0 1.5mm 6mm}
-#tkras.etq-rollo .etq .d{font-size:1.05em;font-weight:700;margin-top:2mm}
-#tkras.etq-rollo .etq .d b{font-size:1.35em;display:block;margin-top:.5mm}
-#tkras.etq-rollo .etq .d .sep{display:none}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .q{font-size:2.6em;line-height:1.1;margin:1.5mm 0;
+  background:#000;color:#fff;padding:1.5mm 2mm;word-break:break-word}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .qimg{max-height:22mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .nota{font-size:1.2em;margin:1mm 0 1.5mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .lista{padding:1.5mm 0;margin:1.5mm 0;border-top-width:2px;border-bottom-width:2px}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .it{font-size:1.4em;line-height:1.3}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .itd{font-size:1em;margin:0 0 1.5mm 6mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d{font-size:1.05em;font-weight:700;margin-top:1.5mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d b{font-size:1.35em;display:block;margin-top:.5mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d .sep{display:none}
 /* En la etiqueta del rollo las redes sobran y ademas se desbordan: el espacio
    es para el nombre, el paquete y el cupon. Las redes van en el ticket. */
-#tkras.etq-rollo .etq .eredes{display:none}
-#tkras.etq-rollo .etq .ecab{flex-direction:column;align-items:center;gap:1.5mm}
-#tkras.etq-rollo .etq .elogo{width:42%}
-#tkras.etq-rollo .etq .marca{font-size:.95em;letter-spacing:.05em;white-space:nowrap}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .eredes{display:none}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecab{flex-direction:column;align-items:center;gap:1.5mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .elogo{width:42%}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .marca{font-size:.95em;letter-spacing:.05em;white-space:nowrap}
 /* El cupon es la razon de ser de la etiqueta, pero va despues del nombre */
-#tkras.etq-rollo .etq .ecup{border-width:2px;padding:2mm 2mm;margin-top:3mm}
-#tkras.etq-rollo .etq .ecup .et{font-size:.8em;letter-spacing:.2em}
-#tkras.etq-rollo .etq .ecup .ofr{font-size:1.15em;line-height:1.15;margin:1mm 0 0}
-#tkras.etq-rollo .etq .gratis{font-size:2.9em;font-weight:800;line-height:.95;
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup{border-width:2px;padding:1.5mm 2mm;margin-top:2mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .et{font-size:.8em;letter-spacing:.2em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .ofr{font-size:1.15em;line-height:1.15;margin:1mm 0 0}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .gratis{font-size:2.9em;font-weight:800;line-height:.95;
   letter-spacing:.03em;margin:.5mm 0 1mm}
-#tkras.etq-rollo .etq .ecup .sig{font-size:.9em;margin-bottom:1.5mm}
-#tkras.etq-rollo .etq .ecup .pal{font-size:1.45em;letter-spacing:.18em;padding:1mm 0;margin:.8mm 0}
-#tkras.etq-rollo .etq .ecup .let{font-size:.9em;line-height:1.3}
-#tkras.etq-rollo .etq .egracias{display:none}
-#tkras.etq-rollo .etq .erese{margin-top:2.5mm;font-size:1em}
-#tkras.etq-rollo .etq .erese b{font-size:1.2em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .sig{font-size:.9em;margin-bottom:1.5mm}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .pal{font-size:1.45em;letter-spacing:.18em;padding:1mm 0;margin:.8mm 0}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .let{font-size:.9em;line-height:1.3}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .egracias{display:none}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .erese{margin-top:2mm;font-size:1em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .erese b{font-size:1.2em}
 /* ---- impresion en hoja carta (Epson L3250 y similares) ---- */
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){font-size:13px;line-height:1.35}
 /* 6 etiquetas por hoja: 2 columnas x 3 filas, aprovechando toda la pagina */
