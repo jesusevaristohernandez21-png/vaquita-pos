@@ -387,7 +387,7 @@ td.r,th.r{text-align:right}
 #tkprev{display:block;width:72mm;background:#fff;color:#000;padding:4mm 3mm;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
 /* lienzo oculto: aqui se dibuja el ticket para mandarlo a la Epson por red */
 #tkras{position:fixed;left:-20000px;top:0;z-index:-1;display:block;box-sizing:border-box;
-  width:var(--rw,72.3mm);background:#fff;color:#000;padding:1.5mm 2mm;
+  width:var(--rw,72.3mm);background:#fff;color:#000;padding:0 .5mm;
   font-family:"Helvetica Neue",Arial,system-ui,sans-serif;font-size:11.5px;line-height:1.32}
 #tkras .corte{display:none}
 /* html2canvas separa feo los numeros tabulares: se apagan solo en el lienzo */
@@ -395,6 +395,29 @@ td.r,th.r{text-align:right}
 /* Etiquetas en rollo termico: una por tramo, grandes, para leerlas de lejos
    al repartir los paquetes. Solo aplica al lienzo, no al ticket normal. */
 #tkras.etq-rollo{font-size:21px;padding:0 1mm}
+/* El ticket en rollo venia con la letra de un rollo de 58 mm: en 80 mm se veia
+   diminuto. Aqui va a la medida del rollo grande y con mas peso. */
+#tkras.tk-rollo{font-size:17px;line-height:1.4;font-weight:600;padding:0 1mm}
+#tkras.tk-rollo .logo{width:62%}
+#tkras.tk-rollo .dom{font-size:.8em;font-weight:600}
+#tkras.tk-rollo .meta{font-size:.8em;font-weight:700}
+#tkras.tk-rollo .mesa{font-size:.9em;font-weight:800;padding:0 2mm}
+#tkras.tk-rollo .it{font-size:1em;font-weight:700;padding:1mm 0}
+#tkras.tk-rollo .it .q{min-width:7mm;font-weight:800}
+#tkras.tk-rollo .it .n small{font-size:.8em;font-weight:600}
+#tkras.tk-rollo .tot-row{font-size:1.5em;font-weight:800;padding:1.5mm 0}
+#tkras.tk-rollo .pay{font-size:.95em;font-weight:700}
+#tkras.tk-rollo .invita .tit{font-size:1.05em;font-weight:800}
+#tkras.tk-rollo .invita .sub{font-size:.8em;font-weight:600}
+#tkras.tk-rollo .invita img{width:34mm;height:34mm}
+#tkras.tk-rollo .cupon{border-width:2px;padding:3mm 2mm;margin-top:3mm}
+#tkras.tk-rollo .cupon .et{font-size:.75em;font-weight:800}
+#tkras.tk-rollo .cupon .ofr{font-size:1.15em;font-weight:800}
+#tkras.tk-rollo .cupon .pal{font-size:1.5em;font-weight:800;padding:1.5mm 0;margin:1.5mm 0}
+#tkras.tk-rollo .cupon .let{font-size:.8em;font-weight:600}
+#tkras.tk-rollo .pie{font-size:.85em;font-weight:700;margin-top:3mm}
+#tkras.tk-rollo .pie .gr{font-size:1.2em;font-weight:800}
+#tkras.tk-rollo .rule{border-top-width:2px}
 #tkras.etq-rollo .etq{padding:3mm 0 7mm}
 #tkras.etq-rollo .etq .elogo{width:30%}
 #tkras.etq-rollo .etq .ebarra{border-top-width:3px;margin:2mm 0 2.5mm}
@@ -547,18 +570,18 @@ td.r,th.r{text-align:right}
    Antes salia como una tirita de 80 mm en la esquina de la hoja: en miniatura.
    Ahora ocupa el ancho de la hoja, igual que las etiquetas. En rollo no cambia
    nada, porque estas reglas solo viven en modo carta. */
-:root[data-papel="carta"] #ticket:not(.hoja){font-size:26px;line-height:1.4}
+:root[data-papel="carta"] #ticket:not(.hoja){font-size:26px;line-height:1.35;font-weight:600}
 /* logo y QR en "em" para que escalen con la letra; si van en mm o en %
    el ticket nunca baja de alto y siempre se brinca a la segunda hoja */
-:root[data-papel="carta"] #ticket:not(.hoja) .logo{width:auto;height:6em;margin:0 auto .5em}
+:root[data-papel="carta"] #ticket:not(.hoja) .logo{width:auto;height:8em;margin:0 auto .5em}
 :root[data-papel="carta"] #ticket:not(.hoja) .dom{font-size:.8em}
 :root[data-papel="carta"] #ticket:not(.hoja) .meta{font-size:.78em}
-:root[data-papel="carta"] #ticket:not(.hoja) .it{padding:1.5mm 0}
+:root[data-papel="carta"] #ticket:not(.hoja) .it{padding:1.5mm 0;font-weight:700}
 :root[data-papel="carta"] #ticket:not(.hoja) .it .q{min-width:10mm}
 :root[data-papel="carta"] #ticket:not(.hoja) .it .n small{font-size:.8em}
-:root[data-papel="carta"] #ticket:not(.hoja) .tot-row{font-size:1.5em}
-:root[data-papel="carta"] #ticket:not(.hoja) .pay{font-size:.85em}
-:root[data-papel="carta"] #ticket:not(.hoja) .invita img{width:5.5em;height:5.5em;margin:.4em auto .2em}
+:root[data-papel="carta"] #ticket:not(.hoja) .tot-row{font-size:1.5em;font-weight:800}
+:root[data-papel="carta"] #ticket:not(.hoja) .pay{font-size:.85em;font-weight:700}
+:root[data-papel="carta"] #ticket:not(.hoja) .invita img{width:5em;height:5em;margin:.35em auto .2em}
 :root[data-papel="carta"] #ticket:not(.hoja) .invita .tit{font-size:1.15em}
 :root[data-papel="carta"] #ticket:not(.hoja) .cupon{padding:4mm 3mm;margin-top:5mm}
 :root[data-papel="carta"] #ticket:not(.hoja) .cupon .pal{font-size:1.5em;padding:1.5mm 0;margin:1.5mm 0}
@@ -1532,12 +1555,19 @@ function ajustaHoja(){
     // El ticket no trae salto propio: el navegador lo corta por desbordamiento y
     // ahi el zoom no cuenta. Con el tamano de letra si, porque rehace el renglon.
     t.style.zoom = '';
-    const topeTicket = Math.round(258 * 96 / 25.4);  // medido contra la impresion real
-    let px = 26, n = 0;
-    t.style.fontSize = px + 'px';
-    while(t.scrollHeight > topeTicket && px > 12 && n < 50){
-      px -= 0.5; t.style.fontSize = px.toFixed(1) + 'px'; n++;
+    const topeTicket = Math.round(270 * 96 / 25.4);  // calibrado contra impresiones reales
+    // busca el tamano MAS GRANDE que todavia cabe en una hoja, no solo el que no
+    // se pasa: antes un ticket corto se quedaba chico desperdiciando media hoja
+    const cabe = function(px){ t.style.fontSize = px.toFixed(1) + 'px'; return t.scrollHeight <= topeTicket; };
+    let bajo = 12, alto = 40;
+    if(cabe(alto)){ bajo = alto; }
+    else {
+      for(let i = 0; i < 12 && alto - bajo > 0.5; i++){
+        const medio = (bajo + alto) / 2;
+        if(cabe(medio)) bajo = medio; else alto = medio;
+      }
     }
+    t.style.fontSize = bajo.toFixed(1) + 'px';
   }
   for(const k in prev) t.style[k] = prev[k];
 }
@@ -1565,6 +1595,7 @@ async function rasterTicket(){
   ras.innerHTML = $('#ticket').innerHTML;
   const etqs = [...ras.querySelectorAll('.etq')];
   ras.classList.toggle('etq-rollo', etqs.length > 0);
+  ras.classList.toggle('tk-rollo', etqs.length === 0);
   await Promise.all([...ras.querySelectorAll('img')].map(function(im){
     return (im.complete && im.naturalWidth) ? null : new Promise(function(r){ im.onload = im.onerror = r; });
   }));
@@ -1582,7 +1613,7 @@ async function rasterTicket(){
       const im = aMono(cv, dots);
       if(im) out.push(im);
     }
-  } finally { ras.innerHTML = ''; ras.classList.remove('etq-rollo'); }
+  } finally { ras.innerHTML = ''; ras.classList.remove('etq-rollo','tk-rollo'); }
   if(!out.length) throw new Error('nada que imprimir');
   return out;
 }
@@ -1899,7 +1930,7 @@ function palabraCupon(c){
 function vigenciaCupon(c){
   if(String(c.cupon_mes||'')==='1'){
     const d=new Date(), f=new Date(d.getFullYear(), d.getMonth()+1, 0);
-    return 'V\u00e1lida todo '+MESES_L[d.getMonth()]+' (al '+f.getDate()+')';
+    return 'V\u00e1lida todo '+MESES_L[d.getMonth()];
   }
   return 'V\u00e1lida hasta el '+fechaMas(parseInt(c.cupon_dias||'30',10)||30);
 }
@@ -1955,7 +1986,7 @@ function cuponEtq(c, hoja){
         <div class="sig">en tu siguiente compra</div>
         ${pal?`<div class="let">Solo di la palabra:</div>
         <div class="pal">${esc(pal)}</div>`:''}
-        <div class="let">${vigenciaCupon(c)}<br>1 por persona</div>
+        <div class="let">${vigenciaCupon(c)}</div>
       </div>`;
 }
 function bloqueResena(c){
@@ -1980,7 +2011,7 @@ function bloqueCupon(c){
       <div class="ofr">${esc(ofr)}</div>
       ${pal ? `<div class="let">Solo di la palabra:</div>
       <div class="pal">${esc(pal)}</div>` : `<div class="let">Presenta este ticket.</div>`}
-      <div class="let">${vigenciaCupon(c)} &middot; una por persona</div>
+      <div class="let">${vigenciaCupon(c)}</div>
     </div>`;
 }
 // renglones de la venta: con descripcion y con a quien se le puso cada cosa
