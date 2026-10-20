@@ -518,6 +518,31 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .pal{font-size:1.55em;letter-spacing:.2em;padding:1.5mm 0;margin:1.5mm 0}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .let{font-size:1em}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .eop{margin-top:3mm;justify-content:center}
+
+/* ---- La etiqueta de hoja es la MISMA que la termica, nada mas en grande ----
+   Mismo blanco y negro, mismos bloques, mismo orden. Asi se ven iguales salga
+   de donde salga, y de paso la L3250 deja de gastar tinta de color. */
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .eredes{display:none}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq{border:0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .marca{color:#000;font-size:1.05em;letter-spacing:.06em;white-space:nowrap}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecab{gap:5mm;justify-content:center;padding:0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .elogo{height:20mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ebarra{border-top-color:#000;border-top-width:3px;margin:3mm 0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .it b{color:#000}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .itd{color:#000}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .nota{color:#000}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .d{color:#000;font-size:1.15em;font-weight:700;margin-top:3mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .d b{display:block;font-size:1.35em;margin-top:1mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .d .sep{display:none}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .lista{border-color:#000}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup{border:2.5px dashed #000;background:none;padding:4mm 3mm;margin-top:4mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .et{color:#000;font-size:.85em;letter-spacing:.22em}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .ofr{color:#000;font-size:1.25em;font-weight:800;margin:2mm 0 0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .gratis{color:#000;font-family:inherit;font-weight:800;font-size:3em;letter-spacing:.03em;margin:.5mm 0 1.5mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .sig{display:block;color:#000;font-size:1em;margin-bottom:2mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .pal{color:#000;border-color:#000;font-size:1.6em;letter-spacing:.2em;padding:1.5mm 0;margin:1.5mm 0}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .let{color:#000;font-size:.95em}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .egracias{display:none}
 @media print{
   :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){width:80mm;padding:9mm 8mm}
   :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras).hoja{width:196mm;padding:5mm}
@@ -1640,12 +1665,10 @@ function printEtiquetas(separar){
   $('#ticket').innerHTML = '<div class="etq-hoja">' + etqs.map((e,i)=>`
     <div class="etq">
       <div class="ecab">
-        ${(hoja && window.LOGO_COLOR) ? `<img class="elogo" src="${window.LOGO_COLOR}" alt="">`
-          : (window.LOGO_TICKET ? `<img class="elogo" src="${window.LOGO_TICKET}" alt="">` : '')}
+        ${window.LOGO_TICKET ? `<img class="elogo" src="${window.LOGO_TICKET}" alt="">` : ''}
         <div class="etit">
           <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
-          ${(()=>{ if(hoja) return c.tel ? `<div class="eredes">Barbacoa &middot; Pedidos al <b>${esc(c.tel)}</b></div>` : '';
-                   const r=redesEtq(c); return r?`<div class="eredes">${r}</div>`:''; })()}
+          ${(()=>{ const r=redesEtq(c); return r?`<div class="eredes">${r}</div>`:''; })()}
         </div>
       </div>
       <div class="ebarra"></div>
@@ -1654,8 +1677,8 @@ function printEtiquetas(separar){
       <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
         return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
       <div class="d">${esc(m?m.nombre:'Para llevar')}${(m&&horaCorta(m.hora))?' &middot; '+esc(horaCorta(m.hora)):''}${e.deN?'<span class="sep"> &middot; </span><b>'+e.de+' de '+e.deN+'</b>':''}</div>
-      ${hoja ? `<div class="ezona">${cuponEtq(c,true)}${opinionEtq()}</div>` : cuponEtq(c)}
-      ${hoja ? pieEtq(c) : (c.msg?`<div class="egracias">${esc(c.msg)}</div>`:'')}
+      ${cuponEtq(c)}
+      ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
     </div>
     ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div>' + (hoja ? '' : '<br><br>');
   if(hoja) ajustaHoja();
