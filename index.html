@@ -329,7 +329,19 @@ td.r,th.r{text-align:right}
 /* --- ticket rediseñado --- */
 :is(#ticket,#tkprev,#tkras){-webkit-print-color-adjust:exact;print-color-adjust:exact;
   font-family:"Helvetica Neue",Arial,system-ui,sans-serif;font-size:11.5px;line-height:1.32}
-:is(#ticket,#tkprev,#tkras) .logo{display:block;width:70%;margin:0 auto .8mm}
+/* Cabecera: logotipo grande a la izquierda, nombre y domicilio al lado */
+:is(#ticket,#tkprev,#tkras) .cab{display:flex;align-items:center;gap:2.5mm;margin-bottom:1.5mm}
+:is(#ticket,#tkprev,#tkras) .cab .logo{display:block;width:38%;flex:0 0 38%;margin:0}
+:is(#ticket,#tkprev,#tkras) .cabtxt{flex:1;min-width:0;text-align:left}
+:is(#ticket,#tkprev,#tkras) .cabtxt .marca{font-weight:800;font-size:1.15em;line-height:1.1;letter-spacing:.01em}
+:is(#ticket,#tkprev,#tkras) .cabtxt .dom{text-align:left;margin-top:.6mm}
+/* Redes, en texto: aguantan el ticket arrugado */
+:is(#ticket,#tkprev,#tkras) .redes{margin-top:1.5mm;text-align:left;display:inline-block}
+:is(#ticket,#tkprev,#tkras) .redes .rs{display:flex;align-items:center;gap:1.5mm;margin:.8mm 0}
+:is(#ticket,#tkprev,#tkras) .redes .rsb{display:inline-block;min-width:4.2mm;text-align:center;
+  background:#000;color:#fff;border-radius:.8mm;padding:0 .6mm;font-weight:800;font-size:.95em}
+:is(#ticket,#tkprev,#tkras) .redes .rs span{font-weight:700}
+:is(#ticket,#tkprev,#tkras) .redes .solo{font-weight:700}
 :is(#ticket,#tkprev,#tkras) .dom{font-size:10px;line-height:1.25}
 :is(#ticket,#tkprev,#tkras) .rule{border-top:1px solid #000;margin:1.6mm 0}
 :is(#ticket,#tkprev,#tkras) .rule.fina{border-top:1px dotted #000}
@@ -348,6 +360,7 @@ td.r,th.r{text-align:right}
 :is(#ticket,#tkprev,#tkras) .invita{text-align:center;margin-top:1.6mm}
 :is(#ticket,#tkprev,#tkras) .invita .tit{font-weight:800;font-size:12.5px;letter-spacing:.02em}
 :is(#ticket,#tkprev,#tkras) .invita .sub{font-size:10px;margin-top:.4mm}
+:is(#ticket,#tkprev,#tkras) .invita .busca{font-size:10px;margin-top:1.5mm;line-height:1.3}
 :is(#ticket,#tkprev,#tkras) .invita img{display:block;width:24mm;height:24mm;margin:1mm auto .5mm;image-rendering:pixelated}
 :is(#ticket,#tkprev,#tkras) .cupon{border:1.5px dashed #000;padding:1.5mm 1.5mm;margin-top:1.8mm;text-align:center}
 :is(#ticket,#tkprev,#tkras) .cupon .et{font-size:9px;letter-spacing:.18em;font-weight:700}
@@ -398,7 +411,12 @@ td.r,th.r{text-align:right}
 /* El ticket en rollo venia con la letra de un rollo de 58 mm: en 80 mm se veia
    diminuto. Aqui va a la medida del rollo grande y con mas peso. */
 #tkras.tk-rollo{font-size:17px;line-height:1.4;font-weight:600;padding:0 1mm}
-#tkras.tk-rollo .logo{width:62%}
+#tkras.tk-rollo .cab{gap:3mm;margin-bottom:2mm}
+#tkras.tk-rollo .cab .logo{width:44%;flex:0 0 44%}
+#tkras.tk-rollo .cabtxt .marca{font-size:1.35em}
+#tkras.tk-rollo .redes .rs{margin:1.2mm 0}
+#tkras.tk-rollo .redes .rs span{font-size:.95em}
+#tkras.tk-rollo .redes .rsb{min-width:5.5mm;font-size:1em}
 #tkras.tk-rollo .dom{font-size:.8em;font-weight:600}
 #tkras.tk-rollo .meta{font-size:.95em;font-weight:700}
 #tkras.tk-rollo .mesa{font-size:.9em;font-weight:800;padding:0 2mm}
@@ -409,6 +427,9 @@ td.r,th.r{text-align:right}
 #tkras.tk-rollo .pay{font-size:1.1em;font-weight:800}
 #tkras.tk-rollo .invita .tit{font-size:1.05em;font-weight:800}
 #tkras.tk-rollo .invita .sub{font-size:.8em;font-weight:600}
+#tkras.tk-rollo .invita img{margin-bottom:1mm}
+#tkras.tk-rollo .invita .busca{font-size:1.05em;font-weight:700;margin-top:2.5mm;line-height:1.3}
+#tkras.tk-rollo .invita .busca b{font-size:1.3em;font-weight:800}
 #tkras.tk-rollo .invita img{width:34mm;height:34mm}
 #tkras.tk-rollo .cupon{border-width:2px;padding:3mm 2mm;margin-top:3mm}
 #tkras.tk-rollo .cupon .et{font-size:.75em;font-weight:800}
@@ -573,7 +594,11 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] #ticket:not(.hoja){font-size:26px;line-height:1.35;font-weight:600}
 /* logo y QR en "em" para que escalen con la letra; si van en mm o en %
    el ticket nunca baja de alto y siempre se brinca a la segunda hoja */
-:root[data-papel="carta"] #ticket:not(.hoja) .logo{width:auto;height:8em;margin:0 auto .5em}
+:root[data-papel="carta"] #ticket:not(.hoja) .cab{gap:5mm;margin-bottom:3mm}
+:root[data-papel="carta"] #ticket:not(.hoja) .cab .logo{width:auto;height:7em;flex:0 0 auto;margin:0}
+:root[data-papel="carta"] #ticket:not(.hoja) .cabtxt .marca{font-size:1.6em}
+:root[data-papel="carta"] #ticket:not(.hoja) .redes .rs{margin:1.2mm 0}
+:root[data-papel="carta"] #ticket:not(.hoja) .redes .rs span{font-size:.85em}
 :root[data-papel="carta"] #ticket:not(.hoja) .dom{font-size:.8em}
 :root[data-papel="carta"] #ticket:not(.hoja) .meta{font-size:.95em;font-weight:700}
 :root[data-papel="carta"] #ticket:not(.hoja) .it{padding:2mm 0;font-size:1.35em;font-weight:800;line-height:1.25}
@@ -581,7 +606,7 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] #ticket:not(.hoja) .it .n small{font-size:.8em}
 :root[data-papel="carta"] #ticket:not(.hoja) .tot-row{font-size:1.5em;font-weight:800}
 :root[data-papel="carta"] #ticket:not(.hoja) .pay{font-size:1.05em;font-weight:800}
-:root[data-papel="carta"] #ticket:not(.hoja) .invita img{width:5em;height:5em;margin:.35em auto .2em}
+
 :root[data-papel="carta"] #ticket:not(.hoja) .invita .tit{font-size:1.15em}
 :root[data-papel="carta"] #ticket:not(.hoja) .cupon{padding:4mm 3mm;margin-top:5mm}
 :root[data-papel="carta"] #ticket:not(.hoja) .cupon .pal{font-size:1.5em;padding:1.5mm 0;margin:1.5mm 0}
@@ -591,6 +616,8 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] #ticket:not(.hoja) .nota{font-size:.6em}
 :root[data-papel="carta"] #ticket:not(.hoja) .mesa{font-size:.6em}
 :root[data-papel="carta"] #ticket:not(.hoja) .invita .sub{font-size:.58em}
+:root[data-papel="carta"] #ticket:not(.hoja) .invita .busca{font-size:.8em;font-weight:700;margin-top:2.5mm;line-height:1.3}
+:root[data-papel="carta"] #ticket:not(.hoja) .invita .busca b{font-size:1.15em;font-weight:800}
 :root[data-papel="carta"] #ticket:not(.hoja) .cupon .et{font-size:.5em}
 :root[data-papel="carta"] #ticket:not(.hoja) .cupon .ofr{font-size:.85em}
 :root[data-papel="carta"] #ticket:not(.hoja) .cupon .let{font-size:.56em}
@@ -1904,7 +1931,9 @@ function pad(s,w){ s=String(s); return s.length>=w? s.slice(0,w): s+' '.repeat(w
 function qrDataURL(texto, cell){
   try{
     if(typeof qrcode !== 'function' || !texto) return '';
-    const q = qrcode(0, 'M');
+    // Nivel H: aguanta hasta 30% de dano. El ticket va en la bolsa o en la
+    // hielera y acaba arrugado; con el nivel medio dejaba de leerse.
+    const q = qrcode(0, 'H');
     q.addData(String(texto));
     q.make();
     return q.createDataURL(cell || 4, 8);
@@ -1999,6 +2028,27 @@ function bloqueResena(c){
       <div class="tit">${esc(c.resena_titulo || '¿Nos regalas 30 segundos?')}</div>
       ${qr ? `<img src="${qr}" alt="">` : ''}
       <div class="sub">${esc(c.resena_texto || 'Escanea y cuéntanos qué tal la pasaste.\nSomos un negocio familiar y leemos\ntodas las reseñas. ¡Gracias!').replace(/\n/g,'<br>')}</div>
+      <div class="busca">B&uacute;scanos en Google como<br><b>${esc(c.nombre || 'La Vaquita Feliz')}</b><br>y d&eacute;janos tu opini&oacute;n</div>
+    </div>`;
+}
+// El ticket acaba arrugado en la bolsa o en la hielera, y ahi un QR deja de
+// leerse. Las redes en texto aguantan el maltrato y se buscan igual.
+function bloqueRedes(c){
+  const fb = String(c.fb||'').trim();
+  const ig = String(c.ig||'').trim();
+  const otra = String(c.redes||'').trim();
+  const nom = String(c.nombre||'La Vaquita Feliz').trim();
+  const filas = [];
+  filas.push(`<div class="rs"><b class="rsb g">G</b><span>${esc(nom)}</span></div>`);
+  if(fb)   filas.push(`<div class="rs"><b class="rsb fb">f</b><span>${esc(fb)}</span></div>`);
+  if(ig)   filas.push(`<div class="rs"><b class="rsb ig">IG</b><span>${esc(ig)}</span></div>`);
+  if(otra) filas.push(`<div class="rs"><span class="solo">${esc(otra)}</span></div>`);
+  return `
+    <div class="rule"></div>
+    <div class="invita">
+      <div class="tit">${esc(c.resena_titulo || '\u00bfNos regalas 30 segundos?')}</div>
+      <div class="busca">B&uacute;scanos y d&eacute;janos tu opini&oacute;n</div>
+      <div class="redes">${filas.join('')}</div>
     </div>`;
 }
 function bloqueCupon(c){
@@ -2062,8 +2112,13 @@ function htmlTicket(sale){
   const d=new Date(sale.ts);
   const mesa = (sale.nota||'').trim();
   return `
-    ${window.LOGO_TICKET ? `<img class="logo" src="${window.LOGO_TICKET}" alt="">` : `<div class="c"><h1>${esc(c.nombre||'La Vaquita Feliz')}</h1></div>`}
-    <div class="c dom">${c.dir?esc(c.dir)+'<br>':''}${c.tel?'Tel. '+esc(c.tel):''}</div>
+    <div class="cab">
+      ${window.LOGO_TICKET ? `<img class="logo" src="${window.LOGO_TICKET}" alt="">` : ''}
+      <div class="cabtxt">
+        <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
+        <div class="dom">${c.dir?esc(c.dir)+'<br>':''}${c.tel?'Tel. '+esc(c.tel):''}</div>
+      </div>
+    </div>
     <div class="rule"></div>
     <div class="meta"><span>${d.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'})}</span><span>${hhmm(sale.ts)}</span></div>
     <div class="meta"><span>Folio ${sale.folio}</span><span>${esc(sale.pago)}</span></div>
@@ -2075,11 +2130,10 @@ function htmlTicket(sale){
     <div class="tot-row"><span>TOTAL</span><span>${money(sale.total)}</span></div>
     <div class="pay"><span>${esc(sale.pago)}</span><span>${money(sale.recibido)}</span></div>
     ${sale.pago==='Efectivo'?`<div class="pay"><span>Cambio</span><span>${money(sale.cambio)}</span></div>`:''}
-    ${bloqueResena(c)}
+    ${bloqueRedes(c)}
     ${bloqueCupon(c)}
     <div class="pie">
       <div class="gr">${esc(c.msg||'¡Gracias por su compra!')}</div>
-      ${c.redes?`<div>${esc(c.redes)}</div>`:''}
     </div>
     <br><br>`;
 }
