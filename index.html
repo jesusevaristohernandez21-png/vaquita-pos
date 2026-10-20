@@ -348,6 +348,7 @@ td.r,th.r{text-align:right}
 :is(#ticket,#tkprev,#tkras) .meta{display:flex;justify-content:space-between;font-size:10px;font-variant-numeric:tabular-nums}
 :is(#ticket,#tkprev,#tkras) .mesa{display:inline-block;border:1px solid #000;padding:0 1.4mm;font-weight:700;
   font-size:11px;letter-spacing:.04em;margin-top:.8mm}
+:is(#ticket,#tkprev,#tkras) .nw{white-space:nowrap}
 :is(#ticket,#tkprev,#tkras) .it{display:flex;gap:1.5mm;padding:.5mm 0;font-variant-numeric:tabular-nums}
 :is(#ticket,#tkprev,#tkras) .it .q{min-width:5mm;font-weight:700}
 :is(#ticket,#tkprev,#tkras) .it .n{flex:1}
@@ -410,35 +411,39 @@ td.r,th.r{text-align:right}
 #tkras.etq-rollo{font-size:21px;padding:0 1mm}
 /* El ticket en rollo venia con la letra de un rollo de 58 mm: en 80 mm se veia
    diminuto. Aqui va a la medida del rollo grande y con mas peso. */
-#tkras.tk-rollo{font-size:17px;line-height:1.4;font-weight:600;padding:0 1mm}
-#tkras.tk-rollo .cab{gap:3mm;margin-bottom:2mm}
-#tkras.tk-rollo .cab .logo{width:44%;flex:0 0 44%}
-#tkras.tk-rollo .cabtxt .marca{font-size:1.35em}
-#tkras.tk-rollo .redes .rs{margin:1.2mm 0}
-#tkras.tk-rollo .redes .rs span{font-size:.95em}
-#tkras.tk-rollo .redes .rsb{min-width:5.5mm;font-size:1em}
-#tkras.tk-rollo .dom{font-size:.8em;font-weight:600}
-#tkras.tk-rollo .meta{font-size:.95em;font-weight:700}
-#tkras.tk-rollo .mesa{font-size:.9em;font-weight:800;padding:0 2mm}
-#tkras.tk-rollo .it{font-size:1.35em;font-weight:800;padding:1.5mm 0;line-height:1.25}
-#tkras.tk-rollo .it .q{min-width:7mm;font-weight:800}
-#tkras.tk-rollo .it .n small{font-size:.68em;font-weight:600;line-height:1.2}
-#tkras.tk-rollo .tot-row{font-size:1.5em;font-weight:800;padding:1.5mm 0}
-#tkras.tk-rollo .pay{font-size:1.1em;font-weight:800}
-#tkras.tk-rollo .invita .tit{font-size:1.05em;font-weight:800}
-#tkras.tk-rollo .invita .sub{font-size:.8em;font-weight:600}
-#tkras.tk-rollo .invita img{margin-bottom:1mm}
-#tkras.tk-rollo .invita .busca{font-size:1.05em;font-weight:700;margin-top:2.5mm;line-height:1.3}
-#tkras.tk-rollo .invita .busca b{font-size:1.3em;font-weight:800}
-#tkras.tk-rollo .invita img{width:34mm;height:34mm}
-#tkras.tk-rollo .cupon{border-width:2px;padding:3mm 2mm;margin-top:3mm}
-#tkras.tk-rollo .cupon .et{font-size:.75em;font-weight:800}
-#tkras.tk-rollo .cupon .ofr{font-size:1.15em;font-weight:800}
-#tkras.tk-rollo .cupon .pal{font-size:1.5em;font-weight:800;padding:1.5mm 0;margin:1.5mm 0}
-#tkras.tk-rollo .cupon .let{font-size:.8em;font-weight:600}
-#tkras.tk-rollo .pie{font-size:.85em;font-weight:700;margin-top:3mm}
-#tkras.tk-rollo .pie .gr{font-size:1.2em;font-weight:800}
-#tkras.tk-rollo .rule{border-top-width:2px}
+:is(#tkras.tk-rollo,#tkprev){font-size:19px;line-height:1.4;font-weight:600;padding:0 1mm}
+:is(#tkras.tk-rollo,#tkprev) .cab{gap:3mm;margin-bottom:2mm}
+:is(#tkras.tk-rollo,#tkprev) .cab .logo{width:44%;flex:0 0 44%}
+:is(#tkras.tk-rollo,#tkprev) .cabtxt .marca{font-size:1.35em}
+:is(#tkras.tk-rollo,#tkprev) .redes .rs{margin:1.2mm 0}
+:is(#tkras.tk-rollo,#tkprev) .redes .rs span{font-size:.95em}
+:is(#tkras.tk-rollo,#tkprev) .redes .rsb{min-width:5.5mm;font-size:1em}
+:is(#tkras.tk-rollo,#tkprev) .dom{font-size:.8em;font-weight:600;line-height:1.3}
+:is(#tkras.tk-rollo,#tkprev) .meta{font-size:.95em;font-weight:700}
+:is(#tkras.tk-rollo,#tkprev) .mesa{font-size:.9em;font-weight:800;padding:0 2mm}
+:is(#tkras.tk-rollo,#tkprev) .it{display:grid;grid-template-columns:auto 1fr;
+  grid-template-areas:"q n" "p p";column-gap:2mm;
+  font-size:1.6em;font-weight:800;padding:1.5mm 0;line-height:1.2}
+:is(#tkras.tk-rollo,#tkprev) .it .q{grid-area:q;min-width:6mm;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev) .it .n{grid-area:n}
+:is(#tkras.tk-rollo,#tkprev) .it .p{grid-area:p;text-align:right;font-size:.88em;line-height:1.15}
+:is(#tkras.tk-rollo,#tkprev) .it .n small{font-size:.72em;font-weight:600;line-height:1.2}
+:is(#tkras.tk-rollo,#tkprev) .tot-row{font-size:1.7em;font-weight:800;padding:2mm 0}
+:is(#tkras.tk-rollo,#tkprev) .pay{font-size:1.1em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev) .invita .tit{font-size:1.05em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev) .invita .sub{font-size:.88em;font-weight:600}
+:is(#tkras.tk-rollo,#tkprev) .invita img{margin-bottom:1mm}
+:is(#tkras.tk-rollo,#tkprev) .invita .busca{font-size:1.05em;font-weight:700;margin-top:2.5mm;line-height:1.3}
+:is(#tkras.tk-rollo,#tkprev) .invita .busca b{font-size:1.3em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev) .invita img{width:34mm;height:34mm}
+:is(#tkras.tk-rollo,#tkprev) .cupon{border-width:2px;padding:3mm 2mm;margin-top:3mm}
+:is(#tkras.tk-rollo,#tkprev) .cupon .et{font-size:.82em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev) .cupon .ofr{font-size:1.15em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev) .cupon .pal{font-size:1.5em;font-weight:800;padding:1.5mm 0;margin:1.5mm 0}
+:is(#tkras.tk-rollo,#tkprev) .cupon .let{font-size:.9em;font-weight:700}
+:is(#tkras.tk-rollo,#tkprev) .pie{font-size:.95em;font-weight:700;margin-top:3mm}
+:is(#tkras.tk-rollo,#tkprev) .pie .gr{font-size:1.2em;font-weight:800}
+:is(#tkras.tk-rollo,#tkprev) .rule{border-top-width:2px}
 #tkras.etq-rollo .etq{padding:3mm 0 7mm}
 #tkras.etq-rollo .etq .elogo{width:30%}
 #tkras.etq-rollo .etq .ebarra{border-top-width:3px;margin:2mm 0 2.5mm}
@@ -2116,7 +2121,7 @@ function htmlTicket(sale){
       ${window.LOGO_TICKET ? `<img class="logo" src="${window.LOGO_TICKET}" alt="">` : ''}
       <div class="cabtxt">
         <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
-        <div class="dom">${c.dir?esc(c.dir)+'<br>':''}${c.tel?'Tel. '+esc(c.tel):''}</div>
+        <div class="dom">${c.dir?esc(c.dir)+'<br>':''}${c.tel?'<span class="nw">Tel. '+esc(c.tel)+'</span>':''}</div>
       </div>
     </div>
     <div class="rule"></div>
