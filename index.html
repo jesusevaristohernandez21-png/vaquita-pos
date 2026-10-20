@@ -1434,6 +1434,25 @@ function aMono(cv, maxDots){
   return { w: w, h: h, b64: btoa(bin) };
 }
 
+// En hoja carta la etiqueta debe caber en UNA hoja. Con muchos productos se
+// pasaba a la segunda y el cupon salia cortado: aqui se le baja el tamano de
+// letra hasta que entra. Hay que medirla visible, asi que se saca fuera de
+// pantalla un momento y se regresa como estaba.
+function ajustaHoja(){
+  const t = $('#ticket');
+  const antes = t.getAttribute('style');
+  t.style.cssText = 'display:block;position:fixed;left:-20000px;top:0;width:196mm;padding:5mm;box-sizing:border-box;visibility:hidden';
+  const maxAlto = Math.round(266 * 96 / 25.4);   // una hoja carta, menos margenes
+  [...t.querySelectorAll('.etq')].forEach(function(e){
+    e.style.fontSize = '';
+    let px = parseFloat(getComputedStyle(e).fontSize) || 26, n = 0;
+    while(e.scrollHeight > maxAlto && px > 11 && n < 60){
+      px -= 0.8; e.style.fontSize = px.toFixed(1) + 'px'; n++;
+    }
+  });
+  if(antes === null) t.removeAttribute('style'); else t.setAttribute('style', antes);
+}
+
 // Un nombre largo no cabe de un renglon: se le baja el tamano hasta que entra,
 // en vez de dejar que se salga de la etiqueta y se corte.
 function encogeNombres(ras){
@@ -1624,7 +1643,8 @@ function printEtiquetas(separar){
       ${hoja ? `<div class="ezona">${cuponEtq(c,true)}${opinionEtq()}</div>` : cuponEtq(c)}
       ${hoja ? pieEtq(c) : (c.msg?`<div class="egracias">${esc(c.msg)}</div>`:'')}
     </div>
-    ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div><br><br>';
+    ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div>' + (hoja ? '' : '<br><br>');
+  if(hoja) ajustaHoja();
   toast(etqs.length+' etiqueta'+(etqs.length===1?'':'s'));
   imprimir();
 }
