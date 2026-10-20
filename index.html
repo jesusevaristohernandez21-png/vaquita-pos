@@ -395,7 +395,7 @@ td.r,th.r{text-align:right}
 /* Etiquetas en rollo termico: una por tramo, grandes, para leerlas de lejos
    al repartir los paquetes. Solo aplica al lienzo, no al ticket normal. */
 #tkras.etq-rollo{font-size:19px;padding:0 2.5mm}
-#tkras.etq-rollo .etq{padding:3mm 0 4mm}
+#tkras.etq-rollo .etq{padding:3mm 0 7mm}
 #tkras.etq-rollo .etq .elogo{width:30%}
 #tkras.etq-rollo .etq .ebarra{border-top-width:3px;margin:2mm 0 2.5mm}
 /* En termica el negro solido sale limpio y se lee a un metro: el nombre va en
@@ -535,7 +535,7 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .d b{display:block;font-size:1.35em;margin-top:1mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .d .sep{display:none}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .lista{border-color:#000}
-:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup{border:2.5px dashed #000;background:none;padding:4mm 3mm;margin-top:4mm}
+:root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup{border:2.5px dashed #000;background:none;padding:4mm 3mm;margin:4mm 0 8mm}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .et{color:#000;font-size:.85em;letter-spacing:.22em}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .ofr{color:#000;font-size:1.25em;font-weight:800;margin:2mm 0 0}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .gratis{color:#000;font-family:inherit;font-weight:800;font-size:3em;letter-spacing:.03em;margin:.5mm 0 1.5mm}
@@ -1541,7 +1541,7 @@ function xmlEpson(imgs){
   return '<epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">' +
     imgs.map(function(im){
       return '<image width="' + im.w + '" height="' + im.h + '" color="color_1" mode="mono" align="center">' +
-             im.b64 + '</image><cut type="feed"/>';
+             im.b64 + '</image><feed unit="50"/><cut type="feed"/>';
     }).join('') + '</epos-print>';
 }
 
