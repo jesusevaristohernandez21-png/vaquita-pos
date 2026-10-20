@@ -543,8 +543,40 @@ td.r,th.r{text-align:right}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .pal{color:#000;border-color:#000;font-size:1.6em;letter-spacing:.2em;padding:1.5mm 0;margin:1.5mm 0}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .ecup .let{color:#000;font-size:.95em}
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras) .etq .egracias{display:none}
+/* ---- El ticket en hoja carta, a tamano completo ----
+   Antes salia como una tirita de 80 mm en la esquina de la hoja: en miniatura.
+   Ahora ocupa el ancho de la hoja, igual que las etiquetas. En rollo no cambia
+   nada, porque estas reglas solo viven en modo carta. */
+:root[data-papel="carta"] #ticket:not(.hoja){font-size:26px;line-height:1.4}
+/* logo y QR en "em" para que escalen con la letra; si van en mm o en %
+   el ticket nunca baja de alto y siempre se brinca a la segunda hoja */
+:root[data-papel="carta"] #ticket:not(.hoja) .logo{width:auto;height:6em;margin:0 auto .5em}
+:root[data-papel="carta"] #ticket:not(.hoja) .dom{font-size:.8em}
+:root[data-papel="carta"] #ticket:not(.hoja) .meta{font-size:.78em}
+:root[data-papel="carta"] #ticket:not(.hoja) .it{padding:1.5mm 0}
+:root[data-papel="carta"] #ticket:not(.hoja) .it .q{min-width:10mm}
+:root[data-papel="carta"] #ticket:not(.hoja) .it .n small{font-size:.8em}
+:root[data-papel="carta"] #ticket:not(.hoja) .tot-row{font-size:1.5em}
+:root[data-papel="carta"] #ticket:not(.hoja) .pay{font-size:.85em}
+:root[data-papel="carta"] #ticket:not(.hoja) .invita img{width:5.5em;height:5.5em;margin:.4em auto .2em}
+:root[data-papel="carta"] #ticket:not(.hoja) .invita .tit{font-size:1.15em}
+:root[data-papel="carta"] #ticket:not(.hoja) .cupon{padding:4mm 3mm;margin-top:5mm}
+:root[data-papel="carta"] #ticket:not(.hoja) .cupon .pal{font-size:1.5em;padding:1.5mm 0;margin:1.5mm 0}
+:root[data-papel="carta"] #ticket:not(.hoja) .pie{margin-top:5mm;font-size:.6em}
+:root[data-papel="carta"] #ticket:not(.hoja) .pie .gr{font-size:1.25em}
+:root[data-papel="carta"] #ticket:not(.hoja) h1{font-size:1em}
+:root[data-papel="carta"] #ticket:not(.hoja) .nota{font-size:.6em}
+:root[data-papel="carta"] #ticket:not(.hoja) .mesa{font-size:.6em}
+:root[data-papel="carta"] #ticket:not(.hoja) .invita .sub{font-size:.58em}
+:root[data-papel="carta"] #ticket:not(.hoja) .cupon .et{font-size:.5em}
+:root[data-papel="carta"] #ticket:not(.hoja) .cupon .ofr{font-size:.85em}
+:root[data-papel="carta"] #ticket:not(.hoja) .cupon .let{font-size:.56em}
+:root[data-papel="carta"] #ticket:not(.hoja) .it .n small{font-size:.72em}
+:root[data-papel="carta"] #ticket:not(.hoja) .tot-row span{font-size:1em}
+
 @media print{
   :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){width:80mm;padding:9mm 8mm}
+  :root[data-papel="carta"] #ticket:not(.hoja){width:196mm;padding:10mm 12mm}
   :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras).hoja{width:196mm;padding:5mm}
   body.hojas > *:not(:is(#ticket,#tkprev,#tkras)){display:none !important}
   body.hojas, html:has(body.hojas){height:auto !important;overflow:visible !important}
@@ -1477,19 +1509,37 @@ function aMono(cv, maxDots){
 // pantalla un momento y se regresa como estaba.
 function ajustaHoja(){
   const t = $('#ticket');
-  const antes = t.getAttribute('style');
-  t.style.cssText = 'display:block;position:fixed;left:-20000px;top:0;width:196mm;padding:5mm;box-sizing:border-box;visibility:hidden';
+  const esEtq = t.classList.contains('hoja');
+  // se mide con las mismas medidas con las que va a imprimir, fuera de pantalla
+  const prev = {display:t.style.display, position:t.style.position, left:t.style.left,
+                top:t.style.top, width:t.style.width, padding:t.style.padding,
+                boxSizing:t.style.boxSizing, visibility:t.style.visibility};
+  t.style.display='block'; t.style.position='fixed'; t.style.left='-20000px'; t.style.top='0';
+  t.style.width='196mm'; t.style.padding = esEtq ? '5mm' : '10mm 12mm';
+  t.style.boxSizing='border-box'; t.style.visibility='hidden';
   const maxAlto = Math.round(266 * 96 / 25.4);   // una hoja carta, menos margenes
-  [...t.querySelectorAll('.etq')].forEach(function(e){
-    e.style.zoom = '';
-    // se encoge la etiqueta entera, no solo la letra: asi los margenes, que van
-    // en milimetros, bajan parejo y el diseno no se deforma
-    let z = 1, n = 0;
-    while(e.scrollHeight * z > maxAlto && z > 0.62 && n < 40){
-      z -= 0.02; e.style.zoom = z.toFixed(2); n++;
+  if(esEtq){
+    // La etiqueta trae salto de pagina propio, asi que el zoom si pagina bien:
+    // se encoge entera y los margenes en milimetros bajan parejo con ella.
+    [...t.querySelectorAll('.etq')].forEach(function(e){
+      e.style.zoom = '';
+      let z = 1, n = 0;
+      while(e.scrollHeight * z > maxAlto && z > 0.62 && n < 40){
+        z -= 0.02; e.style.zoom = z.toFixed(2); n++;
+      }
+    });
+  } else {
+    // El ticket no trae salto propio: el navegador lo corta por desbordamiento y
+    // ahi el zoom no cuenta. Con el tamano de letra si, porque rehace el renglon.
+    t.style.zoom = '';
+    const topeTicket = Math.round(258 * 96 / 25.4);  // medido contra la impresion real
+    let px = 26, n = 0;
+    t.style.fontSize = px + 'px';
+    while(t.scrollHeight > topeTicket && px > 12 && n < 50){
+      px -= 0.5; t.style.fontSize = px.toFixed(1) + 'px'; n++;
     }
-  });
-  if(antes === null) t.removeAttribute('style'); else t.setAttribute('style', antes);
+  }
+  for(const k in prev) t.style[k] = prev[k];
 }
 
 // Un nombre largo no cabe de un renglon: se le baja el tamano hasta que entra,
@@ -1576,6 +1626,8 @@ function vigilaCola(id){
 // Un solo lugar para imprimir. Si la Epson de red esta apagada o falla,
 // se cae solito al dialogo del navegador y nadie se queda sin ticket.
 function imprimir(){
+  // en hoja carta, que la pieza quepa en una sola hoja
+  if(document.documentElement.getAttribute('data-papel') === 'carta'){ try{ ajustaHoja(); }catch(e){} }
   if(!EPSON.activa()){ setTimeout(function(){ window.print(); }, 80); return; }
   toast('Mandando a la impresora...');
   mandaAEpson().then(function(id){ vigilaCola(id); })
@@ -1681,7 +1733,6 @@ function printEtiquetas(separar){
       ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
     </div>
     ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div>' + (hoja ? '' : '<br><br>');
-  if(hoja) ajustaHoja();
   toast(etqs.length+' etiqueta'+(etqs.length===1?'':'s'));
   imprimir();
 }
