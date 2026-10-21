@@ -197,6 +197,14 @@ main{flex:1;min-height:0;overflow:auto}
 .cart{background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
 .cart h2{font-family:var(--display);font-size:18px;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 .cart h2 button{color:var(--ember);font-size:13px;font-weight:600}
+.gcap{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;padding:12px;
+  background:var(--surface2);border:1px solid var(--line);border-radius:12px;margin:10px 0;align-items:end}
+.gcats{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+.gcats button{padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:13px}
+.gcats button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.gporcat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0}
+.gporcat div{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.gporcat b{display:block;font-size:16px}
 .mesas{display:flex;gap:6px;padding:10px 12px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
 .mesas button{flex:0 0 auto;padding:8px 12px;border-radius:999px;background:var(--surface2);font-weight:600;font-size:13px;white-space:nowrap}
 .mesas button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
@@ -695,6 +703,7 @@ td.r,th.r{text-align:right}
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-view="venta" id="tab-venta">Venta</button>
       <button role="tab" aria-selected="false" data-view="hist" id="tab-hist">Ventas</button>
+      <button role="tab" aria-selected="false" data-view="gastos" id="tab-gastos">Gastos</button>
       <button role="tab" aria-selected="false" data-view="inv" id="tab-inv">Inventario</button>
       <button role="tab" aria-selected="false" data-view="rec" id="tab-rec">Recetas</button>
       <button role="tab" aria-selected="false" data-view="admin" id="tab-admin">Productos</button>
@@ -748,6 +757,39 @@ td.r,th.r{text-align:right}
           <thead><tr><th>Hora</th><th>Folio</th><th>Artículos</th><th>Pago</th><th class="r">Total</th><th></th></tr></thead>
           <tbody id="h-rows"></tbody>
         </table></div>
+      </div>
+    </section>
+
+
+    <!-- GASTOS Y RESULTADO DE LA SEMANA -->
+    <section class="view" id="view-gastos">
+      <div class="hist">
+        <div class="bar">
+          <button class="btn" id="g-ant">&larr; Semana anterior</button>
+          <div class="f" style="flex:1;text-align:center"><b id="g-rango">&nbsp;</b>
+            <small id="g-nota" class="hint" style="display:block">Se compra entre semana y se vende el fin de semana, por eso el corte es por semana completa (lunes a domingo).</small></div>
+          <button class="btn" id="g-sig">Semana siguiente &rarr;</button>
+          <button class="btn" id="g-hoy">Esta semana</button>
+        </div>
+
+        <div class="kpis" id="g-kpis"></div>
+
+        <div class="gcap">
+          <div class="f"><label>Cu&aacute;nto <input type="number" inputmode="decimal" id="g-monto" placeholder="0.00" step="0.01"></label></div>
+          <div class="f"><label>En qu&eacute; <input id="g-concepto" placeholder="Carne, tortillas, gas..."></label></div>
+          <div class="f"><label>D&iacute;a <input type="date" id="g-fecha"></label></div>
+          <div class="f"><label>D&oacute;nde (opcional) <input id="g-donde" placeholder="Proveedor o tienda"></label></div>
+          <div class="f"><label>Pag&oacute; con <select id="g-pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></label></div>
+          <div class="gcats" id="g-cats"></div>
+          <button class="btn primary" id="g-add">Anotar gasto</button>
+        </div>
+
+        <div class="tblwrap"><table>
+          <thead><tr><th>D&iacute;a</th><th>En qu&eacute;</th><th>Categor&iacute;a</th><th>D&oacute;nde</th><th class="r">Monto</th><th></th></tr></thead>
+          <tbody id="g-rows"></tbody>
+        </table></div>
+
+        <div id="g-porcat"></div>
       </div>
     </section>
 
@@ -1115,6 +1157,68 @@ $('#pin-ok').onclick=async()=>{ PIN=$('#pin-val').value.trim(); try{ const r=awa
 
 // ---------- roles ----------
 const VISTAS_ENCARGADO = ['inv','rec'];
+// ---------- Gastos y resultado de la semana ----------
+// Se compra entre semana y se vende sabado y domingo: por dia no dice nada.
+const CATS_GASTO = ['Carne','Tortillas','Verdura','Abarrotes','Bebidas','Desechables','Gas y carb\u00f3n','Transporte','Sueldos','Renta','Otros'];
+let gCat = 'Carne', gSemana = null, gResumen = null;
+
+function lunesDe(f){
+  const d = new Date(f + 'T12:00:00');
+  const n = (d.getDay() + 6) % 7;        // 0 = lunes
+  d.setDate(d.getDate() - n);
+  return d;
+}
+const fmtFecha = todayKey;   // misma forma de escribir la fecha que usa toda la app
+function fijaSemana(fecha){
+  const l = lunesDe(fecha), dom = new Date(l); dom.setDate(l.getDate()+6);
+  gSemana = { desde: fmtFecha(l), hasta: fmtFecha(dom) };
+}
+function mueveSemana(dias){
+  const d = new Date(gSemana.desde + 'T12:00:00'); d.setDate(d.getDate()+dias);
+  fijaSemana(fmtFecha(d)); cargaSemana();
+}
+async function cargaSemana(){
+  if(!gSemana) fijaSemana(todayKey());
+  $('#g-rango').textContent = 'Cargando...';
+  try{
+    const r = await api('resumen', { desde: gSemana.desde, hasta: gSemana.hasta });
+    gResumen = r.resumen; renderGastos();
+  }catch(e){ $('#g-rango').textContent = 'No se pudo cargar: ' + e.message; }
+}
+function diaCorto(f){
+  const d = new Date(f + 'T12:00:00');
+  return ['dom','lun','mar','mi\u00e9','jue','vie','s\u00e1b'][d.getDay()] + ' ' + d.getDate();
+}
+function renderGastos(){
+  const r = gResumen; if(!r) return;
+  const d1 = new Date(r.desde + 'T12:00:00'), d2 = new Date(r.hasta + 'T12:00:00');
+  const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  $('#g-rango').textContent = d1.getDate()+' '+MES[d1.getMonth()]+' al '+d2.getDate()+' '+MES[d2.getMonth()]+' '+d2.getFullYear();
+  const queda = r.queda;
+  $('#g-kpis').innerHTML =
+    '<div class="kpi"><small>Se vendi\u00f3</small><b>'+money(r.vendido)+'</b></div>'+
+    '<div class="kpi"><small>Se gast\u00f3</small><b>'+money(r.gastado)+'</b></div>'+
+    '<div class="kpi"><small>'+(queda<0?'Falt\u00f3':'Qued\u00f3')+'</small><b style="color:'+(queda<0?'var(--ember)':'inherit')+'">'+money(queda)+'</b></div>'+
+    '<div class="kpi"><small>Tickets</small><b>'+r.tickets+'</b></div>';
+
+  $('#g-rows').innerHTML = (r.gastos||[]).length ? r.gastos.map(function(g){
+    return '<tr><td>'+diaCorto(g.fecha)+'</td><td>'+esc(g.concepto)+'</td><td>'+esc(g.cat)+'</td><td>'+esc(g.donde)+
+      '</td><td class="r">'+money(g.monto)+'</td><td><button class="btn" data-del-gasto="'+g.id+'">Borrar</button></td></tr>';
+  }).join('') : '<tr><td colspan="6" class="hint">Sin gastos anotados esta semana.</td></tr>';
+
+  const cats = Object.keys(r.porCat||{}).sort(function(a,b){ return r.porCat[b]-r.porCat[a]; });
+  $('#g-porcat').innerHTML = cats.length
+    ? '<div class="gporcat">'+cats.map(function(c){
+        const pct = r.gastado ? Math.round(r.porCat[c]/r.gastado*100) : 0;
+        return '<div><small>'+esc(c)+'</small><b>'+money(r.porCat[c])+'</b><small>'+pct+'% de lo gastado</small></div>';
+      }).join('')+'</div>'
+    : '';
+}
+function pintaCatsGasto(){
+  $('#g-cats').innerHTML = CATS_GASTO.map(function(c){
+    return '<button type="button" data-cat="'+esc(c)+'" aria-pressed="'+(c===gCat)+'">'+esc(c)+'</button>';
+  }).join('');
+}
 function esDueno(){ return state.rol !== 'encargado'; }
 function aplicarRol(){
   const enc = state.rol === 'encargado';
@@ -2441,6 +2545,7 @@ function renderAdmin(){
       <button class="mini danger" data-del="${i}">Quitar</button>
     </div>`).join('') + `<datalist id="catlist">${cats().slice(1).map(c=>`<option value="${esc(c)}">`).join('')}</datalist>`;
   $('#c-nombre').value=state.cfg.nombre||''; $('#c-tel').value=state.cfg.tel||''; $('#c-dir').value=state.cfg.dir||''; $('#c-msg').value=state.cfg.msg||''; $('#c-redes').value=state.cfg.redes||''; $('#c-fb').value=state.cfg.fb||''; $('#c-ig').value=state.cfg.ig||'';
+  if($('#g-fecha') && !$('#g-fecha').value) $('#g-fecha').value = todayKey();
   $('#c-ancho').value=state.cfg.ancho||'58mm'; $('#c-auto').value=state.cfg.auto||'1';
   $('#c-impmodo').value=state.cfg.imp_modo||'navegador'; $('#c-impid').value=state.cfg.imp_id||'vaquita1'; pintaAyudaImp();
   $('#c-cupon').value=state.cfg.cupon||''; $('#c-cupal').value=state.cfg.cupon_palabra||'';
@@ -2746,6 +2851,40 @@ document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected', x===b));
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+b.dataset.view));
   closeSheet();
+  if(b.dataset.view==='gastos' && !gResumen) cargaSemana();
+});
+
+// ---------- gastos ----------
+pintaCatsGasto();
+$('#g-cats').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-cat]'); if(!b) return;
+  gCat = b.dataset.cat; pintaCatsGasto();
+});
+$('#g-ant').onclick = ()=>mueveSemana(-7);
+$('#g-sig').onclick = ()=>mueveSemana(7);
+$('#g-hoy').onclick = ()=>{ fijaSemana(todayKey()); cargaSemana(); };
+$('#g-add').onclick = async ()=>{
+  const monto = parseFloat($('#g-monto').value);
+  if(!monto || monto <= 0){ $('#g-monto').focus(); toast('Falta cu\u00e1nto fue'); return; }
+  const gasto = { fecha: $('#g-fecha').value || todayKey(), concepto: $('#g-concepto').value.trim(),
+                  cat: gCat, monto: monto, donde: $('#g-donde').value.trim(), pago: $('#g-pago').value };
+  $('#g-add').disabled = true;
+  try{
+    await api('gasto', { gasto: gasto, desde: gSemana.desde, hasta: gSemana.hasta });
+    $('#g-monto').value=''; $('#g-concepto').value=''; $('#g-donde').value='';
+    toast('Anotado: ' + money(monto));
+    // si el gasto cayo en otra semana, nos movemos a esa para que lo vea
+    if(gasto.fecha < gSemana.desde || gasto.fecha > gSemana.hasta) fijaSemana(gasto.fecha);
+    await cargaSemana();
+    $('#g-monto').focus();
+  }catch(e){ toast('No se pudo anotar: ' + e.message); }
+  finally{ $('#g-add').disabled = false; }
+};
+$('#g-rows').addEventListener('click', async e=>{
+  const b = e.target.closest('[data-del-gasto]'); if(!b) return;
+  if(!confirm('\u00bfBorrar este gasto?')) return;
+  try{ await api('gasto', { borrar: b.dataset.delGasto, desde: gSemana.desde, hasta: gSemana.hasta }); await cargaSemana(); }
+  catch(err){ toast('No se pudo borrar: ' + err.message); }
 });
 function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
