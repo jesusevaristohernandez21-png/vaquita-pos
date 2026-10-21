@@ -145,7 +145,12 @@ main{flex:1;min-height:0;overflow:auto}
 :is(#ticket,#tkprev,#tkras) .etq .ebarra{border-top:2px solid #000;margin:1mm 0 1.6mm}
 :is(#ticket,#tkprev,#tkras) .etq .eredes{font-size:.95em;font-weight:700;margin-top:1.6mm;letter-spacing:.02em}
 :is(#ticket,#tkprev,#tkras) .etq .egracias{font-size:.9em;margin-top:.5mm;font-style:italic}
-:is(#ticket,#tkprev,#tkras) .etq .erese{margin-top:2mm;font-size:.85em;font-weight:700;line-height:1.25}
+:is(#ticket,#tkprev,#tkras) .etq .ezona{display:flex;align-items:stretch;gap:1.5mm;margin-top:2mm}
+:is(#ticket,#tkprev,#tkras) .etq .ezona .ecup{flex:1 1 60%;margin-top:0}
+:is(#ticket,#tkprev,#tkras) .etq .eop{flex:1 1 40%;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;gap:.4mm;font-weight:700;line-height:1.15}
+:is(#ticket,#tkprev,#tkras) .etq .gmaps{display:inline-block;background:#000;color:#fff;font-weight:800;
+  border-radius:.15em;padding:.05em .35em;line-height:1.1}
 :is(#ticket,#tkprev,#tkras) .etq .erese b{display:block;font-size:1.15em;font-weight:800}
 :is(#ticket,#tkprev,#tkras) .etq .ecup{border:1.5px dashed #000;border-radius:1mm;padding:1.4mm 1mm;margin-top:2mm}
 :is(#ticket,#tkprev,#tkras) .etq .ecup .et{font-size:.72em;letter-spacing:.16em;font-weight:700}
@@ -483,15 +488,18 @@ td.r,th.r{text-align:right}
 /* El cupon es la razon de ser de la etiqueta, pero va despues del nombre */
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup{border-width:2px;padding:0.2em 0.35em;margin-top:0.28em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .et{font-size:.8em;letter-spacing:.1em}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .ofr{font-size:1.15em;line-height:1.15;margin:0.199em 0 0}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .gratis{font-size:2.4em;font-weight:800;line-height:.92;
-  letter-spacing:.02em;margin:.3mm 0 0}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .ofr{font-size:.95em;line-height:1.1;margin:0.1em 0 0}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .gratis{font-size:1.75em;font-weight:800;line-height:.95;
+  letter-spacing:0;margin:.2mm 0 0}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .sig{font-size:.8em;margin-bottom:0.06em;line-height:1.05}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .pal{font-size:1.1em;letter-spacing:.06em;padding:0.1em 0;margin:0.1em 0;line-height:1.1}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .let{font-size:.8em;line-height:1.1}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .pal{font-size:.95em;letter-spacing:.03em;padding:0.08em 0;margin:0.08em 0;line-height:1.1}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .let{font-size:.7em;line-height:1.1}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .egracias{display:none}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .erese{margin-top:0.25em;font-size:.95em;line-height:1.14}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .erese b{font-size:1.2em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ezona{gap:0.22em;margin-top:0.28em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .eop{font-size:.82em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .eop b{font-size:1.1em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .gmaps{font-size:1.25em;margin-bottom:.2em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup{flex:1 1 58%}
 /* ---- impresion en hoja carta (Epson L3250 y similares) ---- */
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){font-size:13px;line-height:1.35}
 /* 6 etiquetas por hoja: 2 columnas x 3 filas, aprovechando toda la pagina */
@@ -1830,8 +1838,10 @@ function printEtiquetas(separar){
       <div class="ebarra"></div>
       <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
         return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
-      ${cuponEtq(c)}
-      <div class="erese"><b>Reg&aacute;lanos una rese&ntilde;a en Google</b>nos ayuda a crecer</div>
+      <div class="ezona">
+        ${cuponEtq(c)}
+        <div class="eop"><span class="gmaps">G</span><b>D&eacute;janos tu rese&ntilde;a</b><span>en Google Maps</span></div>
+      </div>
       ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
     </div>
     ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div>' + (hoja ? '' : '<br><br>');
