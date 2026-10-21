@@ -460,24 +460,25 @@ td.r,th.r{text-align:right}
 :is(#tkras.tk-rollo,#tkprev,:root[data-papel="rollo"] #ticket:not(.hoja)) .rule{border-top-width:2px}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq{padding:0.25em 0 0.4em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .elogo{width:30%}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ebarra{border-top-width:3px;margin:0.2em 0 0.25em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ebarra{border-top-width:3px;margin:0.22em 0 0.2em}
 /* En termica el negro solido sale limpio y se lee a un metro: el nombre va en
    negativo, que es lo que primero busca el que reparte los paquetes. */
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .q{font-size:1.02em;line-height:1.05;margin:0.12em 0;
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .etit{flex:1;min-width:0}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .q{display:block;font-size:1.25em;line-height:1.05;margin:0 0 0.08em;
   background:#000;color:#fff;padding:0.12em 0.3em;word-break:break-word}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .qimg{max-height:3.06em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .qimg{max-height:2.4em;margin:0 0 .08em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .nota{font-size:1.2em;margin:0.199em 0 0.298em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .lista{padding:0.2em 0;margin:0.2em 0;border-top-width:2px;border-bottom-width:2px}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .it{font-size:1em;line-height:1.14}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .itd{font-size:.82em;line-height:1.14;margin:0 0 0.14em .9em}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d{font-size:.78em;font-weight:700;margin:0 0 0.1em;letter-spacing:.04em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d{font-size:.8em;font-weight:700;margin:0;letter-spacing:.04em;text-align:left}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d b{font-size:1.35em;display:block;margin-top:.5mm}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d .sep{display:none}
 /* En la etiqueta del rollo las redes sobran y ademas se desbordan: el espacio
    es para el nombre, el paquete y el cupon. Las redes van en el ticket. */
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .eredes{display:none}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecab{flex-direction:column;align-items:center;gap:0}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .elogo{width:42%}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecab{flex-direction:row;align-items:center;gap:0.3em;text-align:left}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .elogo{width:27%;flex:0 0 27%}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .marca{display:none}
 /* El cupon es la razon de ser de la etiqueta, pero va despues del nombre */
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup{border-width:2px;padding:0.2em 0.35em;margin-top:0.28em}
@@ -1821,12 +1822,12 @@ function printEtiquetas(separar){
         <div class="etit">
           <div class="marca">${esc(c.nombre||'La Vaquita Feliz')}</div>
           ${(()=>{ const r=redesEtq(c); return r?`<div class="eredes">${r}</div>`:''; })()}
+          ${e.firma ? `<img class="qimg" src="${e.firma}" alt="">` : `<div class="q">${esc(e.quien||'Sin nombre')}</div>`}
+          <div class="d">${esc(m?m.nombre:'Para llevar')}${e.deN?'<span class="sep"> &middot; </span><b>'+e.de+' de '+e.deN+'</b>':''}</div>
         </div>
       </div>
-      <div class="ebarra"></div>
-      ${e.firma ? `<img class="qimg" src="${e.firma}" alt="">` : `<div class="q">${esc(e.quien||'Sin nombre')}</div>`}
       ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
-      <div class="d">${esc(m?m.nombre:'Para llevar')}${e.deN?'<span class="sep"> &middot; </span><b>'+e.de+' de '+e.deN+'</b>':''}</div>
+      <div class="ebarra"></div>
       <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
         return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
       ${cuponEtq(c)}
