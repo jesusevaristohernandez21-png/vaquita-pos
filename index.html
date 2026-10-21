@@ -322,8 +322,13 @@ td.r,th.r{text-align:right}
      el documento queda del ancho de la pantalla de la tablet (~317 mm) y el
      servicio de impresion de Android lo encoge para que quepa en los 80 mm:
      de ahi salia TODO en miniatura, por mas que le subieramos la letra. */
-  html,body{width:var(--tw,58mm) !important;min-width:0 !important;max-width:var(--tw,58mm) !important;
-    margin:0 !important;padding:0 !important;overflow:hidden !important}
+  html,body{margin:0 !important;padding:0 !important;width:auto !important;overflow:visible !important}
+  /* El diseno esta hecho para una caja de 72.2 mm (el rollo). Aqui se agranda 2.99
+     veces para llenar la hoja carta. `zoom` agranda TODO parejo -letra, margenes,
+     logo-, cosa que `transform` no hace porque no reacomoda. */
+  :root[data-papel="rollo"] #ticket{position:static !important;left:auto !important;top:auto !important;
+    width:72.2mm !important;max-width:none !important;padding:1mm 1.5mm !important;
+    box-sizing:border-box !important;zoom:2.99}
   @page{margin:0;size:auto}
 }
 :is(#ticket,#tkprev,#tkras) .c{text-align:center}
@@ -1707,7 +1712,12 @@ function ajustaRollo(){
   for(const k in prev) t.style[k] = prev[k];
   let hs = document.getElementById('hoja-size');
   if(!hs){ hs = document.createElement('style'); hs.id='hoja-size'; document.head.appendChild(hs); }
-  hs.textContent = '@media print{@page{margin:0;size:' + tw + ' ' + mm + 'mm}}';
+  // Chrome en Android ignora un @page de 80 mm: arma la hoja en carta y el
+  // servicio de impresion la encoge hasta el ancho del rollo. En vez de pelearnos
+  // con eso, le damos la razon: hoja carta, y el diseno AGRANDADO hasta llenarla.
+  // Al encogerla al papel, el ticket queda del ancho completo del rollo y la letra
+  // del tamano correcto. 215.9 / 72.2 = 2.99.
+  hs.textContent = '@media print{@page{margin:0;size:215.9mm 279.4mm}}';
   return mm;
 }
 function imprimir(){
