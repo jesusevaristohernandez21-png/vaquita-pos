@@ -463,14 +463,14 @@ td.r,th.r{text-align:right}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ebarra{border-top-width:3px;margin:0.2em 0 0.25em}
 /* En termica el negro solido sale limpio y se lee a un metro: el nombre va en
    negativo, que es lo que primero busca el que reparte los paquetes. */
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .q{font-size:2.05em;line-height:1.05;margin:0.18em 0;
-  background:#000;color:#fff;padding:0.16em 0.3em;word-break:break-word}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .q{font-size:1.45em;line-height:1.05;margin:0.14em 0;
+  background:#000;color:#fff;padding:0.14em 0.3em;word-break:break-word}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .qimg{max-height:4.376em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .nota{font-size:1.2em;margin:0.199em 0 0.298em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .lista{padding:0.2em 0;margin:0.2em 0;border-top-width:2px;border-bottom-width:2px}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .it{font-size:1.3em;line-height:1.14}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .itd{font-size:.95em;line-height:1.14;margin:0 0 0.18em 1.1em}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d{font-size:1em;font-weight:700;margin-top:0.18em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .it{font-size:1em;line-height:1.14}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .itd{font-size:.82em;line-height:1.14;margin:0 0 0.14em .9em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d{font-size:.78em;font-weight:700;margin:0 0 0.1em;letter-spacing:.04em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d b{font-size:1.35em;display:block;margin-top:.5mm}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d .sep{display:none}
 /* En la etiqueta del rollo las redes sobran y ademas se desbordan: el espacio
@@ -485,9 +485,9 @@ td.r,th.r{text-align:right}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .ofr{font-size:1.15em;line-height:1.15;margin:0.199em 0 0}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .gratis{font-size:2.4em;font-weight:800;line-height:.92;
   letter-spacing:.02em;margin:.3mm 0 0}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .sig{font-size:.88em;margin-bottom:0.12em;line-height:1.1}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .pal{font-size:1.35em;letter-spacing:.09em;padding:0.18em 0;margin:.8mm 0}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .let{font-size:.88em;line-height:1.15}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .sig{font-size:.8em;margin-bottom:0.06em;line-height:1.05}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .pal{font-size:1.1em;letter-spacing:.06em;padding:0.1em 0;margin:0.1em 0;line-height:1.1}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup .let{font-size:.8em;line-height:1.1}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .egracias{display:none}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .erese{margin-top:0.25em;font-size:.95em;line-height:1.14}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .erese b{font-size:1.2em}
@@ -851,9 +851,7 @@ td.r,th.r{text-align:right}
       <p class="hint">Rev&iacute;salo antes de cobrar: que no falte ni sobre nada.</p>
       <div class="vistabox"><div id="tkprev"></div></div>
       <div class="waline">
-        <input id="mv-tel" inputmode="tel" placeholder="Celular del cliente (opcional)">
         <button class="btn wa" id="mv-wa">📲 Enviar imagen</button>
-        <button class="btn" id="mv-wa-txt">Como texto</button>
       </div>
     </div>
     <footer><button class="btn" id="mv-cancel">Corregir la cuenta</button><button class="btn primary" id="mv-ok">Est&aacute; bien, cobrar</button></footer></div></div>
@@ -1828,9 +1826,9 @@ function printEtiquetas(separar){
       <div class="ebarra"></div>
       ${e.firma ? `<img class="qimg" src="${e.firma}" alt="">` : `<div class="q">${esc(e.quien||'Sin nombre')}</div>`}
       ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
+      <div class="d">${esc(m?m.nombre:'Para llevar')}${e.deN?'<span class="sep"> &middot; </span><b>'+e.de+' de '+e.deN+'</b>':''}</div>
       <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
         return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
-      <div class="d">${esc(m?m.nombre:'Para llevar')}${e.deN?'<span class="sep"> &middot; </span><b>'+e.de+' de '+e.deN+'</b>':''}</div>
       ${cuponEtq(c)}
       <div class="erese"><b>Reg&aacute;lanos una rese&ntilde;a en Google</b>nos ayuda a crecer</div>
       ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
@@ -2057,8 +2055,7 @@ function cuponEtq(c, hoja){
         <div class="ofr">${esc(corto)}</div>
         <div class="gratis">GRATIS</div>
         <div class="sig">en tu siguiente compra</div>
-        ${pal?`<div class="let">Solo di la palabra:</div>
-        <div class="pal">${esc(pal)}</div>`:''}
+        ${pal?`<div class="pal">Di: ${esc(pal)}</div>`:''}
         <div class="let">${vigenciaCupon(c)}</div>
       </div>`;
 }
@@ -2242,13 +2239,12 @@ function soloDigitos(t){ return String(t||'').replace(/\D/g,''); }
 function enviarWhats(){
   if(!state.cart.length){ toast('La cuenta está vacía'); return; }
   const txt = encodeURIComponent(textoCuenta(ventaProvisional()));
-  let tel = soloDigitos($('#mv-tel').value);
+  let tel = '';
   if(tel && tel.length===10) tel = '52'+tel;            // celular mexicano
   const url = tel ? ('https://wa.me/'+tel+'?text='+txt) : ('https://wa.me/?text='+txt);
   window.open(url, '_blank');
   toast(tel ? 'Abriendo WhatsApp…' : 'Elige el contacto en WhatsApp');
 }
-$('#mv-wa-txt').onclick=enviarWhats;
 
 // ---------- la cuenta como imagen (se ve igual que el ticket) ----------
 function imagenCuenta(sale){
@@ -2366,7 +2362,7 @@ async function enviarWhatsImagen(){
   a.href = window.URL.createObjectURL(blob); a.download = 'cuenta-vaquita.png'; a.click();
   setTimeout(()=>window.URL.revokeObjectURL(a.href), 4000);
   toast('Imagen descargada: adjúntala en WhatsApp');
-  let tel = soloDigitos($('#mv-tel').value); if(tel && tel.length===10) tel='52'+tel;
+  let tel = '';
   window.open(tel? 'https://wa.me/'+tel : 'https://wa.me/', '_blank');
 }
 $('#mv-wa').onclick=enviarWhatsImagen;
