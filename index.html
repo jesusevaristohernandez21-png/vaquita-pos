@@ -173,6 +173,9 @@ main{flex:1;min-height:0;overflow:auto}
 :is(#ticket,#tkprev,#tkras) .grp .tfirma{height:7mm;width:auto;image-rendering:pixelated}
 :is(#ticket,#tkprev,#tkras) .gnota{font-size:10px;margin-bottom:.4mm}
 :is(#ticket,#tkprev,#tkras) .etq .itd{font-size:.92em;line-height:1.2;margin:0 0 1mm 5mm;font-weight:600}
+:is(#ticket,#tkprev,#tkras) .etq .lin{display:flex;align-items:baseline;gap:1.5mm;text-align:left}
+:is(#ticket,#tkprev,#tkras) .etq .lin .it{flex:0 0 auto;min-width:0}
+:is(#ticket,#tkprev,#tkras) .etq .lin .itd{flex:1 1 auto;min-width:0;margin:0}
 :is(#ticket,#tkprev,#tkras) .etq .it{font-size:1.2em;line-height:1.35;font-weight:700}
 :is(#ticket,#tkprev,#tkras) .etq .it b{font-size:1.1em}
 :is(#ticket,#tkprev,#tkras) .etq .marca{font-size:.85em;letter-spacing:.1em;text-transform:uppercase}
@@ -475,7 +478,8 @@ td.r,th.r{text-align:right}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .nota{font-size:1.2em;margin:0.199em 0 0.298em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .lista{padding:0.2em 0;margin:0.2em 0;border-top-width:2px;border-bottom-width:2px}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .it{font-size:1em;line-height:1.14}
-:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .itd{font-size:.8em;line-height:1.12;margin:0 0 0.1em .9em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .itd{font-size:.68em;line-height:1.08;margin:0}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .lin{gap:0.2em;margin-bottom:0.06em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d{font-size:.8em;font-weight:700;margin:0;letter-spacing:.04em;text-align:left}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d b{font-size:1.35em;display:block;margin-top:.5mm}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .d .sep{display:none}
@@ -1837,7 +1841,7 @@ function printEtiquetas(separar){
       ${e.nota?`<div class="nota">${esc(e.nota)}</div>`:''}
       <div class="ebarra"></div>
       <div class="lista">${e.lineas.map(l=>{ const d=descLinea(l);
-        return `<div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:''); }).join('')}</div>
+        return `<div class="lin"><div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:'')+`</div>`; }).join('')}</div>
       <div class="ezona">
         ${cuponEtq(c)}
         <div class="eop"><span class="gmaps">G</span><b>Reg&aacute;lanos tu rese&ntilde;a</b><span>en Google Maps</span></div>
