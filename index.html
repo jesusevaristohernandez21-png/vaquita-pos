@@ -448,6 +448,21 @@ td.r,th.r{text-align:right}
 .acciones-cuenta button[hidden]{display:none}
 .acciones-cuenta .ic{font-size:17px;line-height:1}
 .acciones-cuenta small{font-size:10.5px;font-weight:600;opacity:.75;letter-spacing:.01em}
+:is(#ticket,#tkras,#tkprev) .arm{font-family:Arial,Helvetica,sans-serif;color:#000;font-size:19px;line-height:1.25}
+:is(#ticket,#tkras,#tkprev) .arm .arm-tit{font-size:1.6em;font-weight:900;text-align:center;letter-spacing:.04em}
+:is(#ticket,#tkras,#tkprev) .arm .arm-ped{background:#000;color:#fff;font-size:1.45em;font-weight:900;text-align:center;padding:3px 4px;margin:4px 0;word-break:break-word}
+:is(#ticket,#tkras,#tkprev) .arm .arm-hora{font-size:1.35em;font-weight:900;text-align:center}
+:is(#ticket,#tkras,#tkprev) .arm .arm-res{text-align:center;font-weight:700;margin:2px 0 4px}
+:is(#ticket,#tkras,#tkprev) .arm .arm-sec{font-size:.95em;font-weight:900;letter-spacing:.08em;border-bottom:2px solid #000;margin:10px 0 4px;padding-bottom:1px}
+:is(#ticket,#tkras,#tkprev) .arm .arm-l{display:flex;align-items:flex-start;gap:8px;padding:3px 0;font-size:1.2em;font-weight:700}
+:is(#ticket,#tkras,#tkprev) .arm .arm-l.chica{font-size:1em;font-weight:600}
+:is(#ticket,#tkras,#tkprev) .arm .arm-c{flex:0 0 auto;width:.95em;height:.95em;border:2.5px solid #000;margin-top:.12em}
+:is(#ticket,#tkras,#tkprev) .arm .arm-n{flex:0 0 auto;min-width:1.9em;text-align:right;font-weight:900}
+:is(#ticket,#tkras,#tkprev) .arm .arm-t{flex:1 1 auto;min-width:0;word-break:break-word}
+:is(#ticket,#tkras,#tkprev) .arm .arm-t small{display:block;font-size:.72em;font-weight:600}
+:is(#ticket,#tkras,#tkprev) .arm .arm-firma{margin-top:16px;font-weight:700}
+:is(#ticket,#tkras,#tkprev) .arm .arm-firma span{display:inline-block;border-bottom:2px solid #000;width:60%;margin-left:6px}
+:is(#ticket,#tkras,#tkprev) .arm img.arm-q{height:1.3em;width:auto;vertical-align:middle;filter:grayscale(1) contrast(3)}
 .cobrar{padding:15px}
 
 #m-vista{z-index:60}
@@ -736,7 +751,7 @@ td.r,th.r{text-align:right}
       <button role="tab" aria-selected="false" data-view="admin" id="tab-admin">Productos</button>
     </nav>
     <button id="btn-instalar">⬇ Instalar app</button>
-    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 7 nov 14:30</span>
+    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 7 nov 14:50</span>
   </header>
 
   <main>
@@ -763,6 +778,7 @@ td.r,th.r{text-align:right}
           <div class="acciones-cuenta">
             <button class="comanda" id="btn-ver" disabled><span class="ic">👁</span>Ver ticket<small>antes de cobrar</small></button>
             <button class="comanda" id="btn-etiquetas" hidden><span class="ic">🏷️</span>Etiquetas<small id="etq-sub">una por paquete</small></button>
+            <button class="comanda" id="btn-armado" disabled><span class="ic">📋</span>Comanda<small>para armar</small></button>
             <button class="cobrar-exacto" id="btn-cobrar-exacto" disabled><span class="ic">⚡</span>Exacto<small>cobra e imprime</small></button>
           </div>
           <button class="cobrar" id="btn-cobrar" disabled>Cobrar</button>
@@ -1934,6 +1950,81 @@ function printComanda(){
 }
 $('#btn-ver').onclick=()=>verTicket();
 
+// ---------- comanda de armado ----------
+// Control interno: suma TODO lo que hay que juntar para el pedido completo (tacos, consomes,
+// verduras, bebidas) a partir de lo que dice cada paquete en su descripcion
+// ("PAQUETE 1|3 tacos de barbacoa + consome"), y abajo la lista por persona para palomear.
+// No marca nada como enviado: se puede imprimir las veces que quieran.
+const ES_BEBIDA = /coca|refresco|agua|jugo|sprite|fanta|pepsi|soda|bebida|caf[eé]|atole/i;
+function claveCosa(t){ return palabras(t).join(' '); }
+function piezasDeProducto(l){
+  // lo que trae UNA unidad de este producto
+  // la linea del carrito guarda solo el nombre; la descripcion ("3 tacos + consome") vive en el producto
+  const p = state.products.find(x=>x.id===l.id) || {};
+  const full = p.nombre || l.nombre || '';
+  const nom = nombreCorto(l.nombre || full), desc = String(full).split('|').slice(1).join('|').trim();
+  const esPaq = /paquete/i.test(p.cat||'') || /^paquete/i.test(nom);
+  if(!esPaq || !desc) return { paquete: esPaq, cosas: [{n:1, nombre: nom, bebida: ES_BEBIDA.test(nom) || /bebida/i.test(p.cat||'')}] };
+  const cosas = desc.split(/\s*(?:\+|,|\s+y\s+)\s*/i).map(t=>t.trim()).filter(Boolean).map(t=>{
+    const m = t.match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
+    const n = m ? parseFloat(m[1].replace(',','.')) : 1;
+    const nombre = (m ? m[2] : t).trim() || t;
+    return { n, nombre: nombre.charAt(0).toUpperCase()+nombre.slice(1), bebida: ES_BEBIDA.test(nombre) };
+  });
+  return { paquete: true, cosas };
+}
+function sumaArmado(lineas){
+  const prod = {}, cosas = {}, beb = {}; let paquetes = 0, verduraEnDesc = false;
+  lineas.forEach(l=>{
+    const nom = nombreCorto(l.nombre); const q = l.qty;
+    prod[nom] = (prod[nom]||0) + q;
+    const r = piezasDeProducto(l);
+    if(r.paquete) paquetes += q;
+    r.cosas.forEach(c=>{
+      if(/verdura/i.test(c.nombre)) verduraEnDesc = true;
+      const dest = c.bebida ? beb : cosas; const k = claveCosa(c.nombre) || c.nombre;
+      if(!dest[k]) dest[k] = {nombre: c.nombre, n: 0};
+      dest[k].n += c.n * q;
+    });
+  });
+  // cada paquete lleva su verdura (si la descripcion ya la dice, se cuenta de ahi)
+  if(paquetes && !verduraEnDesc) cosas['verdura'] = {nombre: 'Verduras (1 por paquete)', n: paquetes};
+  return {prod, cosas, beb, paquetes};
+}
+function printArmado(){
+  const m = mesaActiva(); if(!state.cart.length) return;
+  aplicaPapel();
+  const lineas = state.cart.filter(l=>l.qty>0);
+  const t = sumaArmado(lineas);
+  const fila = (n, txt, sub, chica) => `<div class="arm-l${chica?' chica':''}"><span class="arm-c"></span><span class="arm-n">${nEnt(n)}</span><span class="arm-t">${esc(txt)}${sub?`<small>${esc(sub)}</small>`:''}</span></div>`;
+  const orden = o => Object.values(o).sort((a,b)=>b.n-a.n);
+  const ps = esPedido(m) ? personas().filter(q=>lineas.some(l=>l.quien===q.id)) : [];
+  const general = lineas.filter(l=>!l.quien);
+  const porPersona = ps.map(q=>{
+    const ls = lineas.filter(l=>l.quien===q.id);
+    const quien = q.firma ? `<img class="arm-q" src="${q.firma}" alt="">` : esc(q.nombre||'Sin nombre');
+    return `<div class="arm-l chica"><span class="arm-c"></span><span class="arm-t"><b>${quien}</b>: ${esc(ls.map(l=>l.qty+' '+nombreCorto(l.nombre)).join(' + '))}${q.nota?`<small>Nota: ${esc(q.nota)}</small>`:''}</span></div>`;
+  }).join('') + (general.length && ps.length ? `<div class="arm-l chica"><span class="arm-c"></span><span class="arm-t"><b>General</b>: ${esc(general.map(l=>l.qty+' '+nombreCorto(l.nombre)).join(' + '))}</span></div>` : '');
+  const nBeb = Object.values(t.beb).reduce((a,b)=>a+b.n,0);
+  $('#ticket').innerHTML = `<div class="arm">
+    <div class="arm-tit">COMANDA PARA ARMAR</div>
+    <div class="arm-ped">${esc(m ? m.nombre : 'Venta rápida')}</div>
+    ${esPedido(m) && horaCorta(m.hora) ? `<div class="arm-hora">ENTREGA ${esc(horaCorta(m.hora))}</div>` : ''}
+    <div class="arm-res">${t.paquetes} paquete${t.paquetes===1?'':'s'}${ps.length?' · '+ps.length+' persona'+(ps.length===1?'':'s'):''}${nBeb?' · '+nEnt(nBeb)+' bebida'+(nBeb===1?'':'s'):''} · ${hhmm(Date.now())}</div>
+    <div class="arm-sec">LO QUE PIDIERON</div>
+    ${Object.keys(t.prod).sort((a,b)=>(/^paquete/i.test(b)-/^paquete/i.test(a)) || a.localeCompare(b)).map(k=>fila(t.prod[k], k)).join('')}
+    <div class="arm-sec">PARA ARMAR</div>
+    ${orden(t.cosas).map(c=>fila(c.n, c.nombre)).join('') || '<div class="arm-l chica">—</div>'}
+    ${nBeb ? `<div class="arm-sec">BEBIDAS — QUE NO FALTEN</div>${orden(t.beb).map(c=>fila(c.n, c.nombre)).join('')}` : ''}
+    ${porPersona ? `<div class="arm-sec">POR PERSONA (palomear al empacar)</div>${porPersona}` : ''}
+    ${m && m.nota ? `<div class="arm-sec">NOTA DEL PEDIDO</div><div class="arm-l chica"><span class="arm-t">${esc(m.nota)}</span></div>` : ''}
+    <div class="arm-firma">Revisó:<span>&nbsp;</span></div>
+  </div><br><br>`;
+  toast('Comanda para armar' + (m ? ' · ' + m.nombre : ''));
+  imprimir();
+}
+$('#btn-armado').onclick = ()=>printArmado();
+
 // ---------- etiquetas por paquete ----------
 function aplicaPapel(etiquetas){
   const t = document.getElementById('ticket');
@@ -2092,7 +2183,7 @@ $('#btn-etiquetas').onclick=()=>printEtiquetas();
 // volver a la app) revisa si GitHub ya tiene otra version; si si, avisa. Si no hay nada a medias
 // (sin modal abierto y la venta rapida vacia) se actualiza sola. Los pedidos viven en la tablet,
 // asi que recargar no los pierde.
-const APP_VER = '7 nov 14:30';
+const APP_VER = '7 nov 14:50';
 async function revisaVersion(){
   if(location.protocol==='file:') return;
   try{
@@ -2180,6 +2271,7 @@ function renderCart(){
   // donde no hay personas a quien etiquetar.
   $('#btn-etiquetas').hidden = false;
   $('#btn-etiquetas').disabled = !state.cart.length;
+  $('#btn-armado').disabled = !state.cart.length;
   { const m2 = mesaActiva(); const ya = m2 && m2.etqImp && Object.keys(m2.etqImp).length;
     $('#etq-sub').textContent = ya ? 'solo las nuevas' : 'una por paquete'; }
   renderMesas(); renderPersonas(); saveMesas();
