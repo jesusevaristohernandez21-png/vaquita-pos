@@ -1,4 +1,4 @@
-const CACHE = 'vaquita-v1';
+const CACHE = 'vaquita-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -21,8 +21,10 @@ self.addEventListener('fetch', e => {
   if (url.hostname.indexOf('script.google') >= 0 || url.hostname.indexOf('googleusercontent') >= 0) return;
   if (url.origin !== self.location.origin) return;
 
+  // la pagina siempre fresca: GitHub Pages la cachea 10 min y la tablet se quedaba con la vieja
+  const fresca = req.mode === 'navigate' || /\/(index\.html)?$/.test(url.pathname);
   e.respondWith(
-    fetch(req)
+    (fresca ? fetch(req.url, {cache: 'no-store', credentials: 'same-origin'}) : fetch(req))
       .then(res => {
         const copy = res.clone();
         caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});

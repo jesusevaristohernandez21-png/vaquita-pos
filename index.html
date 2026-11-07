@@ -59,6 +59,11 @@ nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink)
 .sync{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
 .sync i{width:8px;height:8px;border-radius:50%;background:var(--line);display:inline-block}
 .sync.on i{background:var(--ok)}
+.ver{font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap}
+.nuevaver{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;display:none;align-items:center;gap:14px;
+  background:var(--ink);color:var(--bg);padding:12px 14px 12px 18px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);font-weight:600}
+.nuevaver.on{display:flex}
+.nuevaver button{background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:10px 16px;font-weight:800;font-size:15px}
 
 main{flex:1;min-height:0;overflow:auto}
 .view{display:none;height:100%}
@@ -731,7 +736,7 @@ td.r,th.r{text-align:right}
       <button role="tab" aria-selected="false" data-view="admin" id="tab-admin">Productos</button>
     </nav>
     <button id="btn-instalar">⬇ Instalar app</button>
-    <div class="sync" id="sync"><i></i><span>Conectando…</span></div>
+    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 7 nov 14:10</span>
   </header>
 
   <main>
@@ -757,7 +762,7 @@ td.r,th.r{text-align:right}
           </div>
           <div class="acciones-cuenta">
             <button class="comanda" id="btn-ver" disabled><span class="ic">👁</span>Ver ticket<small>antes de cobrar</small></button>
-            <button class="comanda" id="btn-etiquetas" hidden><span class="ic">🏷️</span>Etiquetas<small>una por paquete</small></button>
+            <button class="comanda" id="btn-etiquetas" hidden><span class="ic">🏷️</span>Etiquetas<small id="etq-sub">una por paquete</small></button>
             <button class="cobrar-exacto" id="btn-cobrar-exacto" disabled><span class="ic">⚡</span>Exacto<small>cobra e imprime</small></button>
           </div>
           <button class="cobrar" id="btn-cobrar" disabled>Cobrar</button>
@@ -929,6 +934,7 @@ td.r,th.r{text-align:right}
       <div id="mp3-lista"></div></div>
     <footer><button class="btn" id="mp3-no">Una sola etiqueta</button><button class="btn primary" id="mp3-si">S&iacute;, separarlas</button></footer></div></div>
 
+  <div class="nuevaver" id="nuevaver"><span>Hay una versi&oacute;n nueva de la app</span><button id="nuevaver-ok">Actualizar</button></div>
   <div class="modal" id="m-etqsel"><div class="card"><header>&iquest;Qu&eacute; etiquetas imprimo?<button id="me-close" aria-label="Cerrar">&times;</button></header>
     <div class="body"><p class="hint" id="me-hint"></p><div class="selq" id="me-lista"></div>
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="me-todas">Marcar todas</button><button class="btn" id="me-ninguna">Quitar todas</button></div></div>
@@ -2026,7 +2032,7 @@ function printEtiquetas(separar, yaEscogidas){
   // ¿hay algo que se pueda separar y todavía no lo preguntamos?
   if(separar === undefined && etqs.some(e=>e.veces>1)){ preguntaPartir(etqs); return; }
   // se anotan como impresas con lo que llevan ahorita
-  if(m){ m.etqImp = m.etqImp || {}; etqs.forEach(e=>{ m.etqImp[e.key] = e.huella; }); saveMesas(); renderPersonas(); }
+  if(m){ m.etqImp = m.etqImp || {}; etqs.forEach(e=>{ m.etqImp[e.key] = e.huella; }); saveMesas(); renderCart(); }
   etqSel = null;
   if(separar){
     const out = [];
@@ -2066,6 +2072,27 @@ function printEtiquetas(separar, yaEscogidas){
   imprimir();
 }
 $('#btn-etiquetas').onclick=()=>printEtiquetas();
+// ---------- aviso de version nueva ----------
+// La tablet deja la app abierta dias enteros y no se entera de los cambios. Cada 2 minutos (y al
+// volver a la app) revisa si GitHub ya tiene otra version; si si, avisa. Si no hay nada a medias
+// (sin modal abierto y la venta rapida vacia) se actualiza sola. Los pedidos viven en la tablet,
+// asi que recargar no los pierde.
+const APP_VER = '7 nov 14:10';
+async function revisaVersion(){
+  if(location.protocol==='file:') return;
+  try{
+    const h = await fetch('./index.html?v='+Date.now(), {cache:'no-store'}).then(r=>r.text());
+    const m = h.match(/const APP_VER = '([^']+)'/);
+    if(!m || m[1]===APP_VER) return;
+    const ocupado = document.querySelector('.modal.open') || state.quickCart.length || document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+    if(!ocupado){ location.reload(); return; }
+    $('#nuevaver').classList.add('on');
+  }catch(e){}
+}
+$('#nuevaver-ok').onclick=()=>location.reload();
+setInterval(revisaVersion, 120000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) revisaVersion(); });
+setTimeout(revisaVersion, 15000);
 function preguntaPartir(etqs){
   const filas = etqs.filter(e=>e.veces>1).map(e=>{
     const qué = e.lineas.map(l=>(l.qty/e.veces)+' '+l.nombre).join(' + ');
@@ -2133,6 +2160,8 @@ function renderCart(){
   // donde no hay personas a quien etiquetar.
   $('#btn-etiquetas').hidden = false;
   $('#btn-etiquetas').disabled = !state.cart.length;
+  { const m2 = mesaActiva(); const ya = m2 && m2.etqImp && Object.keys(m2.etqImp).length;
+    $('#etq-sub').textContent = ya ? 'solo las nuevas' : 'una por paquete'; }
   renderMesas(); renderPersonas(); saveMesas();
 }
 $('#lines').addEventListener('click', e=>{
