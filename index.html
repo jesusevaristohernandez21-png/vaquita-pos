@@ -200,6 +200,14 @@ main{flex:1;min-height:0;overflow:auto}
 .gcap{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;padding:12px;
   background:var(--surface2);border:1px solid var(--line);border-radius:12px;margin:10px 0;align-items:end}
 .gcats{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+.ginv{grid-column:1/-1;display:grid;grid-template-columns:minmax(200px,2fr) minmax(110px,1fr) auto;gap:10px;align-items:end;
+  padding:10px;border:1px dashed var(--line);border-radius:10px;background:var(--surface)}
+.ginv .tit{grid-column:1/-1;font-weight:700;font-size:14px}
+.ginv .tit small{font-weight:500;color:var(--muted)}
+.ginv .cu{font-size:13px;color:var(--muted);padding-bottom:10px;white-space:nowrap}
+.ginv.on{border-style:solid;border-color:var(--leaf,#2F6B3F)}
+.ginvtag{display:block;font-size:12px;color:var(--muted)}
+@media (max-width:560px){ .ginv{grid-template-columns:1fr 1fr} .ginv .cu{grid-column:1/-1;padding-bottom:0} }
 .gcats button{padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:13px}
 .gcats button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .gporcat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0}
@@ -776,7 +784,13 @@ td.r,th.r{text-align:right}
 
         <div class="gcap">
           <div class="f"><label>Cu&aacute;nto <input type="number" inputmode="decimal" id="g-monto" placeholder="0.00" step="0.01"></label></div>
-          <div class="f"><label>En qu&eacute; <input id="g-concepto" placeholder="Carne, tortillas, gas..."></label></div>
+          <div class="f"><label>En qu&eacute; <input id="g-concepto" placeholder="8 pi&ntilde;as, 20 kg carne, gas..."></label></div>
+          <div class="ginv" id="g-inv">
+            <div class="tit">&iquest;Entra al inventario? <small>Si escribes &ldquo;8 pi&ntilde;as&rdquo; la app lo llena sola. Al anotar el gasto se suma a lo que hay.</small></div>
+            <div class="f"><label>Art&iacute;culo <select id="g-art"></select></label></div>
+            <div class="f"><label>Cu&aacute;ntos entran <input type="number" inputmode="decimal" id="g-cant" placeholder="0" step="any"></label></div>
+            <div class="cu" id="g-cu"></div>
+          </div>
           <div class="f"><label>D&iacute;a <input type="date" id="g-fecha"></label></div>
           <div class="f"><label>D&oacute;nde (opcional) <input id="g-donde" placeholder="Proveedor o tienda"></label></div>
           <div class="f"><label>Pag&oacute; con <select id="g-pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></label></div>
@@ -1202,7 +1216,8 @@ function renderGastos(){
     '<div class="kpi"><small>Tickets</small><b>'+r.tickets+'</b></div>';
 
   $('#g-rows').innerHTML = (r.gastos||[]).length ? r.gastos.map(function(g){
-    return '<tr><td>'+diaCorto(g.fecha)+'</td><td>'+esc(g.concepto)+'</td><td>'+esc(g.cat)+'</td><td>'+esc(g.donde)+
+    const li = ligaInv(g.nota);
+    return '<tr><td>'+diaCorto(g.fecha)+'</td><td>'+esc(g.concepto)+(li?'<span class="ginvtag">+'+nEnt(li.cant)+' '+esc(uni(li.unidad,li.cant))+' de '+esc(li.nombre)+' al inventario</span>':'')+'</td><td>'+esc(g.cat)+'</td><td>'+esc(g.donde)+
       '</td><td class="r">'+money(g.monto)+'</td><td><button class="btn" data-del-gasto="'+g.id+'">Borrar</button></td></tr>';
   }).join('') : '<tr><td colspan="6" class="hint">Sin gastos anotados esta semana.</td></tr>';
 
@@ -2674,6 +2689,7 @@ function filaArt(a, i){
 }
 function renderInv(){
   if(!$('#inv-lista-todo')) return;
+  if(typeof pintaArtGasto==='function' && $('#g-art') && !gArtManual) pintaArtGasto();
   const f = faltantes();
   $('#inv-faltan').hidden = invEdit;
   $('#inv-faltan').innerHTML = f.length ? `<div class="aviso">
@@ -2863,16 +2879,142 @@ $('#g-cats').addEventListener('click', e=>{
 $('#g-ant').onclick = ()=>mueveSemana(-7);
 $('#g-sig').onclick = ()=>mueveSemana(7);
 $('#g-hoy').onclick = ()=>{ fijaSemana(todayKey()); cargaSemana(); };
+// ---------- gasto -> inventario ----------
+// "8 pinas" en el gasto suma 8 a Pina en el inventario. La liga viaja en la Nota del gasto
+// (INV|cantidad|unidad|nombre) para poder quitarlo del inventario si borran el gasto.
+// Se liga por NOMBRE porque el servidor numera los articulos por renglon (i1, i2...) y cambian.
+const norm = t => String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const NO_CUENTA = ['de','del','la','el','los','las','con','para','y','en','kg','kilo','kilos','pza','pzas','pieza','piezas','bolsa','bolsas','paquete','paquetes','caja','cajas','litro','litros','lt','lts','gr','grs','gramos','cruda','crudo','fresca','fresco'];
+function singular(w){
+  if(w.length>4 && /[^aeiou]es$/.test(w) && /[rnldzj]es$/.test(w)) return w.slice(0,-2);
+  if(w.length>3 && /s$/.test(w)) return w.slice(0,-1);
+  return w;
+}
+function palabras(t){ return norm(t).split(' ').filter(w=>w && !/^\d/.test(w) && !NO_CUENTA.includes(w)).map(singular); }
+const UNI = {kg:'kg',kilo:'kg',kilos:'kg',k:'kg',pza:'pieza',pzas:'pieza',pieza:'pieza',piezas:'pieza',bolsa:'bolsa',bolsas:'bolsa',
+  paquete:'paquete',paquetes:'paquete',caja:'caja',cajas:'caja',litro:'litro',litros:'litro',lt:'litro',lts:'litro',l:'litro',
+  costal:'costal',costales:'costal',bulto:'bulto',bultos:'bulto',tanque:'tanque',tanques:'tanque',rollo:'rollo',rollos:'rollo'};
+// "8 pinas" / "20 kg de carne" / "2.5 kilos de cebolla" -> {cant, unidad, resto}
+function leeConcepto(t){
+  const m = String(t||'').trim().match(/^(\d+(?:[.,]\d+)?)\s*(\p{L}+\.?)?\s*(?:de\s+)?(.*)$/iu);
+  if(!m) return {cant:0, unidad:'', resto:String(t||'').trim()};
+  let u = norm(m[2]||'').replace(/\./g,''), resto = m[3]||'';
+  if(u && !UNI[u]){ resto = (m[2]||'') + (resto?' '+resto:''); u=''; }
+  return {cant: parseFloat(m[1].replace(',','.'))||0, unidad: UNI[u]||'', resto: resto.trim()};
+}
+// el articulo del inventario que mas se parece a lo que escribieron
+function buscaArt(texto){
+  const ws = palabras(texto); if(!ws.length) return null;
+  let mejor=null, pts=0;
+  state.inv.forEach(a=>{
+    const aw = palabras(a.nombre); if(!aw.length) return;
+    const p = aw.filter(w=>ws.includes(w)).length;
+    const pct = p/aw.length;
+    if(p && (p>pts || (p===pts && pct>mejor.pct))){ mejor={a, pct}; pts=p; }
+  });
+  return mejor ? mejor.a : null;
+}
+function nombreNuevo(texto){
+  const ws = String(texto||'').trim().split(/\s+/).filter(w=>!/^\d/.test(w) && !NO_CUENTA.includes(norm(w)));
+  if(!ws.length) return '';
+  ws[0] = ws[0].length>3 && /[^aeiou]es$/i.test(ws[0]) && /[rnldzj]es$/i.test(ws[0]) ? ws[0].slice(0,-2) : (ws[0].length>3 && /s$/i.test(ws[0]) ? ws[0].slice(0,-1) : ws[0]);
+  const n = ws.join(' ');
+  return n.charAt(0).toUpperCase() + n.slice(1);
+}
+function grupoParaGasto(cat){
+  const gs = gruposInv(); const c = norm(cat).slice(0,5);
+  const MAPA = {tortillas:'tortill', 'gas y carbon':'cocina'};
+  const busca = MAPA[norm(cat)] || c;
+  return gs.find(g=>norm(g).startsWith(busca)) || gs.find(g=>norm(g)==='general') || gs[0] || 'General';
+}
+let gArtManual = false;     // si ya escogio a mano, no se lo cambiamos al seguir escribiendo
+function pintaArtGasto(){
+  const sel = $('#g-art'); if(!sel) return;
+  const actual = sel.value;
+  const lee = leeConcepto($('#g-concepto').value);
+  const nuevo = nombreNuevo(lee.resto);
+  const existe = nuevo && state.inv.some(a=>norm(a.nombre)===norm(nuevo));
+  const grupos = [...new Set(state.inv.map(a=>a.cat||'General'))];
+  sel.innerHTML = '<option value="">No va al inventario</option>' +
+    grupos.map(g=>'<optgroup label="'+esc(g)+'">'+state.inv.filter(a=>(a.cat||'General')===g)
+      .map(a=>'<option value="'+esc(a.nombre)+'">'+esc(a.nombre)+' ('+esc(a.unidad||'pieza')+')</option>').join('')+'</optgroup>').join('') +
+    (nuevo && !existe ? '<option value="__nuevo">➕ Artículo nuevo: '+esc(nuevo)+'</option>' : '');
+  sel.value = [...sel.options].some(o=>o.value===actual) ? actual : '';
+  pintaCuGasto();
+}
+function artElegido(){
+  const v = $('#g-art').value;
+  if(!v) return null;
+  if(v==='__nuevo'){
+    const lee = leeConcepto($('#g-concepto').value);
+    return {nuevo:true, nombre:nombreNuevo(lee.resto), unidad:lee.unidad||'pieza', cat:grupoParaGasto(gCat)};
+  }
+  return state.inv.find(a=>a.nombre===v) || null;
+}
+function pintaCuGasto(){
+  const a = artElegido(); const cant = parseFloat($('#g-cant').value)||0; const monto = parseFloat($('#g-monto').value)||0;
+  $('#g-inv').classList.toggle('on', !!a && cant>0);
+  if(!a){ $('#g-cu').textContent=''; return; }
+  const u = a.unidad||'pieza';
+  let t = 'Se cuenta en ' + u + (a.nuevo ? ' · grupo ' + a.cat : ' · hay ' + nEnt(a.hay));
+  if(cant>0 && !a.nuevo) t += ' → quedarán ' + nEnt(Number(a.hay)+cant);
+  if(cant>0 && monto>0) t += ' · ' + money(monto/cant) + ' por ' + u;
+  $('#g-cu').textContent = t;
+}
+function autollenaInv(){
+  const lee = leeConcepto($('#g-concepto').value);
+  pintaArtGasto();
+  if(gArtManual) return;
+  const a = buscaArt(lee.resto);
+  const nuevo = nombreNuevo(lee.resto);
+  if(a) $('#g-art').value = a.nombre;
+  else if(lee.cant>0 && nuevo) $('#g-art').value = '__nuevo';
+  else $('#g-art').value = '';
+  if(lee.cant>0) $('#g-cant').value = nEnt(lee.cant);
+  else if(!$('#g-art').value) $('#g-cant').value = '';
+  pintaCuGasto();
+}
+$('#g-concepto').addEventListener('input', autollenaInv);
+$('#g-art').addEventListener('change', ()=>{ gArtManual = true; pintaCuGasto(); if($('#g-art').value && !$('#g-cant').value) $('#g-cant').focus(); });
+$('#g-cant').addEventListener('input', pintaCuGasto);
+$('#g-monto').addEventListener('input', pintaCuGasto);
+function uni(u, n){ u=u||'pieza'; return (Number(n)===1 || /^(kg|g|l)$/.test(u)) ? u : (/[aeiou]$/.test(u) ? u+'s' : u+'es'); }
+function ligaInv(nota){
+  const m = String(nota||'').match(/INV\|([\d.]+)\|([^|]*)\|(.+)$/);
+  return m ? {cant:parseFloat(m[1])||0, unidad:m[2], nombre:m[3]} : null;
+}
+// trae el inventario fresco del servidor antes de sumar, para no pisar lo que
+// la encargada haya contado en otro aparato (el servidor reescribe la hoja completa)
+async function sumaInventario(nombre, cant, nuevo){
+  clearTimeout(invT);
+  try{ const r = await api('inventario', {}); if(Array.isArray(r.inventario)) state.inv = r.inventario; }catch(e){}
+  let a = state.inv.find(x=>norm(x.nombre)===norm(nombre));
+  if(!a && cant>0 && nuevo){ a = {id:'i'+Date.now().toString(36), nombre:nuevo.nombre, unidad:nuevo.unidad, hay:0, min:0, cat:nuevo.cat}; state.inv.push(a); }
+  if(!a) return null;
+  a.hay = nEnt(Math.max(Number(a.hay)+cant, 0));
+  await saveInv(); renderInv();
+  return a;
+}
 $('#g-add').onclick = async ()=>{
   const monto = parseFloat($('#g-monto').value);
-  if(!monto || monto <= 0){ $('#g-monto').focus(); toast('Falta cu\u00e1nto fue'); return; }
-  const gasto = { fecha: $('#g-fecha').value || todayKey(), concepto: $('#g-concepto').value.trim(),
-                  cat: gCat, monto: monto, donde: $('#g-donde').value.trim(), pago: $('#g-pago').value };
+  if(!monto || monto <= 0){ $('#g-monto').focus(); toast('Falta cuánto fue'); return; }
+  let art = artElegido(); const cant = parseFloat($('#g-cant').value)||0;
+  // si la app lo adivino pero no hay cantidad, se anota solo el gasto; si lo escogio a mano, pedimos la cantidad
+  if(art && cant<=0){ if(gArtManual){ $('#g-cant').focus(); toast('\u00bfCu\u00e1ntos entran al inventario?'); return; } art = null; }
+  if(art && art.nuevo && !art.nombre){ toast('Escribe qué compraste'); return; }
+  const gasto = { id: 'g' + Date.now().toString(36), fecha: $('#g-fecha').value || todayKey(), concepto: $('#g-concepto').value.trim(),
+                  cat: gCat, monto: monto, donde: $('#g-donde').value.trim(), pago: $('#g-pago').value,
+                  nota: art ? ('INV|' + nEnt(cant) + '|' + (art.unidad||'pieza') + '|' + art.nombre) : '' };
   $('#g-add').disabled = true;
   try{
     await api('gasto', { gasto: gasto, desde: gSemana.desde, hasta: gSemana.hasta });
-    $('#g-monto').value=''; $('#g-concepto').value=''; $('#g-donde').value='';
-    toast('Anotado: ' + money(monto));
+    let msg = 'Anotado: ' + money(monto);
+    if(art){
+      const a = await sumaInventario(art.nombre, cant, art.nuevo ? art : null);
+      msg += a ? ' · inventario: ' + a.nombre + ' ahora hay ' + nEnt(a.hay) + ' ' + (a.unidad||'') : ' · no se encontró el artículo en el inventario';
+    }
+    $('#g-monto').value=''; $('#g-concepto').value=''; $('#g-donde').value=''; $('#g-cant').value=''; gArtManual=false; pintaArtGasto();
+    toast(msg);
     // si el gasto cayo en otra semana, nos movemos a esa para que lo vea
     if(gasto.fecha < gSemana.desde || gasto.fecha > gSemana.hasta) fijaSemana(gasto.fecha);
     await cargaSemana();
@@ -2882,8 +3024,14 @@ $('#g-add').onclick = async ()=>{
 };
 $('#g-rows').addEventListener('click', async e=>{
   const b = e.target.closest('[data-del-gasto]'); if(!b) return;
-  if(!confirm('\u00bfBorrar este gasto?')) return;
-  try{ await api('gasto', { borrar: b.dataset.delGasto, desde: gSemana.desde, hasta: gSemana.hasta }); await cargaSemana(); }
+  const g = ((gResumen&&gResumen.gastos)||[]).find(x=>x.id===b.dataset.delGasto);
+  const li = g ? ligaInv(g.nota) : null;
+  if(!confirm('¿Borrar este gasto?' + (li ? '\n\nTambién se van a quitar ' + nEnt(li.cant) + ' ' + uni(li.unidad,li.cant) + ' de ' + li.nombre + ' del inventario.' : ''))) return;
+  try{
+    await api('gasto', { borrar: b.dataset.delGasto, desde: gSemana.desde, hasta: gSemana.hasta });
+    if(li){ const a = await sumaInventario(li.nombre, -li.cant, null); if(a) toast('Inventario: ' + a.nombre + ' ahora hay ' + nEnt(a.hay)); }
+    await cargaSemana();
+  }
   catch(err){ toast('No se pudo borrar: ' + err.message); }
 });
 function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
