@@ -225,6 +225,16 @@ main{flex:1;min-height:0;overflow:auto}
 .personas button{flex:0 0 auto;padding:9px 13px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-weight:700;font-size:14px;white-space:nowrap}
 .personas button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .personas button.add{border-style:dashed;color:var(--muted);font-weight:600}
+.personas button .ok{margin-left:5px;font-size:12px}
+.selq{display:grid;gap:6px;margin-top:8px}
+.selq label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-weight:600;font-size:15px}
+.selq label:has(input:checked){border-color:var(--accent);background:var(--surface2)}
+.selq input{width:22px;height:22px;flex:0 0 auto}
+.selq img{height:22px;width:auto;vertical-align:middle}
+.selq .est{margin-left:auto;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.selq .est.nueva{background:var(--accent);color:var(--accent-ink)}
+.selq .est.cambio{background:#F4D9A8;color:#5A3B00}
+.selq .est.lista{background:var(--surface2);color:var(--muted)}
 .personas button .n{display:inline-block;min-width:17px;padding:0 5px;margin-left:5px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:11px}
 .personas button[aria-pressed="true"] .n{background:var(--accent-ink);color:var(--accent)}
 .personas button .ed{display:inline-block;margin-left:8px;padding:0 4px;font-size:14px;opacity:.85}
@@ -915,6 +925,11 @@ td.r,th.r{text-align:right}
       <div id="mp3-lista"></div></div>
     <footer><button class="btn" id="mp3-no">Una sola etiqueta</button><button class="btn primary" id="mp3-si">S&iacute;, separarlas</button></footer></div></div>
 
+  <div class="modal" id="m-etqsel"><div class="card"><header>&iquest;Qu&eacute; etiquetas imprimo?<button id="me-close" aria-label="Cerrar">&times;</button></header>
+    <div class="body"><p class="hint" id="me-hint"></p><div class="selq" id="me-lista"></div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="me-todas">Marcar todas</button><button class="btn" id="me-ninguna">Quitar todas</button></div></div>
+    <footer><button class="btn" id="me-cancel">Cancelar</button><button class="btn primary" id="me-ok">Imprimir</button></footer></div></div>
+
   <div class="modal" id="m-vista"><div class="card ancho"><header>As&iacute; va a salir el ticket<button id="mv-close" aria-label="Cerrar">&times;</button></header>
     <div class="body">
       <p class="hint">Rev&iacute;salo antes de cobrar: que no falte ni sobre nada.</p>
@@ -1462,6 +1477,10 @@ function nombresDe(txt){ return txt.split(/[\n,;]+/).map(x=>x.trim()).filter(Boo
 function piezasDe(id){ return state.cart.filter(l=>(l.quien||null)===(id||null)).reduce((s,l)=>s+l.qty,0); }
 function totalDe(id){ return state.cart.filter(l=>(l.quien||null)===(id||null)).reduce((s,l)=>s+l.precio*l.qty,0); }
 
+function estadoEtqPersona(m, id){
+  if(!m || !m.etqImp) return 'nueva';
+  const e = gruposEtiqueta().find(x=>x.key===id); return e ? estadoEtq(m, e) : '';
+}
 function renderPersonas(){
   const m = pedidoActivo();
   const cont = $('#personas');
@@ -1471,7 +1490,8 @@ function renderPersonas(){
   cont.innerHTML = `<div class="et">Lo que sigue se le pone a:</div><div class="tira">` +
     `<button data-q="" aria-pressed="${!quienSel}">General${gen?`<span class="n">${gen}</span>`:''}</button>` +
     personas().map(q=>{ const n=piezasDe(q.id); const sel=quienSel===q.id;
-      return `<button data-q="${q.id}" aria-pressed="${sel}">${pintaQuien(q)}${n?`<span class="n">${n}</span>`:''}${sel?`<span class="ed" data-edit="${q.id}" role="button" aria-label="Editar">&#9998;</span>`:''}</button>`; }).join('') +
+      const st = n ? estadoEtqPersona(m, q.id) : '';
+      return `<button data-q="${q.id}" aria-pressed="${sel}">${pintaQuien(q)}${n?`<span class="n">${n}</span>`:''}${st==='lista'?'<span class="ok" title="Etiqueta impresa">\u{1F3F7}\uFE0F\u2713</span>':''}${sel?`<span class="ed" data-edit="${q.id}" role="button" aria-label="Editar">&#9998;</span>`:''}</button>`; }).join('') +
     `<button class="add" id="persona-add">+ Personas</button></div>`;
 }
 $('#personas').addEventListener('click', e=>{
@@ -1920,11 +1940,55 @@ function gruposEtiqueta(){
     const lineas = state.cart.filter(l=>(l.quien||null)===(id||null));
     if(!lineas.length) return null;
     const q = id ? persona(id) : null;
-    return { quien: id?(q.nombre||''):'GENERAL', firma: q?q.firma:'', nota: q?q.nota:'',
+    const e = { key: id||'general', q, quien: id?(q.nombre||''):'GENERAL', firma: q?q.firma:'', nota: q?q.nota:'',
              lineas, veces: vecesSeparables(lineas) };
+    e.huella = huellaEtq(e);
+    return e;
   }).filter(Boolean);
 }
-function printEtiquetas(separar){
+// "huella" de lo que lleva la etiqueta: si cambia (le agregaron algo, otro nombre, otra nota)
+// la etiqueta cuenta como "con cambios" y se vuelve a ofrecer.
+function huellaEtq(e){
+  return [e.quien, (e.firma||'').length, e.nota||'',
+          e.lineas.map(l=>l.id+':'+l.precio+':'+l.qty).sort().join(',')].join('|');
+}
+// Por pedido se recuerda que etiquetas ya salieron (vive en el pedido, en la tablet).
+// Asi, si despues agregan a una persona, solo sale la de esa persona.
+function estadoEtq(m, e){
+  const ya = m && m.etqImp ? m.etqImp[e.key] : undefined;
+  return ya === undefined ? 'nueva' : (ya === e.huella ? 'lista' : 'cambio');
+}
+let etqSel = null;     // keys escogidas en el modal; null = todas
+function abreSelEtq(m, etqs){
+  const pend = etqs.filter(e=>estadoEtq(m,e)!=='lista');
+  const yaN = etqs.length - pend.length;
+  $('#me-hint').innerHTML = pend.length
+    ? `Ya salieron <b>${yaN}</b> de este pedido. Dej&eacute; marcadas solo las <b>nuevas o con cambios</b>. Si una sali&oacute; mal, m&aacute;rcala para volver a imprimirla.`
+    : `Todas las etiquetas de este pedido <b>ya se imprimieron</b> y no han cambiado. Marca la que quieras volver a imprimir.`;
+  const TXT = {nueva:'Nueva', cambio:'Cambi\u00f3', lista:'\u2713 Ya impresa'};
+  $('#me-lista').innerHTML = etqs.map(e=>{ const st=estadoEtq(m,e);
+    const nom = e.q ? pintaQuien(e.q) : 'General';
+    const qty = e.lineas.reduce((a,l)=>a+l.qty,0);
+    return `<label><input type="checkbox" value="${esc(e.key)}"${st!=='lista'?' checked':''}><span>${nom}</span>`+
+      `<small style="color:var(--muted);font-weight:500">${qty} art.</small><span class="est ${st}">${TXT[st]}</span></label>`; }).join('');
+  cuentaSelEtq();
+  $('#m-etqsel').classList.add('open');
+}
+function cuentaSelEtq(){
+  const n = $('#me-lista').querySelectorAll('input:checked').length;
+  $('#me-ok').disabled = !n;
+  $('#me-ok').textContent = n ? 'Imprimir ' + n + ' etiqueta' + (n===1?'':'s') : 'Imprimir';
+}
+function cierraSelEtq(){ $('#m-etqsel').classList.remove('open'); }
+$('#me-lista').addEventListener('change', cuentaSelEtq);
+$('#me-todas').onclick = ()=>{ $('#me-lista').querySelectorAll('input').forEach(i=>i.checked=true); cuentaSelEtq(); };
+$('#me-ninguna').onclick = ()=>{ $('#me-lista').querySelectorAll('input').forEach(i=>i.checked=false); cuentaSelEtq(); };
+$('#me-close').onclick = $('#me-cancel').onclick = ()=>{ etqSel=null; cierraSelEtq(); };
+$('#me-ok').onclick = ()=>{
+  etqSel = [...$('#me-lista').querySelectorAll('input:checked')].map(i=>i.value);
+  cierraSelEtq(); printEtiquetas(undefined, true);
+};
+function printEtiquetas(separar, yaEscogidas){
   // Sirve en Pedido, en Mesa y en Rapida: en los dos ultimos no hay personas,
   // asi que sale una etiqueta por paquete, que es como se usan de todos modos.
   const m = mesaActiva();
@@ -1932,8 +1996,18 @@ function printEtiquetas(separar){
   aplicaPapel();
   let etqs = gruposEtiqueta();
   if(!etqs.length){ toast('Este pedido está vacío'); return; }
+  // Si ya salieron etiquetas de este pedido, preguntamos cuales (marcadas: las nuevas o con cambios)
+  if(!yaEscogidas){
+    etqSel = null;
+    if(m && m.etqImp && Object.keys(m.etqImp).length){ abreSelEtq(m, etqs); return; }
+  }
+  if(etqSel){ const sel = etqSel; etqs = etqs.filter(e=>sel.includes(e.key)); }
+  if(!etqs.length){ toast('No escogiste ninguna etiqueta'); return; }
   // ¿hay algo que se pueda separar y todavía no lo preguntamos?
   if(separar === undefined && etqs.some(e=>e.veces>1)){ preguntaPartir(etqs); return; }
+  // se anotan como impresas con lo que llevan ahorita
+  if(m){ m.etqImp = m.etqImp || {}; etqs.forEach(e=>{ m.etqImp[e.key] = e.huella; }); saveMesas(); renderPersonas(); }
+  etqSel = null;
   if(separar){
     const out = [];
     etqs.forEach(e=>{
@@ -1981,9 +2055,9 @@ function preguntaPartir(etqs){
   $('#m-partir').classList.add('open');
 }
 function cierraPartir(){ $('#m-partir').classList.remove('open'); }
-$('#mp3-close').onclick=cierraPartir;
-$('#mp3-no').onclick=()=>{ cierraPartir(); printEtiquetas(false); };
-$('#mp3-si').onclick=()=>{ cierraPartir(); printEtiquetas(true); };
+$('#mp3-no').onclick=()=>{ cierraPartir(); printEtiquetas(false, true); };
+$('#mp3-si').onclick=()=>{ cierraPartir(); printEtiquetas(true, true); };
+$('#mp3-close').onclick=()=>{ etqSel=null; cierraPartir(); };
 
 function addToCart(p, precio){
   const q = pedidoActivo() ? (quienSel||null) : null;
