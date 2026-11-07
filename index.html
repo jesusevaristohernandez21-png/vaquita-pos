@@ -736,7 +736,7 @@ td.r,th.r{text-align:right}
       <button role="tab" aria-selected="false" data-view="admin" id="tab-admin">Productos</button>
     </nav>
     <button id="btn-instalar">⬇ Instalar app</button>
-    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 7 nov 14:10</span>
+    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 7 nov 14:20</span>
   </header>
 
   <main>
@@ -1968,6 +1968,10 @@ function gruposEtiqueta(){
     const q = id ? persona(id) : null;
     const e = { key: id||'general', q, quien: id?(q.nombre||''):'GENERAL', firma: q?q.firma:'', nota: q?q.nota:'',
              lineas, veces: vecesSeparables(lineas) };
+    // Lo que va en General no tiene nombre: si no se puede repartir parejo (p.ej. 1 Paquete 1 +
+    // 1 Paquete 2 + 1 Paquete 3), se ofrece una etiqueta por paquete.
+    const piezas = lineas.reduce((a,l)=>a+l.qty,0);
+    e.porPieza = (!id && e.veces===1 && piezas>1) ? piezas : 0;
     e.huella = huellaEtq(e);
     return e;
   }).filter(Boolean);
@@ -2030,7 +2034,7 @@ function printEtiquetas(separar, yaEscogidas){
   if(etqSel){ const sel = etqSel; etqs = etqs.filter(e=>sel.includes(e.key)); }
   if(!etqs.length){ toast('No escogiste ninguna etiqueta'); return; }
   // ¿hay algo que se pueda separar y todavía no lo preguntamos?
-  if(separar === undefined && etqs.some(e=>e.veces>1)){ preguntaPartir(etqs); return; }
+  if(separar === undefined && etqs.some(e=>e.veces>1 || e.porPieza)){ preguntaPartir(etqs); return; }
   // se anotan como impresas con lo que llevan ahorita
   if(m){ m.etqImp = m.etqImp || {}; etqs.forEach(e=>{ m.etqImp[e.key] = e.huella; }); saveMesas(); renderCart(); }
   etqSel = null;
@@ -2040,6 +2044,9 @@ function printEtiquetas(separar, yaEscogidas){
       if(e.veces>1){
         for(let k=1;k<=e.veces;k++)
           out.push({...e, lineas: e.lineas.map(l=>({...l, qty: l.qty/e.veces})), de:k, deN:e.veces});
+      } else if(e.porPieza){
+        let k=0;
+        e.lineas.forEach(l=>{ for(let j=0;j<l.qty;j++){ k++; out.push({...e, lineas:[{...l, qty:1}], de:k, deN:e.porPieza}); } });
       } else out.push(e);
     });
     etqs = out;
@@ -2077,7 +2084,7 @@ $('#btn-etiquetas').onclick=()=>printEtiquetas();
 // volver a la app) revisa si GitHub ya tiene otra version; si si, avisa. Si no hay nada a medias
 // (sin modal abierto y la venta rapida vacia) se actualiza sola. Los pedidos viven en la tablet,
 // asi que recargar no los pierde.
-const APP_VER = '7 nov 14:10';
+const APP_VER = '7 nov 14:20';
 async function revisaVersion(){
   if(location.protocol==='file:') return;
   try{
@@ -2093,9 +2100,14 @@ $('#nuevaver-ok').onclick=()=>location.reload();
 setInterval(revisaVersion, 120000);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) revisaVersion(); });
 setTimeout(revisaVersion, 15000);
+function nombreCorto(n){ return String(n||'').split('|')[0].trim(); }
 function preguntaPartir(etqs){
-  const filas = etqs.filter(e=>e.veces>1).map(e=>{
-    const qué = e.lineas.map(l=>(l.qty/e.veces)+' '+l.nombre).join(' + ');
+  const filas = etqs.filter(e=>e.veces>1 || e.porPieza).map(e=>{
+    if(e.porPieza){
+      const cada = e.lineas.map(l=>(l.qty>1?l.qty+' \u00d7 ':'')+nombreCorto(l.nombre)).join(' \u00b7 ');
+      return `<div class="hint" style="margin:6px 0"><b>${esc(e.quien||'General')}</b>: ${e.porPieza} etiquetas, una por paquete (<b>${esc(cada)}</b>)</div>`;
+    }
+    const qué = e.lineas.map(l=>(l.qty/e.veces)+' '+nombreCorto(l.nombre)).join(' + ');
     return `<div class="hint" style="margin:6px 0"><b>${esc(e.quien||'General')}</b>: ${e.veces} etiquetas de <b>${esc(qué)}</b></div>`;
   }).join('');
   $('#mp3-lista').innerHTML = filas;
