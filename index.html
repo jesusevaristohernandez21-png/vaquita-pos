@@ -197,6 +197,10 @@ main{flex:1;min-height:0;overflow:auto}
 .cart{background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
 .cart h2{font-family:var(--display);font-size:18px;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 .cart h2 button{color:var(--ember);font-size:13px;font-weight:600}
+.cart h2 #cart-title{min-width:0;line-height:1.25}
+.cart h2 .acc{display:flex;gap:10px;align-items:center;flex:0 0 auto;margin-left:8px}
+.cart h2 .acc button{white-space:nowrap}
+.cart h2 button.edit-ped{color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px}
 .gcap{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;padding:12px;
   background:var(--surface2);border:1px solid var(--line);border-radius:12px;margin:10px 0;align-items:end}
 .gcats{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
@@ -743,7 +747,7 @@ td.r,th.r{text-align:right}
           <button id="cb-open">Ver cuenta</button>
         </div>
         <aside class="cart" id="cart">
-          <h2><span id="cart-title">Cuenta</span> <button id="clear-cart">Vaciar</button></h2>
+          <h2><span id="cart-title">Cuenta</span> <span class="acc"><button class="edit-ped" id="edit-pedido" hidden>&#9998; Cambiar hora</button><button id="clear-cart">Vaciar</button></span></h2>
           <div class="mesas" id="mesas"></div>
           <div class="personas" id="personas" hidden></div>
           <div class="lines" id="lines"></div>
@@ -978,7 +982,7 @@ td.r,th.r{text-align:right}
     </div>
   </div>
 
-  <div class="modal" id="m-pedido"><div class="card"><header>Pedido de empresa<button id="mp2-close" aria-label="Cerrar">&times;</button></header>
+  <div class="modal" id="m-pedido"><div class="card"><header><span id="mp2-tit">Pedido de empresa</span><button id="mp2-close" aria-label="Cerrar">&times;</button></header>
     <div class="body">
       <label class="f">&iquest;De qui&eacute;n es el pedido? <input id="mp2-emp" placeholder="Contabilidad Grupo XYZ, Oficina de Ana…"></label>
       <div class="f" style="margin-top:12px">&iquest;A qu&eacute; hora lo entregan?</div>
@@ -1392,17 +1396,33 @@ $('#mesas').addEventListener('click', e=>{
 /* Las mesas se quitaron (20 oct): en el puesto hay dos y estorbaban. Quedan solo
    Rapida y Pedido. Los pedidos abiertos siguen usando la misma lista `state.mesas`
    por dentro, para no tocar el guardado ni el servidor. */
-function openPedidoModal(){
-  $('#mp2-emp').value=''; $('#mp2-nota').value='';
+let pedEdit = null;   // id del pedido que se esta cambiando; null = pedido nuevo
+function openPedidoModal(m){
+  pedEdit = m ? m.id : null;
+  $('#mp2-tit').textContent = m ? 'Cambiar pedido' : 'Pedido de empresa';
+  $('#mp2-ok').textContent = m ? 'Guardar cambios' : 'Abrir pedido';
+  $('#mp2-emp').value = m ? (m.nombre||'') : ''; $('#mp2-nota').value = m ? (m.nota||'') : '';
   const d=new Date(); d.setHours(d.getHours()+2);
-  rlSet24(String(d.getHours()).padStart(2,'0')+':'+String(Math.floor(d.getMinutes()/5)*5).padStart(2,'0'));
-  $('#m-pedido').classList.add('open'); setTimeout(()=>$('#mp2-emp').focus(),50);
+  const def = String(d.getHours()).padStart(2,'0')+':'+String(Math.floor(d.getMinutes()/5)*5).padStart(2,'0');
+  rlSet24(m && horaCorta(m.hora) ? horaCorta(m.hora) : def);
+  $('#m-pedido').classList.add('open'); if(!m) setTimeout(()=>$('#mp2-emp').focus(),50);
 }
 function closePedidoModal(){ $('#m-pedido').classList.remove('open'); }
-$('#mp2-close').onclick=$('#mp2-cancel').onclick=closePedidoModal;
+$('#mp2-close').onclick=$('#mp2-cancel').onclick=()=>{ pedEdit=null; closePedidoModal(); };
+$('#edit-pedido').onclick=()=>{ const m=pedidoActivo(); if(m) openPedidoModal(m); };
 $('#mp2-ok').onclick=()=>{
   const emp=$('#mp2-emp').value.trim(); if(!emp){ $('#mp2-emp').focus(); return; }
   closePedidoModal();
+  if(pedEdit){
+    const m = state.mesas.find(x=>x.id===pedEdit); pedEdit = null;
+    if(m){
+      const antes = horaCorta(m.hora), ahora = horaCorta($('#mp2-hora').value);
+      m.nombre = emp; m.hora = ahora; m.nota = $('#mp2-nota').value.trim();
+      saveMesas(); renderCart();
+      toast(antes!==ahora ? 'Hora cambiada: '+(antes||'sin hora')+' \u2192 '+ahora : 'Pedido actualizado');
+    }
+    return;
+  }
   const id='m'+Date.now().toString(36);
   state.mesas.push({id, nombre:emp, tipo:'pedido', hora:horaCorta($('#mp2-hora').value), nota:$('#mp2-nota').value.trim(), items:[], abierta:Date.now()});
   saveMesas(); setMesa(id);
@@ -2107,6 +2127,7 @@ function renderCart(){
   const m=mesaActiva();
   $('#cart-title').textContent = m ? (esPedido(m)? '📦 '+m.nombre+(horaCorta(m.hora)?' · '+horaCorta(m.hora):'') : m.nombre) : 'Cuenta';
   $('#clear-cart').textContent = m ? 'Cancelar pedido' : 'Vaciar';
+  $('#edit-pedido').hidden = !esPedido(m);
   // En un pedido el boton se ve siempre, apagado mientras no haya nada,
   // igual que "Ver ticket". Escondido de plano solo en Rapida y en Mesa,
   // donde no hay personas a quien etiquetar.
@@ -2121,7 +2142,9 @@ $('#lines').addEventListener('click', e=>{
   if(l.qty<=0) state.cart.splice(+b.dataset.i,1);
   renderCart();
 });
-$('#clear-cart').onclick=()=>{ const m=mesaActiva(); state.cart.length=0; if(m) cerrarMesa(m.id); else renderCart(); closeSheet(); };
+$('#clear-cart').onclick=()=>{ const m=mesaActiva();
+  if(m && state.cart.length && !confirm('\u00bfCancelar el pedido "'+m.nombre+'"? Se borra completo'+(personas().length?', con sus '+personas().length+' persona'+(personas().length===1?'':'s'):'')+' ('+cartCount()+' art\u00edculo'+(cartCount()===1?'':'s')+'). No se puede deshacer.')) return;
+  state.cart.length=0; if(m) cerrarMesa(m.id); else renderCart(); closeSheet(); };
 function openSheet(){ $('#cart').classList.add('open'); $('#scrim').classList.add('open'); }
 function closeSheet(){ $('#cart').classList.remove('open'); $('#scrim').classList.remove('open'); }
 $('#cb-open').onclick=openSheet; $('#scrim').onclick=closeSheet;
