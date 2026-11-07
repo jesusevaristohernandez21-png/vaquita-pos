@@ -736,7 +736,7 @@ td.r,th.r{text-align:right}
       <button role="tab" aria-selected="false" data-view="admin" id="tab-admin">Productos</button>
     </nav>
     <button id="btn-instalar">⬇ Instalar app</button>
-    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 7 nov 14:20</span>
+    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 7 nov 14:30</span>
   </header>
 
   <main>
@@ -1989,12 +1989,13 @@ function estadoEtq(m, e){
   return ya === undefined ? 'nueva' : (ya === e.huella ? 'lista' : 'cambio');
 }
 let etqSel = null;     // keys escogidas en el modal; null = todas
+let etqAviso = '';
 function abreSelEtq(m, etqs){
   const pend = etqs.filter(e=>estadoEtq(m,e)!=='lista');
   const yaN = etqs.length - pend.length;
   $('#me-hint').innerHTML = pend.length
     ? `Ya salieron <b>${yaN}</b> de este pedido. Dej&eacute; marcadas solo las <b>nuevas o con cambios</b>. Si una sali&oacute; mal, m&aacute;rcala para volver a imprimirla.`
-    : `Todas las etiquetas de este pedido <b>ya se imprimieron</b> y no han cambiado. Marca la que quieras volver a imprimir.`;
+    : `Todas las etiquetas de este pedido <b>ya se imprimieron</b>. Marca la que quieras volver a imprimir (por ejemplo, si una sali&oacute; mal).`;
   const TXT = {nueva:'Nueva', cambio:'Cambi\u00f3', lista:'\u2713 Ya impresa'};
   $('#me-lista').innerHTML = etqs.map(e=>{ const st=estadoEtq(m,e);
     const nom = e.q ? pintaQuien(e.q) : 'General';
@@ -2029,7 +2030,14 @@ function printEtiquetas(separar, yaEscogidas){
   // Si ya salieron etiquetas de este pedido, preguntamos cuales (marcadas: las nuevas o con cambios)
   if(!yaEscogidas){
     etqSel = null;
-    if(m && m.etqImp && Object.keys(m.etqImp).length){ abreSelEtq(m, etqs); return; }
+    if(m && m.etqImp && Object.keys(m.etqImp).length){
+      // Lo que falta de imprimir sale directo, sin preguntar. Si ya no falta nada, se abre la lista
+      // para escoger cual reimprimir.
+      const pend = etqs.filter(e=>estadoEtq(m,e)!=='lista');
+      if(!pend.length){ abreSelEtq(m, etqs); return; }
+      etqSel = pend.map(e=>e.key);
+      etqAviso = 'Solo lo que faltaba: ' + pend.map(e=>e.quien||'General').join(', ') + ' \u00b7 ' + (etqs.length-pend.length) + ' ya estaban impresas';
+    }
   }
   if(etqSel){ const sel = etqSel; etqs = etqs.filter(e=>sel.includes(e.key)); }
   if(!etqs.length){ toast('No escogiste ninguna etiqueta'); return; }
@@ -2075,7 +2083,7 @@ function printEtiquetas(separar, yaEscogidas){
       ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
     </div>
     ${(!hoja && i<etqs.length-1)?'<div class="corte">&#9986; cortar</div>':''}`).join('') + '</div>' + (hoja ? '' : '<br><br>');
-  toast(etqs.length+' etiqueta'+(etqs.length===1?'':'s'));
+  toast(etqAviso || (etqs.length+' etiqueta'+(etqs.length===1?'':'s'))); etqAviso='';
   imprimir();
 }
 $('#btn-etiquetas').onclick=()=>printEtiquetas();
@@ -2084,7 +2092,7 @@ $('#btn-etiquetas').onclick=()=>printEtiquetas();
 // volver a la app) revisa si GitHub ya tiene otra version; si si, avisa. Si no hay nada a medias
 // (sin modal abierto y la venta rapida vacia) se actualiza sola. Los pedidos viven en la tablet,
 // asi que recargar no los pierde.
-const APP_VER = '7 nov 14:20';
+const APP_VER = '7 nov 14:30';
 async function revisaVersion(){
   if(location.protocol==='file:') return;
   try{
