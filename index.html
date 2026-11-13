@@ -751,7 +751,7 @@ td.r,th.r{text-align:right}
       <button role="tab" aria-selected="false" data-view="admin" id="tab-admin">Productos</button>
     </nav>
     <button id="btn-instalar">⬇ Instalar app</button>
-    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 7 nov 14:50</span>
+    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 12 nov 23:55</span>
   </header>
 
   <main>
@@ -1926,6 +1926,23 @@ function imprimir(){
     });
 }
 
+// A cocina solo le interesa lo que tiene que armar o sacar de la hielera: una
+// verdura por paquete, los refrescos y las aguas (las de cortesia incluidas).
+// Todo lo demas ya va impreso en la etiqueta de cada paquete.
+function cuentaCocina(lineas){
+  let ver=0, coca=0, agua=0;
+  (lineas||[]).forEach(l=>{
+    const q = (l.qty||0) - (l.env||0);
+    if(q<=0) return;
+    // El nombre del paquete trae su descripcion despues del "|" ("...+ refresco"),
+    // asi que solo se mira la parte de la izquierda o el paquete 3 contaria como coca.
+    const n = String(l.nombre||'').split('|')[0].toLowerCase();
+    if(/paquete/.test(n)) ver += q;
+    else if(/refresco|coca/.test(n)) coca += q;
+    else if(/agua/.test(n)) agua += q;
+  });
+  return {ver, coca, agua};
+}
 function printComanda(){
   const m=mesaActiva(); const pend=pendientesComanda(); if(!pend.length) return;
   const c=state.cfg; aplicaPapel();
@@ -1933,9 +1950,9 @@ function printComanda(){
   $('#ticket').innerHTML = `
     <div class="c"><h1>COMANDA</h1><div style="font-size:1.5em;font-weight:700">${esc(m?m.nombre:'Rápida')}</div>${esPedido(m)&&horaCorta(m.hora)?`<div style="font-size:1.3em;font-weight:800">ENTREGA ${esc(horaCorta(m.hora))}</div>`:''}${hhmm(now)}${esPedido(m)&&m.nota?`<div>${esc(m.nota)}</div>`:''}</div>
     <hr>
-    <table>${(()=>{ const sum={}, des={};
-      pend.forEach(l=>{ const k=l.nombre; sum[k]=(sum[k]||0)+(l.qty-(l.env||0)); des[k]=descLinea(l); });
-      return Object.keys(sum).map(k=>`<tr><td style="padding:3px 0"><span style="font-size:1.35em;font-weight:700">${sum[k]} x ${esc(k)}</span>${des[k]?`<br><span style="font-size:1em">${esc(des[k])}</span>`:''}</td></tr>`).join('');
+    <table>${(()=>{ const q = cuentaCocina(pend);
+      const fila = (n, t) => `<tr><td style="padding:1.5mm 0"><span style="font-size:2.1em;font-weight:800">${n}</span><span style="font-size:1.5em;font-weight:800"> &nbsp;${t}</span></td></tr>`;
+      return fila(q.ver,'VERDURAS') + fila(q.coca,'COCAS') + fila(q.agua,'AGUAS');
     })()}</table>
     ${(()=>{ if(!esPedido(m)) return '';
       const ns = personas().filter(q=>q.nota && state.cart.some(l=>l.quien===q.id));
@@ -2183,7 +2200,7 @@ $('#btn-etiquetas').onclick=()=>printEtiquetas();
 // volver a la app) revisa si GitHub ya tiene otra version; si si, avisa. Si no hay nada a medias
 // (sin modal abierto y la venta rapida vacia) se actualiza sola. Los pedidos viven en la tablet,
 // asi que recargar no los pierde.
-const APP_VER = '7 nov 14:50';
+const APP_VER = '12 nov 23:55';
 async function revisaVersion(){
   if(location.protocol==='file:') return;
   try{
@@ -2417,6 +2434,7 @@ function cuponEtq(c, hoja){
       <div class="ecup">
         <div class="ofr">${esc(corto)}</div>
         <div class="gratis">GRATIS</div>
+        <div class="sig">en tu pr&oacute;xima compra</div>
         ${pal?`<div class="let">di la palabra</div>
         <div class="pal">${esc(pal)}</div>`:''}
         <div class="let">${vigenciaCupon(c)}</div>
@@ -2426,6 +2444,7 @@ function cuponEtq(c, hoja){
       <div class="ecup">
         <div class="ofr">${esc(corto)}</div>
         <div class="gratis">GRATIS</div>
+        <div class="sig">en tu pr&oacute;xima compra</div>
         ${pal?`<div class="pal">Di: ${esc(pal)}</div>`:''}
         <div class="let">${vigenciaCupon(c)}</div>
       </div>`;
@@ -2469,7 +2488,7 @@ function bloqueCupon(c){
   const pal  = palabraCupon(c);
   return `
     <div class="cupon">
-      <div class="et">CORTES&Iacute;A PARA TU PR&Oacute;XIMA VISITA</div>
+      <div class="et">CUP&Oacute;N PARA TU PR&Oacute;XIMA COMPRA</div>
       <div class="ofr">${esc(ofr)}</div>
       ${pal ? `<div class="let">Solo di la palabra:</div>
       <div class="pal">${esc(pal)}</div>` : `<div class="let">Presenta este ticket.</div>`}
@@ -2600,7 +2619,7 @@ function textoCuenta(sale){
   const pal = palabraCupon(c), ofr = String(c.cupon||'').trim();
   if(ofr){
     L.push('');
-    L.push('🎁 '+ofr+' en tu siguiente compra'+(pal?' — di la palabra *'+pal+'*':''));
+    L.push('🎁 '+ofr+' en tu próxima compra'+(pal?' — di la palabra *'+pal+'*':''));
     L.push(vigenciaCupon(c));
   }
   if(c.tel){ L.push(''); L.push('Pedidos al '+c.tel); }
@@ -2690,9 +2709,10 @@ function imagenCuenta(sale){
   if(ofr){
     H += 14; const y0 = H; H += 14;
     const corto = ofr.replace(/\s*(gratis|de\s+cortes[ií]a|sin\s+costo)\s*/ig,' ').replace(/\s+/g,' ').trim() || ofr;
-    linea('CORTESÍA', 16, '700', '#B5451B', 'center', 2);
+    linea('CUPÓN', 16, '700', '#B5451B', 'center', 2);
     linea(corto, 24, '700', '#1B1A16', 'center', 0);
-    linea('GRATIS', 44, '800', '#B5451B', 'center', 2);
+    linea('GRATIS', 44, '800', '#B5451B', 'center', 0);
+    linea('en tu próxima compra', 18, '700', '#1B1A16', 'center', 2);
     const pal = palabraCupon(c);
     if(pal){ linea('di la palabra', 16, '400', '#555', 'center', 0); linea(pal, 30, '800', '#2F6B3F', 'center', 2); }
     linea(vigenciaCupon(c), 16, '400', '#555', 'center', 0);
