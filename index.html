@@ -154,6 +154,7 @@ main{flex:1;min-height:0;overflow:auto}
 :is(#ticket,#tkprev,#tkras) .etq .ezona .ecup{flex:1 1 60%;margin-top:0}
 :is(#ticket,#tkprev,#tkras) .etq .eop{flex:1 1 40%;display:flex;flex-direction:column;align-items:center;
   justify-content:center;text-align:center;gap:.4mm;font-weight:700;line-height:1.15}
+:is(#ticket,#tkprev,#tkras) .etq .eqr{display:block;width:100%;max-width:26mm;aspect-ratio:1;margin:.4mm auto;image-rendering:pixelated}
 :is(#ticket,#tkprev,#tkras) .etq .gmaps{display:inline-block;background:#000;color:#fff;font-weight:800;
   border-radius:.15em;padding:.05em .35em;line-height:1.1}
 :is(#ticket,#tkprev,#tkras) .etq .erese b{display:block;font-size:1.15em;font-weight:800}
@@ -460,6 +461,9 @@ td.r,th.r{text-align:right}
 :is(#ticket,#tkras,#tkprev) .arm .arm-n{flex:0 0 auto;min-width:1.9em;text-align:right;font-weight:900}
 :is(#ticket,#tkras,#tkprev) .arm .arm-t{flex:1 1 auto;min-width:0;word-break:break-word}
 :is(#ticket,#tkras,#tkprev) .arm .arm-t small{display:block;font-size:.72em;font-weight:600}
+:is(#ticket,#tkras,#tkprev) .arm .arm-g{display:flex;align-items:baseline;gap:.5em;padding:.28em 0}
+:is(#ticket,#tkras,#tkprev) .arm .arm-gn{font-size:2.6em;font-weight:900;min-width:1.6em;text-align:right;line-height:1}
+:is(#ticket,#tkras,#tkprev) .arm .arm-gt{font-size:1.5em;font-weight:900;letter-spacing:.06em}
 :is(#ticket,#tkras,#tkprev) .arm .arm-firma{margin-top:16px;font-weight:700}
 :is(#ticket,#tkras,#tkprev) .arm .arm-firma span{display:inline-block;border-bottom:2px solid #000;width:60%;margin-left:6px}
 :is(#ticket,#tkras,#tkprev) .arm img.arm-q{height:1.3em;width:auto;vertical-align:middle;filter:grayscale(1) contrast(3)}
@@ -553,6 +557,8 @@ td.r,th.r{text-align:right}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .eop{font-size:.82em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .eop b{font-size:1.1em}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .gmaps{font-size:1.25em;margin-bottom:.2em}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .eqr{max-width:none;margin:.12em auto}
+:is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .eop span{font-size:.92em;line-height:1.05}
 :is(#tkras.etq-rollo,:root[data-papel="rollo"] #ticket.hoja) .etq .ecup{flex:1 1 58%}
 /* ---- impresion en hoja carta (Epson L3250 y similares) ---- */
 :root[data-papel="carta"] :is(#ticket,#tkprev,#tkras){font-size:13px;line-height:1.35}
@@ -751,7 +757,7 @@ td.r,th.r{text-align:right}
       <button role="tab" aria-selected="false" data-view="admin" id="tab-admin">Productos</button>
     </nav>
     <button id="btn-instalar">⬇ Instalar app</button>
-    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 12 nov 23:55</span>
+    <div class="sync" id="sync"><i></i><span>Conectando…</span></div><span class="ver" id="app-ver">v 13 nov 01:45</span>
   </header>
 
   <main>
@@ -2013,31 +2019,32 @@ function printArmado(){
   aplicaPapel();
   const lineas = state.cart.filter(l=>l.qty>0);
   const t = sumaArmado(lineas);
-  const fila = (n, txt, sub, chica) => `<div class="arm-l${chica?' chica':''}"><span class="arm-c"></span><span class="arm-n">${nEnt(n)}</span><span class="arm-t">${esc(txt)}${sub?`<small>${esc(sub)}</small>`:''}</span></div>`;
-  const orden = o => Object.values(o).sort((a,b)=>b.n-a.n);
-  const ps = esPedido(m) ? personas().filter(q=>lineas.some(l=>l.quien===q.id)) : [];
-  const general = lineas.filter(l=>!l.quien);
-  const porPersona = ps.map(q=>{
-    const ls = lineas.filter(l=>l.quien===q.id);
-    const quien = q.firma ? `<img class="arm-q" src="${q.firma}" alt="">` : esc(q.nombre||'Sin nombre');
-    return `<div class="arm-l chica"><span class="arm-c"></span><span class="arm-t"><b>${quien}</b>: ${esc(ls.map(l=>l.qty+' '+nombreCorto(l.nombre)).join(' + '))}${q.nota?`<small>Nota: ${esc(q.nota)}</small>`:''}</span></div>`;
-  }).join('') + (general.length && ps.length ? `<div class="arm-l chica"><span class="arm-c"></span><span class="arm-t"><b>General</b>: ${esc(general.map(l=>l.qty+' '+nombreCorto(l.nombre)).join(' + '))}</span></div>` : '');
-  const nBeb = Object.values(t.beb).reduce((a,b)=>a+b.n,0);
+  // A cocina solo le sirven tres numeros: una verdura por paquete, los refrescos y las aguas
+  // (las de cortesia incluidas). Lo demas ya va impreso en la etiqueta de cada paquete.
+  // Las bebidas de adentro del paquete (la coca del P3) ya vienen sumadas en t.beb.
+  const ES_COCA = /coca|refresco|sprite|fanta|pepsi|soda/i;
+  const ES_AGUA = /agua|jugo/i;
+  let cocas = 0, aguas = 0; const otras = [];
+  Object.values(t.beb).forEach(c=>{
+    if(ES_COCA.test(c.nombre)) cocas += c.n;
+    else if(ES_AGUA.test(c.nombre)) aguas += c.n;
+    else otras.push(c);   // cafe, atole: se listan aparte para que nada se pierda
+  });
+  let verduras = t.paquetes;
+  Object.values(t.cosas).forEach(c=>{ if(/verdura/i.test(c.nombre)) verduras = c.n; });
+  const fila = (n, txt) => `<div class="arm-g"><span class="arm-gn">${nEnt(n)}</span><span class="arm-gt">${esc(txt)}</span></div>`;
   $('#ticket').innerHTML = `<div class="arm">
-    <div class="arm-tit">COMANDA PARA ARMAR</div>
-    <div class="arm-ped">${esc(m ? m.nombre : 'Venta rápida')}</div>
+    <div class="arm-tit">COCINA</div>
+    <div class="arm-ped">${esc(m ? m.nombre : 'Venta r\u00e1pida')}</div>
     ${esPedido(m) && horaCorta(m.hora) ? `<div class="arm-hora">ENTREGA ${esc(horaCorta(m.hora))}</div>` : ''}
-    <div class="arm-res">${t.paquetes} paquete${t.paquetes===1?'':'s'}${ps.length?' · '+ps.length+' persona'+(ps.length===1?'':'s'):''}${nBeb?' · '+nEnt(nBeb)+' bebida'+(nBeb===1?'':'s'):''} · ${hhmm(Date.now())}</div>
-    <div class="arm-sec">LO QUE PIDIERON</div>
-    ${Object.keys(t.prod).sort((a,b)=>(/^paquete/i.test(b)-/^paquete/i.test(a)) || a.localeCompare(b)).map(k=>fila(t.prod[k], k)).join('')}
-    <div class="arm-sec">PARA ARMAR</div>
-    ${orden(t.cosas).map(c=>fila(c.n, c.nombre)).join('') || '<div class="arm-l chica">—</div>'}
-    ${nBeb ? `<div class="arm-sec">BEBIDAS — QUE NO FALTEN</div>${orden(t.beb).map(c=>fila(c.n, c.nombre)).join('')}` : ''}
-    ${porPersona ? `<div class="arm-sec">POR PERSONA (palomear al empacar)</div>${porPersona}` : ''}
-    ${m && m.nota ? `<div class="arm-sec">NOTA DEL PEDIDO</div><div class="arm-l chica"><span class="arm-t">${esc(m.nota)}</span></div>` : ''}
-    <div class="arm-firma">Revisó:<span>&nbsp;</span></div>
+    <div class="arm-res">${t.paquetes} paquete${t.paquetes===1?'':'s'} &middot; ${hhmm(Date.now())}</div>
+    ${fila(verduras,'VERDURAS')}
+    ${fila(cocas,'COCAS')}
+    ${fila(aguas,'AGUAS')}
+    ${otras.map(c=>fila(c.n, String(c.nombre).toUpperCase())).join('')}
+    ${m && m.nota ? `<div class="arm-sec">NOTA</div><div class="arm-l chica"><span class="arm-t">${esc(m.nota)}</span></div>` : ''}
   </div><br><br>`;
-  toast('Comanda para armar' + (m ? ' · ' + m.nombre : ''));
+  toast('Comanda de cocina' + (m ? ' \u00b7 ' + m.nombre : ''));
   imprimir();
 }
 $('#btn-armado').onclick = ()=>printArmado();
@@ -2186,7 +2193,7 @@ function printEtiquetas(separar, yaEscogidas){
         return `<div class="lin"><div class="it"><b>${l.qty}</b> ${esc(l.nombre)}</div>`+(d?`<div class="itd">${esc(d)}</div>`:'')+`</div>`; }).join('')}</div>
       <div class="ezona">
         ${cuponEtq(c)}
-        <div class="eop"><span class="gmaps">G</span><b>Reg&aacute;lanos tu rese&ntilde;a</b><span>en Google Maps</span></div>
+        ${resenaEtq(c)}
       </div>
       ${c.msg?`<div class="egracias">${esc(c.msg)}</div>`:''}
     </div>
@@ -2200,7 +2207,7 @@ $('#btn-etiquetas').onclick=()=>printEtiquetas();
 // volver a la app) revisa si GitHub ya tiene otra version; si si, avisa. Si no hay nada a medias
 // (sin modal abierto y la venta rapida vacia) se actualiza sola. Los pedidos viven en la tablet,
 // asi que recargar no los pierde.
-const APP_VER = '12 nov 23:55';
+const APP_VER = '13 nov 01:45';
 async function revisaVersion(){
   if(location.protocol==='file:') return;
   try{
@@ -2407,6 +2414,21 @@ function redesEtq(c){
   const r = String(c.redes||'').trim();
   if(r) return esc(r).replace(/\n/g,' &middot; ');
   return c.dir ? esc(c.dir)+(c.tel?' &middot; '+esc(c.tel):'') : '';
+}
+// La rese\u00f1a en la etiqueta: un QR que cae directo en la ventana de calificar.
+// El texto suelto no funcionaba: obligaba a abrir Maps y buscar el negocio a mano.
+// Se pregunta en vez de pedir el favor: una pregunta se contesta, un favor se ignora.
+function resenaEtq(c){
+  const url = String(c.resena_url||'').trim();
+  const qr  = url ? qrDataURL(url.replace(/^https?:\/\//,''), 3) : '';
+  if(!qr) return `
+      <div class="eop"><span class="gmaps">G</span><b>&iquest;C&oacute;mo qued&oacute;?</b><span>Calif&iacute;canos en Google Maps</span></div>`;
+  return `
+      <div class="eop">
+        <b>&iquest;C&oacute;mo qued&oacute;?</b>
+        <img class="eqr" src="${qr}" alt="">
+        <span>Escanea y calif&iacute;canos</span>
+      </div>`;
 }
 // Pie de la etiqueta: pedir la opinion en Google y las redes del negocio.
 function opinionEtq(){
